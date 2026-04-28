@@ -365,7 +365,7 @@ export default function App() {
   const aspiTitle = aspiBottiglia ? `${aspiBottiglia.nome}${aspiBottiglia.anno ? ' ' + aspiBottiglia.anno : ''}` : 'Nuova scheda ASPI'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#F4F1EC', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#F4F1EC', overflow: 'hidden' }}>
       {/* Topbar */}
       <div style={{ background: '#7B1E2E', padding: '12px 20px', paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <div>
@@ -387,7 +387,7 @@ export default function App() {
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex', paddingBottom: 'env(safe-area-inset-bottom, 0px)', marginBottom: 0 }}>
+      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex' }}>
         {NAV.map(({ id, icon, label }) => {
           const active = tab === id
           return (
