@@ -12,23 +12,21 @@
   --text3: #B0A89E;
 }
 
-html, body {
-  height: 100%;
-  overscroll-behavior: none;
-}
+html { height: 100%; }
 
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
+  height: 100%;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
 }
 
 #root {
-  /* dvh esclude la barra del browser, risolve sia browser che PWA */
-  height: 100dvh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
