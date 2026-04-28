@@ -5,65 +5,45 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-// ─── CANTINA ─────────────────────────────────────────────────────────────────
+// ─── CANTINA ──────────────────────────────────────────────────────────────────
 
 export async function getBottiglie() {
-  const { data, error } = await supabase
-    .from('cantina')
-    .select('*')
-    .order('id', { ascending: true })
+  const { data, error } = await supabase.from('cantina').select('*').order('id', { ascending: true })
   if (error) throw error
   return data
 }
 
 export async function addBottiglia(b) {
-  const { data, error } = await supabase
-    .from('cantina')
-    .insert([b])
-    .select()
-    .single()
+  const { data, error } = await supabase.from('cantina').insert([b]).select().single()
   if (error) throw error
   return data
 }
 
 export async function updateBottiglia(id, changes) {
-  const { error } = await supabase
-    .from('cantina')
-    .update(changes)
-    .eq('id', id)
+  const { error } = await supabase.from('cantina').update(changes).eq('id', id)
   if (error) throw error
 }
 
 export async function deleteBottiglia(id) {
-  const { error } = await supabase
-    .from('cantina')
-    .delete()
-    .eq('id', id)
+  const { error } = await supabase.from('cantina').delete().eq('id', id)
   if (error) throw error
 }
 
-// ─── ARCHIVIO ─────────────────────────────────────────────────────────────────
+// ─── SCHEDE ASPI ──────────────────────────────────────────────────────────────
 
 export async function getSchede() {
-  const { data, error } = await supabase
-    .from('archivio')
-    .select('*')
-    .order('id', { ascending: false })
+  const { data, error } = await supabase.from('archivio').select('*').order('voto', { ascending: false }).order('id', { ascending: false })
   if (error) throw error
   return data
 }
 
 export async function addScheda(s) {
-  const { data, error } = await supabase
-    .from('archivio')
-    .insert([s])
-    .select()
-    .single()
+  const { data, error } = await supabase.from('archivio').insert([s]).select().single()
   if (error) throw error
   return data
 }
 
-// ─── SEED dati iniziali (solo se cantina è vuota) ────────────────────────────
+// ─── SEED ─────────────────────────────────────────────────────────────────────
 
 const DATI_INIZIALI = [
   { nome: 'Barolo Bricco Rocche', cantina: 'Ceretto', tipologia: 'Rosso', paese: 'Italia', regione: 'Piemonte', vitigno: 'Nebbiolo', anno: 2016, valutazione: 5, prezzo: 4, invecchiamento: 20, temp: '16-18°C', note: 'Grande annata', quantita: 3 },
@@ -77,10 +57,6 @@ const DATI_INIZIALI = [
 ]
 
 export async function seedIfEmpty() {
-  const { count } = await supabase
-    .from('cantina')
-    .select('*', { count: 'exact', head: true })
-  if (count === 0) {
-    await supabase.from('cantina').insert(DATI_INIZIALI)
-  }
+  const { count } = await supabase.from('cantina').select('*', { count: 'exact', head: true })
+  if (count === 0) await supabase.from('cantina').insert(DATI_INIZIALI)
 }

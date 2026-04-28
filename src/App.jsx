@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import {
-  seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia,
-  deleteBottiglia, getSchede, addScheda,
-} from './supabase'
+import { seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda } from './supabase'
+import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
+import AspiDetail from './AspiDetail'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getMaturita(b) {
@@ -18,10 +17,13 @@ const money = n => '💶'.repeat(n || 0)
 const today = () => new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
 const matColor = cls => ({ green: '#2D6A4F', amber: '#C77B13', red: '#9B2335' })[cls]
 const badgeStyle = t => ({
-  Rosso:     { bg: '#FAECE7', color: '#993C1D' },
-  Bianco:    { bg: '#FAEEDA', color: '#854F0B' },
-  Bollicine: { bg: '#E6F1FB', color: '#185FA5' },
-  Rosato:    { bg: '#FBEAF0', color: '#993556' },
+  Rosso:      { bg: '#FAECE7', color: '#993C1D' },
+  Bianco:     { bg: '#FAEEDA', color: '#854F0B' },
+  Rosato:     { bg: '#FBEAF0', color: '#993556' },
+  Orange:     { bg: '#FDE8D0', color: '#9A4E0A' },
+  Bollicine:  { bg: '#E6F1FB', color: '#185FA5' },
+  Dolce:      { bg: '#FDF4DC', color: '#876200' },
+  Fortificato:{ bg: '#EDE6F5', color: '#5B2D8E' },
 }[t] || { bg: '#F1EFE8', color: '#555' })
 
 // ─── Match engine ─────────────────────────────────────────────────────────────
@@ -52,8 +54,7 @@ function scoreVino(b, rules) {
 // ─── Stili ────────────────────────────────────────────────────────────────────
 const S = {
   inp: { width: '100%', padding: '11px 14px', border: '1.5px solid #E2DDD6', borderRadius: 10, fontSize: 15, background: '#fff', color: '#1C1410', WebkitAppearance: 'none', appearance: 'none' },
-  lbl: { display: 'block', fontSize: 12, fontWeight: 500, color: '#7A6E65', marginBottom: 5, letterSpacing: '0.3px' },
-  secTit: { fontSize: 10, fontWeight: 600, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 8 },
+  lbl: { display: 'block', fontSize: 12, fontWeight: 500, color: '#7A6E65', marginBottom: 5 },
   btn: { width: '100%', padding: 14, background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer' },
   card: { background: '#fff', border: '1px solid #E2DDD6', borderRadius: 16, padding: 16 },
 }
@@ -61,11 +62,7 @@ const S = {
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function Toast({ msg }) {
   if (!msg) return null
-  return (
-    <div style={{ position: 'fixed', bottom: 'calc(64px + env(safe-area-inset-bottom, 16px) + 12px)', left: '50%', transform: 'translateX(-50%)', background: '#1C1410', color: '#F5EFE0', padding: '12px 24px', borderRadius: 100, fontSize: 14, fontWeight: 500, zIndex: 999, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}>
-      {msg}
-    </div>
-  )
+  return <div style={{ position: 'fixed', bottom: 'calc(64px + env(safe-area-inset-bottom, 16px) + 12px)', left: '50%', transform: 'translateX(-50%)', background: '#1C1410', color: '#F5EFE0', padding: '12px 24px', borderRadius: 100, fontSize: 14, fontWeight: 500, zIndex: 999, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}>{msg}</div>
 }
 
 // ─── Bottom Sheet ─────────────────────────────────────────────────────────────
@@ -74,15 +71,15 @@ function Sheet({ open, onClose, title, children }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(28,20,16,0.6)', backdropFilter: 'blur(2px)' }} />
-      <div style={{ position: 'relative', background: '#FDFBF8', borderRadius: '20px 20px 0 0', maxHeight: '92dvh', display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+      <div style={{ position: 'relative', background: '#F4F1EC', borderRadius: '20px 20px 0 0', maxHeight: '95dvh', display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
           <div style={{ width: 36, height: 4, borderRadius: 2, background: '#D6D0C8' }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 20px 14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 20px 12px' }}>
           <span style={{ fontFamily: 'Playfair Display, serif', fontSize: 17, fontWeight: 600, color: '#1C1410', flex: 1, paddingRight: 12 }}>{title}</span>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#F0ECE5', cursor: 'pointer', fontSize: 14, color: '#7A6E65', flexShrink: 0 }}>✕</button>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#E2DDD6', cursor: 'pointer', fontSize: 14, color: '#7A6E65', flexShrink: 0 }}>✕</button>
         </div>
-        <div style={{ overflowY: 'auto', padding: '0 20px 32px', flex: 1, WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ overflowY: 'auto', padding: '0 16px 32px', flex: 1, WebkitOverflowScrolling: 'touch' }}>
           {children}
         </div>
       </div>
@@ -90,7 +87,6 @@ function Sheet({ open, onClose, title, children }) {
   )
 }
 
-// ─── Loading spinner ──────────────────────────────────────────────────────────
 function Spinner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', gap: 16 }}>
@@ -98,121 +94,6 @@ function Spinner() {
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       <div style={{ fontSize: 14, color: '#7A6E65' }}>Caricamento cantina…</div>
     </div>
-  )
-}
-
-// ─── ASPI Form ────────────────────────────────────────────────────────────────
-// TUTTI i sotto-componenti definiti FUORI per evitare il bug del focus
-function AspiSelect({ label, value, onChange, options }) {
-  return (
-    <div>
-      <span style={S.lbl}>{label}</span>
-      <select style={S.inp} value={value} onChange={e => onChange(e.target.value)}>
-        {options.map(o => <option key={o}>{o}</option>)}
-      </select>
-    </div>
-  )
-}
-
-function AspiInput({ label, value, onChange, placeholder, full }) {
-  return (
-    <div style={full ? { gridColumn: '1/-1' } : {}}>
-      <span style={S.lbl}>{label}</span>
-      <input style={S.inp} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
-    </div>
-  )
-}
-
-const ASPI0 = {
-  limpidezza: 'Cristallino', colore: '', intensitaV: 'Medio', consistenza: 'Abbastanza consistente',
-  intensitaO: 'Abbastanza intenso', complessita: 'Abbastanza complesso', aromi: '',
-  acidita: 'Abbastanza acido', corpo: 'Di medio corpo', tannini: 'N/A',
-  persistenza: 'Abbastanza persistente', voto: 4, abbinamenti: '', note: '',
-}
-
-function ASPIForm({ oggi, onSave }) {
-  const [f, setF] = useState(ASPI0)
-  const s = (k) => (v) => setF(p => ({ ...p, [k]: v }))
-
-  return (
-    <>
-      <div style={{ background: '#F5EFE0', borderRadius: 10, padding: '10px 14px', marginBottom: 20, fontSize: 13, color: '#7B1E2E', fontWeight: 500 }}>
-        📅 Data compilazione: <strong>{oggi}</strong>
-      </div>
-
-      <div style={{ marginBottom: 20 }}>
-        <div style={S.secTit}>Analisi Visiva</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <AspiSelect label="Limpidezza" value={f.limpidezza} onChange={s('limpidezza')} options={['Cristallino','Limpido','Velato','Torbido']} />
-          <AspiInput label="Colore" value={f.colore} onChange={s('colore')} placeholder="es. Rubino" />
-          <AspiSelect label="Intensità" value={f.intensitaV} onChange={s('intensitaV')} options={['Pallido','Medio','Intenso','Cupo']} />
-          <AspiSelect label="Consistenza" value={f.consistenza} onChange={s('consistenza')} options={['Fluido','Poco consistente','Abbastanza consistente','Consistente']} />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 20 }}>
-        <div style={S.secTit}>Analisi Olfattiva</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <AspiSelect label="Intensità" value={f.intensitaO} onChange={s('intensitaO')} options={['Carente','Poco intenso','Abbastanza intenso','Intenso','Molto intenso']} />
-          <AspiSelect label="Complessità" value={f.complessita} onChange={s('complessita')} options={['Semplice','Poco complesso','Abbastanza complesso','Complesso']} />
-          <AspiInput label="Aromi" value={f.aromi} onChange={s('aromi')} placeholder="frutti rossi, spezie, terra bagnata..." full />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 20 }}>
-        <div style={S.secTit}>Analisi Gustativa</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <AspiSelect label="Acidità" value={f.acidita} onChange={s('acidita')} options={['Piatta','Poco acido','Abbastanza acido','Acido','Molto acido']} />
-          <AspiSelect label="Corpo" value={f.corpo} onChange={s('corpo')} options={['Esile','Leggero','Di medio corpo','Corposo','Molto corposo']} />
-          <AspiSelect label="Tannini" value={f.tannini} onChange={s('tannini')} options={['N/A','Molli','Poco tannico','Abbastanza tannico','Tannico','Molto tannico']} />
-          <AspiSelect label="Persistenza" value={f.persistenza} onChange={s('persistenza')} options={['Corto','Abbastanza persistente','Persistente','Molto persistente']} />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 28 }}>
-        <div style={S.secTit}>Conclusioni</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div>
-            <span style={S.lbl}>Voto personale</span>
-            <select style={S.inp} value={f.voto} onChange={e => setF(p => ({ ...p, voto: parseInt(e.target.value) }))}>
-              {[1,2,3,4,5].map(n => <option key={n} value={n}>{stars(n)} {n}</option>)}
-            </select>
-          </div>
-          <AspiInput label="Abbinamenti ideali" value={f.abbinamenti} onChange={s('abbinamenti')} placeholder="selvaggina, formaggi..." />
-          <AspiInput label="Note finali" value={f.note} onChange={s('note')} placeholder="Impressioni, ricordi, contesto..." full />
-        </div>
-      </div>
-
-      <button onClick={() => onSave(f)} style={S.btn}>Salva Scheda Degustazione</button>
-    </>
-  )
-}
-
-// ─── Archivio detail ──────────────────────────────────────────────────────────
-function ArchivioDetail({ a }) {
-  const Row = ({ l, v }) => !v || v === '—' ? null : (
-    <div style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: '1px solid #F0ECE5' }}>
-      <span style={{ fontSize: 12, color: '#7A6E65', minWidth: 110, flexShrink: 0 }}>{l}</span>
-      <span style={{ fontSize: 14, color: '#1C1410', lineHeight: 1.4 }}>{v}</span>
-    </div>
-  )
-  return (
-    <>
-      <div style={{ background: '#F5EFE0', borderRadius: 10, padding: '10px 14px', marginBottom: 20, fontSize: 13, color: '#7B1E2E', fontWeight: 500 }}>
-        📅 {a.data} &nbsp;·&nbsp; {stars(a.voto)}
-      </div>
-      {[
-        ['Analisi Visiva', [['Limpidezza', a.visiva?.limpidezza],['Colore', a.visiva?.colore],['Intensità', a.visiva?.intensita],['Consistenza', a.visiva?.consistenza]]],
-        ['Analisi Olfattiva', [['Intensità', a.olfattiva?.intensita],['Complessità', a.olfattiva?.complessita],['Aromi', a.olfattiva?.aromi]]],
-        ['Analisi Gustativa', [['Acidità', a.gustativa?.acidita],['Corpo', a.gustativa?.corpo],['Tannini', a.gustativa?.tannini],['Persistenza', a.gustativa?.persistenza]]],
-        ['Conclusioni', [['Abbinamenti', a.conclusioni?.abbinamenti],['Note finali', a.conclusioni?.note]]],
-      ].map(([tit, rows]) => (
-        <div key={tit} style={{ marginBottom: 20 }}>
-          <div style={S.secTit}>{tit}</div>
-          {rows.map(([l, v]) => <Row key={l} l={l} v={v} />)}
-        </div>
-      ))}
-    </>
   )
 }
 
@@ -230,14 +111,12 @@ function BottigliaCard({ b, onBevuto, onQty }) {
         <span style={{ fontSize: 16, fontWeight: 600 }}>{b.anno || '—'}</span>
         <span style={{ fontSize: 12 }}>{stars(b.valutazione)}</span>
       </div>
-      {/* Quantità */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <button onClick={() => onQty(b.id, -1)} disabled={b.quantita === 0} style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: 'none', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: b.quantita === 0 ? 0.3 : 1 }}>−</button>
         <span style={{ fontSize: 15, fontWeight: 600, minWidth: 20, textAlign: 'center' }}>{b.quantita}</span>
         <button onClick={() => onQty(b.id, 1)} style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: 'none', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
         <span style={{ fontSize: 12, color: '#B0A89E' }}>bott.</span>
       </div>
-      {/* Barra maturità */}
       <div style={{ height: 5, borderRadius: 3, background: '#F0ECE5', overflow: 'hidden', marginBottom: 10 }}>
         <div style={{ height: '100%', width: `${pct}%`, background: matColor(m.cls), borderRadius: 3 }} />
       </div>
@@ -266,7 +145,7 @@ function Libreria({ cantina, onBevuto, onQty }) {
       <div style={{ position: 'sticky', top: 0, background: '#F4F1EC', paddingBottom: 12, zIndex: 10 }}>
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔍  Cerca nome, cantina, vitigno..." style={{ ...S.inp, marginBottom: 10 }} />
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
-          {['', 'Rosso', 'Bianco', 'Bollicine', 'Rosato'].map(t => (
+          {['', ...TIPOLOGIE].map(t => (
             <button key={t} onClick={() => setTipo(t)} style={{ flexShrink: 0, padding: '6px 14px', borderRadius: 100, border: '1.5px solid', borderColor: tipo === t ? '#7B1E2E' : '#E2DDD6', background: tipo === t ? '#7B1E2E' : '#fff', color: tipo === t ? '#fff' : '#7A6E65', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
               {t || 'Tutti'}
             </button>
@@ -295,17 +174,16 @@ function Statistiche({ cantina, archivio }) {
   })
   const maps = { tipo: byTipo, regione: byReg, prezzo: byPrezzo, maturita: byMat }
   const colors = {
-    tipo: { Rosso: '#7B1E2E', Bianco: '#C8992A', Bollicine: '#185FA5', Rosato: '#993556' },
+    tipo: { Rosso: '#7B1E2E', Bianco: '#C8992A', Rosato: '#993556', Orange: '#C4621D', Bollicine: '#185FA5', Dolce: '#876200', Fortificato: '#5B2D8E' },
     regione: Object.fromEntries(Object.keys(byReg).map(k => [k, '#7B1E2E'])),
     prezzo: Object.fromEntries(Object.keys(byPrezzo).map(k => [k, '#C8992A'])),
     maturita: { 'In evoluzione': '#2D6A4F', 'Al picco': '#C77B13', 'Oltre il picco': '#9B2335', 'Da bere': '#2D6A4F' },
   }
-  const data = maps[st]
-  const maxV = Math.max(...Object.values(data), 1)
+  const data = maps[st]; const maxV = Math.max(...Object.values(data), 1)
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
-        {[['🍾','Etichette',cantina.length],['📦','Bottiglie',tot],['🎯','Al picco',byMat['Al picco']||0],['📓','Degustate',archivio.length]].map(([ico,l,v]) => (
+        {[['🍾','Etichette',cantina.length],['📦','Bottiglie',tot],['🎯','Al picco',byMat['Al picco']||0],['📓','Schede ASPI',archivio.length]].map(([ico,l,v]) => (
           <div key={l} style={{ ...S.card, textAlign: 'center', padding: '20px 12px' }}>
             <div style={{ fontSize: 24, marginBottom: 4 }}>{ico}</div>
             <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'Playfair Display, serif' }}>{v}</div>
@@ -315,9 +193,7 @@ function Statistiche({ cantina, archivio }) {
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto' }}>
         {[['tipo','Tipologia'],['regione','Regione'],['prezzo','Prezzo'],['maturita','Maturità']].map(([k,l]) => (
-          <button key={k} onClick={() => setSt(k)} style={{ flexShrink: 0, padding: '7px 16px', borderRadius: 100, border: '1.5px solid', borderColor: st === k ? '#7B1E2E' : '#E2DDD6', background: st === k ? '#7B1E2E' : '#fff', color: st === k ? '#fff' : '#7A6E65', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-            {l}
-          </button>
+          <button key={k} onClick={() => setSt(k)} style={{ flexShrink: 0, padding: '7px 16px', borderRadius: 100, border: '1.5px solid', borderColor: st === k ? '#7B1E2E' : '#E2DDD6', background: st === k ? '#7B1E2E' : '#fff', color: st === k ? '#fff' : '#7A6E65', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{l}</button>
         ))}
       </div>
       <div style={S.card}>
@@ -364,9 +240,7 @@ function Abbinamento({ cantina }) {
       </div>
       <div style={{ display: 'flex', gap: 10, marginBottom: 24 }}>
         <input value={piatto} onChange={e => setPiatto(e.target.value)} onKeyDown={e => e.key === 'Enter' && cerca()} placeholder="es. risotto al tartufo..." style={{ ...S.inp, flex: 1 }} />
-        <button onClick={cerca} disabled={loading} style={{ padding: '11px 18px', background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 18, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, flexShrink: 0 }}>
-          {loading ? '…' : '→'}
-        </button>
+        <button onClick={cerca} disabled={loading} style={{ padding: '11px 18px', background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 18, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, flexShrink: 0 }}>{loading ? '…' : '→'}</button>
       </div>
       {res && res.lista.map((b, i) => (
         <div key={b.id} style={{ ...S.card, marginBottom: 12 }}>
@@ -389,43 +263,61 @@ function Abbinamento({ cantina }) {
   )
 }
 
-// ─── TAB Archivio ─────────────────────────────────────────────────────────────
-function Archivio({ archivio, onOpen }) {
-  if (!archivio.length) return (
-    <div style={{ textAlign: 'center', padding: '60px 20px', color: '#B0A89E' }}>
-      <div style={{ fontSize: 48, marginBottom: 12 }}>🍷</div>
-      <div style={{ fontSize: 16, fontWeight: 500, marginBottom: 6 }}>Nessuna degustazione</div>
-      <div style={{ fontSize: 14 }}>Usa "L'ho bevuto" per iniziare</div>
-    </div>
-  )
+// ─── TAB Schede ASPI ─────────────────────────────────────────────────────────
+function SchedeASPI({ archivio, onOpen, onNuova }) {
+  // Raggruppa per voto (5→1, poi non valutate)
+  const gruppi = {}
+  archivio.forEach(a => {
+    const k = a.voto > 0 ? `${a.voto}` : '0'
+    if (!gruppi[k]) gruppi[k] = []
+    gruppi[k].push(a)
+  })
+  const ordine = ['5','4','3','2','1','0']
+  const label = { '5':'⭐️⭐️⭐️⭐️⭐️ Eccellenti', '4':'⭐️⭐️⭐️⭐️ Ottimi', '3':'⭐️⭐️⭐️ Buoni', '2':'⭐️⭐️ Discreti', '1':'⭐️ Ordinari', '0':'Non valutati' }
+
   return (
     <div>
-      <div style={{ fontSize: 13, color: '#B0A89E', marginBottom: 16 }}>{archivio.length} schede salvate</div>
-      {archivio.map(a => (
-        <div key={a.id} onClick={() => onOpen(a)} style={{ ...S.card, marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{a.nome}</div>
-            <div style={{ fontSize: 12, color: '#7A6E65', marginBottom: 3 }}>{a.data} · {stars(a.voto)}</div>
-            {a.conclusioni?.note && <div style={{ fontSize: 12, color: '#B0A89E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80vw' }}>{a.conclusioni.note}</div>}
-          </div>
-          <div style={{ fontSize: 20, color: '#D6D0C8', marginLeft: 8 }}>›</div>
+      {/* Pulsante nuova scheda */}
+      <button onClick={onNuova} style={{ ...S.btn, marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <span style={{ fontSize: 20 }}>+</span> Nuova scheda ASPI
+      </button>
+
+      {archivio.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: '#B0A89E' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>📓</div>
+          <div style={{ fontSize: 16, fontWeight: 500, marginBottom: 6 }}>Nessuna scheda ancora</div>
+          <div style={{ fontSize: 14 }}>Compila la prima scheda con il pulsante qui sopra</div>
         </div>
-      ))}
+      ) : (
+        ordine.filter(k => gruppi[k]?.length > 0).map(k => (
+          <div key={k} style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#7A6E65', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{label[k]}</div>
+            {gruppi[k].map(a => (
+              <div key={a.id} onClick={() => onOpen(a)} style={{ ...S.card, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 15, fontWeight: 600, marginBottom: 3 }}>{a.nomeVino || a.nome}</div>
+                  <div style={{ fontSize: 12, color: '#7A6E65', marginBottom: 2 }}>{a.cantina} {a.annata ? `· ${a.annata}` : ''} {a.tipologia ? `· ${a.tipologia}` : ''}</div>
+                  <div style={{ fontSize: 11, color: '#B0A89E' }}>{a.data}</div>
+                </div>
+                <div style={{ fontSize: 20, color: '#D6D0C8', marginLeft: 8 }}>›</div>
+              </div>
+            ))}
+          </div>
+        ))
+      )}
     </div>
   )
 }
 
 // ─── TAB Aggiungi ─────────────────────────────────────────────────────────────
-// Tutti i componenti input definiti QUI FUORI — questo risolve il bug del focus
 function FormInput({ label, value, onChange, placeholder, type, min, full }) {
   return (
     <div style={full ? { gridColumn: '1/-1' } : {}}>
       <span style={S.lbl}>{label}</span>
-      <input style={S.inp} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} type={type || 'text'} min={min} />
+      <input style={S.inp} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder || ''} type={type || 'text'} min={min} />
     </div>
   )
 }
-
 function FormSelect({ label, value, onChange, options, full }) {
   return (
     <div style={full ? { gridColumn: '1/-1' } : {}}>
@@ -436,37 +328,22 @@ function FormSelect({ label, value, onChange, options, full }) {
     </div>
   )
 }
-
 const FORM0 = { nome: '', cantina: '', tipologia: '', anno: '', quantita: '1', regione: '', vitigno: '', valutazione: '', prezzo: '', temp: '', invecchiamento: 'non_so', note: '' }
-
 function AggiungiForm({ onAdd, showToast }) {
   const [f, setF] = useState(FORM0)
   const [saving, setSaving] = useState(false)
   const set = k => v => setF(p => ({ ...p, [k]: v }))
-
   const handleAdd = async () => {
     if (!f.nome.trim()) { showToast('⚠️ Il nome è obbligatorio'); return }
     setSaving(true)
-    await onAdd({
-      nome: f.nome.trim(), cantina: f.cantina.trim(),
-      tipologia: f.tipologia || 'Rosso', paese: 'Italia',
-      regione: f.regione.trim(), vitigno: f.vitigno.trim(),
-      anno: parseInt(f.anno) || new Date().getFullYear(),
-      quantita: Math.max(1, parseInt(f.quantita) || 1),
-      valutazione: parseInt(f.valutazione) || 3,
-      prezzo: parseInt(f.prezzo) || 2,
-      temp: f.temp.trim(), note: f.note.trim(),
-      invecchiamento: f.invecchiamento === 'non_so' ? null : parseInt(f.invecchiamento),
-    })
-    setF(FORM0)
-    setSaving(false)
+    await onAdd({ nome: f.nome.trim(), cantina: f.cantina.trim(), tipologia: f.tipologia || 'Rosso', paese: 'Italia', regione: f.regione.trim(), vitigno: f.vitigno.trim(), anno: parseInt(f.anno) || new Date().getFullYear(), quantita: Math.max(1, parseInt(f.quantita) || 1), valutazione: parseInt(f.valutazione) || 3, prezzo: parseInt(f.prezzo) || 2, temp: f.temp.trim(), note: f.note.trim(), invecchiamento: f.invecchiamento === 'non_so' ? null : parseInt(f.invecchiamento) })
+    setF(FORM0); setSaving(false)
   }
-
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
       <FormInput label="Nome vino *" value={f.nome} onChange={set('nome')} placeholder="es. Barolo Cannubi 2018" full />
       <FormInput label="Cantina" value={f.cantina} onChange={set('cantina')} placeholder="Produttore" />
-      <FormSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],['Rosso','Rosso'],['Bianco','Bianco'],['Bollicine','Bollicine'],['Rosato','Rosato'],['Dolce','Dolce'],['Fortificato','Fortificato']]} />
+      <FormSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} />
       <FormInput label="Anno" value={f.anno} onChange={set('anno')} placeholder="2019" type="number" />
       <FormInput label="Quantità (bott.)" value={f.quantita} onChange={set('quantita')} type="number" min={1} />
       <FormInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Piemonte" />
@@ -474,12 +351,10 @@ function AggiungiForm({ onAdd, showToast }) {
       <FormSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} />
       <FormSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
       <FormInput label="Temp. servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" />
-      <FormSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'], ...Array.from({ length: 31 }, (_, i) => [String(i), `${i} ann${i === 1 ? 'o' : 'i'}`])]} />
+      <FormSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:31},(_,i)=>[String(i),`${i} ann${i===1?'o':'i'}`])]} />
       <FormInput label="Note" value={f.note} onChange={set('note')} placeholder="Dove l'hai comprato, ricordi..." full />
       <div style={{ gridColumn: '1/-1', marginTop: 4 }}>
-        <button onClick={handleAdd} disabled={saving} style={{ ...S.btn, opacity: saving ? 0.7 : 1 }}>
-          {saving ? 'Salvataggio...' : '+ Aggiungi alla cantina'}
-        </button>
+        <button onClick={handleAdd} disabled={saving} style={{ ...S.btn, opacity: saving ? 0.7 : 1 }}>{saving ? 'Salvataggio...' : '+ Aggiungi alla cantina'}</button>
       </div>
     </div>
   )
@@ -490,8 +365,8 @@ const NAV = [
   { id: 'libreria',    icon: '🍾', label: 'Cantina' },
   { id: 'statistiche', icon: '📊', label: 'Statistiche' },
   { id: 'abbinamento', icon: '✦',  label: 'AI Chef' },
-  { id: 'archivio',   icon: '📓', label: 'Archivio' },
-  { id: 'aggiungi',   icon: '+',   label: 'Aggiungi' },
+  { id: 'schede',      icon: '📓', label: 'Schede ASPI' },
+  { id: 'aggiungi',    icon: '+',   label: 'Aggiungi' },
 ]
 
 // ─── APP ROOT ─────────────────────────────────────────────────────────────────
@@ -501,8 +376,9 @@ export default function App() {
   const [archivio, setArchivio] = useState([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState('')
-  const [aspiB, setAspiB] = useState(null)
-  const [detailS, setDetailS] = useState(null)
+  const [aspiBottiglia, setAspiBottiglia] = useState(null)  // da "L'ho bevuto"
+  const [aspiLibera, setAspiLibera] = useState(false)       // da "Nuova scheda"
+  const [detailScheda, setDetailScheda] = useState(null)
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 2500) }
 
@@ -515,9 +391,7 @@ export default function App() {
       } catch (e) {
         showToast('⚠️ Errore connessione database')
         console.error(e)
-      } finally {
-        setLoading(false)
-      }
+      } finally { setLoading(false) }
     })()
   }, [])
 
@@ -528,29 +402,28 @@ export default function App() {
     await updateBottiglia(id, { quantita: nuova })
   }, [cantina])
 
+  // Salva scheda — gestisce sia "da bottiglia" che "libera"
   const handleSaveASPI = useCallback(async (formData) => {
-    const b = aspiB
-    const scheda = {
-      nome: b.nome + (b.anno ? ' ' + b.anno : ''), data: today(), voto: formData.voto,
-      visiva: { limpidezza: formData.limpidezza, colore: formData.colore, intensita: formData.intensitaV, consistenza: formData.consistenza },
-      olfattiva: { intensita: formData.intensitaO, complessita: formData.complessita, aromi: formData.aromi },
-      gustativa: { acidita: formData.acidita, corpo: formData.corpo, tannini: formData.tannini, persistenza: formData.persistenza },
-      conclusioni: { abbinamenti: formData.abbinamenti, note: formData.note },
+    const oggi = today()
+    // Costruisce il record da salvare
+    const record = { ...formData, data: oggi }
+    // Se viene da "L'ho bevuto" decrementa la quantità
+    if (aspiBottiglia) {
+      const b = aspiBottiglia
+      const nuovaQty = Math.max(0, b.quantita - 1)
+      if (nuovaQty === 0) { await deleteBottiglia(b.id); setCantina(prev => prev.filter(x => x.id !== b.id)) }
+      else { await updateBottiglia(b.id, { quantita: nuovaQty }); setCantina(prev => prev.map(x => x.id === b.id ? { ...x, quantita: nuovaQty } : x)) }
     }
-    const nuovaQty = Math.max(0, b.quantita - 1)
-    // Aggiorna UI subito (ottimistic)
-    if (nuovaQty === 0) setCantina(prev => prev.filter(x => x.id !== b.id))
-    else setCantina(prev => prev.map(x => x.id === b.id ? { ...x, quantita: nuovaQty } : x))
-    setAspiB(null)
-    // Salva su Supabase
-    const [saved] = await Promise.all([
-      addScheda(scheda),
-      nuovaQty === 0 ? deleteBottiglia(b.id) : updateBottiglia(b.id, { quantita: nuovaQty }),
-    ])
-    setArchivio(prev => [saved, ...prev])
-    showToast('🍷 Scheda ASPI salvata!')
-    setTab('archivio')
-  }, [aspiB])
+    const saved = await addScheda(record)
+    setArchivio(prev => {
+      const nuova = [saved, ...prev]
+      return nuova.sort((a, b) => (b.voto || 0) - (a.voto || 0))
+    })
+    setAspiBottiglia(null)
+    setAspiLibera(false)
+    showToast('📓 Scheda ASPI salvata!')
+    setTab('schede')
+  }, [aspiBottiglia])
 
   const handleAdd = useCallback(async bottiglia => {
     const saved = await addBottiglia(bottiglia)
@@ -558,6 +431,19 @@ export default function App() {
     showToast(`✓ "${bottiglia.nome}" aggiunta!`)
     setTab('libreria')
   }, [])
+
+  // Dati pre-compilati quando arriva da "L'ho bevuto"
+  const aspiInitial = aspiBottiglia ? {
+    nomeVino: aspiBottiglia.nome || '',
+    cantina: aspiBottiglia.cantina || '',
+    annata: aspiBottiglia.anno ? String(aspiBottiglia.anno) : '',
+    tipologia: aspiBottiglia.tipologia || '',
+    temperatura: aspiBottiglia.temp || '',
+    denominazione: '',
+  } : {}
+
+  const aspiSheetOpen = !!aspiBottiglia || aspiLibera
+  const aspiTitle = aspiBottiglia ? `${aspiBottiglia.nome}${aspiBottiglia.anno ? ' ' + aspiBottiglia.anno : ''}` : 'Nuova scheda ASPI'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#F4F1EC', overflow: 'hidden' }}>
@@ -572,43 +458,37 @@ export default function App() {
 
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 16, WebkitOverflowScrolling: 'touch' }}>
-        {loading ? <Spinner /> : (
-          <>
-            {tab === 'libreria'     && <Libreria cantina={cantina} onBevuto={setAspiB} onQty={handleQty} />}
-            {tab === 'statistiche'  && <Statistiche cantina={cantina} archivio={archivio} />}
-            {tab === 'abbinamento'  && <Abbinamento cantina={cantina} />}
-            {tab === 'archivio'     && <Archivio archivio={archivio} onOpen={setDetailS} />}
-            {tab === 'aggiungi'     && <AggiungiForm onAdd={handleAdd} showToast={showToast} />}
-          </>
-        )}
+        {loading ? <Spinner /> : <>
+          {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} />}
+          {tab === 'statistiche' && <Statistiche cantina={cantina} archivio={archivio} />}
+          {tab === 'abbinamento' && <Abbinamento cantina={cantina} />}
+          {tab === 'schede'      && <SchedeASPI archivio={archivio} onOpen={setDetailScheda} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} />}
+          {tab === 'aggiungi'    && <AggiungiForm onAdd={handleAdd} showToast={showToast} />}
+        </>}
       </div>
 
-      {/* Bottom Nav — padding-bottom con safe-area per coprire la barra iOS/Android */}
-      <div style={{
-        flexShrink: 0,
-        background: '#fff',
-        borderTop: '1px solid #E2DDD6',
-        display: 'flex',
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-      }}>
+      {/* Bottom Nav */}
+      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         {NAV.map(({ id, icon, label }) => {
           const active = tab === id
           return (
             <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: '10px 4px 10px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span style={{ fontSize: id === 'aggiungi' ? 22 : 20, lineHeight: 1, color: active ? '#7B1E2E' : '#B0A89E', fontWeight: id === 'aggiungi' || id === 'abbinamento' ? 700 : 400 }}>{icon}</span>
-              <span style={{ fontSize: 10, fontWeight: active ? 600 : 400, color: active ? '#7B1E2E' : '#B0A89E' }}>{label}</span>
+              <span style={{ fontSize: 9, fontWeight: active ? 600 : 400, color: active ? '#7B1E2E' : '#B0A89E', textAlign: 'center', lineHeight: 1.2 }}>{label}</span>
               {active && <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#7B1E2E' }} />}
             </button>
           )
         })}
       </div>
 
-      {/* Sheets */}
-      <Sheet open={!!aspiB} onClose={() => setAspiB(null)} title={aspiB ? `${aspiB.nome}${aspiB.anno ? ' ' + aspiB.anno : ''}` : ''}>
-        {aspiB && <ASPIForm oggi={today()} onSave={handleSaveASPI} />}
+      {/* Sheet: compila scheda ASPI */}
+      <Sheet open={aspiSheetOpen} onClose={() => { setAspiBottiglia(null); setAspiLibera(false) }} title={aspiTitle}>
+        {aspiSheetOpen && <AspiForm initial={aspiInitial} oggi={today()} onSave={handleSaveASPI} />}
       </Sheet>
-      <Sheet open={!!detailS} onClose={() => setDetailS(null)} title={detailS?.nome || ''}>
-        {detailS && <ArchivioDetail a={detailS} />}
+
+      {/* Sheet: dettaglio scheda archivio */}
+      <Sheet open={!!detailScheda} onClose={() => setDetailScheda(null)} title={detailScheda?.nomeVino || detailScheda?.nome || 'Scheda ASPI'}>
+        {detailScheda && <AspiDetail scheda={detailScheda} />}
       </Sheet>
 
       <Toast msg={toast} />
