@@ -60,3 +60,14 @@ export async function seedIfEmpty() {
   const { count } = await supabase.from('cantina').select('*', { count: 'exact', head: true })
   if (count === 0) await supabase.from('cantina').insert(DATI_INIZIALI)
 }
+
+export async function deleteScheda(id) {
+  const { error } = await supabase.from('archivio').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function updateScheda(id, changes) {
+  const { data, error } = await supabase.from('archivio').update(changes).eq('id', id).select().single()
+  if (error) throw error
+  return data
+}

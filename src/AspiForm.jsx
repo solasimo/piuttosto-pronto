@@ -188,7 +188,7 @@ function StarRating({ value, onChange }) {
 
 // ─── FORM PRINCIPALE ──────────────────────────────────────────────────────────
 
-export default function AspiForm({ initial = {}, onSave, oggi }) {
+export default function AspiForm({ initial = {}, onSave, oggi, saveLabel }) {
   const [f, setF] = useState({ ...ASPI_EMPTY, ...initial })
   const s = k => v => setF(p => ({ ...p, [k]: v }))
 
@@ -395,7 +395,7 @@ export default function AspiForm({ initial = {}, onSave, oggi }) {
       <button
         onClick={() => onSave(f)}
         style={{ width: '100%', padding: 16, background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: 'pointer', marginBottom: 8, letterSpacing: '0.3px' }}>
-        Salva Scheda ASPI
+        {saveLabel || 'Salva Scheda ASPI'}
       </button>
     </div>
   )

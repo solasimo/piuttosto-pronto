@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda } from './supabase'
+import { seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda } from './supabase'
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
+import SchedeASPI from './SchedeASPI'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getMaturita(b) {
@@ -263,51 +264,7 @@ function Abbinamento({ cantina }) {
   )
 }
 
-// ─── TAB Schede ASPI ─────────────────────────────────────────────────────────
-function SchedeASPI({ archivio, onOpen, onNuova }) {
-  // Raggruppa per voto (5→1, poi non valutate)
-  const gruppi = {}
-  archivio.forEach(a => {
-    const k = a.voto > 0 ? `${a.voto}` : '0'
-    if (!gruppi[k]) gruppi[k] = []
-    gruppi[k].push(a)
-  })
-  const ordine = ['5','4','3','2','1','0']
-  const label = { '5':'⭐️⭐️⭐️⭐️⭐️ Eccellenti', '4':'⭐️⭐️⭐️⭐️ Ottimi', '3':'⭐️⭐️⭐️ Buoni', '2':'⭐️⭐️ Discreti', '1':'⭐️ Ordinari', '0':'Non valutati' }
 
-  return (
-    <div>
-      {/* Pulsante nuova scheda */}
-      <button onClick={onNuova} style={{ ...S.btn, marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-        <span style={{ fontSize: 20 }}>+</span> Nuova scheda ASPI
-      </button>
-
-      {archivio.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 20px', color: '#B0A89E' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>📓</div>
-          <div style={{ fontSize: 16, fontWeight: 500, marginBottom: 6 }}>Nessuna scheda ancora</div>
-          <div style={{ fontSize: 14 }}>Compila la prima scheda con il pulsante qui sopra</div>
-        </div>
-      ) : (
-        ordine.filter(k => gruppi[k]?.length > 0).map(k => (
-          <div key={k} style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#7A6E65', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{label[k]}</div>
-            {gruppi[k].map(a => (
-              <div key={a.id} onClick={() => onOpen(a)} style={{ ...S.card, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 15, fontWeight: 600, marginBottom: 3 }}>{a.nomeVino || a.nome}</div>
-                  <div style={{ fontSize: 12, color: '#7A6E65', marginBottom: 2 }}>{a.cantina} {a.annata ? `· ${a.annata}` : ''} {a.tipologia ? `· ${a.tipologia}` : ''}</div>
-                  <div style={{ fontSize: 11, color: '#B0A89E' }}>{a.data}</div>
-                </div>
-                <div style={{ fontSize: 20, color: '#D6D0C8', marginLeft: 8 }}>›</div>
-              </div>
-            ))}
-          </div>
-        ))
-      )}
-    </div>
-  )
-}
 
 // ─── TAB Aggiungi ─────────────────────────────────────────────────────────────
 function FormInput({ label, value, onChange, placeholder, type, min, full }) {
@@ -376,9 +333,9 @@ export default function App() {
   const [archivio, setArchivio] = useState([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState('')
-  const [aspiBottiglia, setAspiBottiglia] = useState(null)  // da "L'ho bevuto"
-  const [aspiLibera, setAspiLibera] = useState(false)       // da "Nuova scheda"
-  const [detailScheda, setDetailScheda] = useState(null)
+  const [aspiBottiglia, setAspiBottiglia] = useState(null)
+  const [aspiLibera, setAspiLibera] = useState(false)
+  const [editScheda, setEditScheda] = useState(null)  // scheda in modifica
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 2500) }
 
@@ -432,6 +389,24 @@ export default function App() {
     setTab('libreria')
   }, [])
 
+  const handleDeleteScheda = useCallback(async (scheda) => {
+    await deleteScheda(scheda.id)
+    setArchivio(prev => prev.filter(s => s.id !== scheda.id))
+    showToast('🗑️ Scheda eliminata')
+  }, [])
+
+  const handleUpdateScheda = useCallback(async (formData) => {
+    if (!editScheda) return
+    const updated = await updateScheda(editScheda.id, { ...formData, data: editScheda.data })
+    setArchivio(prev => {
+      const nuova = prev.map(s => s.id === editScheda.id ? updated : s)
+      return nuova.sort((a, b) => (b.voto || 0) - (a.voto || 0))
+    })
+    setEditScheda(null)
+    showToast('✓ Scheda aggiornata!')
+    setTab('schede')
+  }, [editScheda])
+
   // Dati pre-compilati quando arriva da "L'ho bevuto"
   const aspiInitial = aspiBottiglia ? {
     nomeVino: aspiBottiglia.nome || '',
@@ -462,7 +437,7 @@ export default function App() {
           {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} />}
           {tab === 'statistiche' && <Statistiche cantina={cantina} archivio={archivio} />}
           {tab === 'abbinamento' && <Abbinamento cantina={cantina} />}
-          {tab === 'schede'      && <SchedeASPI archivio={archivio} onOpen={setDetailScheda} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} />}
+          {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} />}
           {tab === 'aggiungi'    && <AggiungiForm onAdd={handleAdd} showToast={showToast} />}
         </>}
       </div>
@@ -481,14 +456,14 @@ export default function App() {
         })}
       </div>
 
-      {/* Sheet: compila scheda ASPI */}
+      {/* Sheet: compila nuova scheda ASPI */}
       <Sheet open={aspiSheetOpen} onClose={() => { setAspiBottiglia(null); setAspiLibera(false) }} title={aspiTitle}>
         {aspiSheetOpen && <AspiForm initial={aspiInitial} oggi={today()} onSave={handleSaveASPI} />}
       </Sheet>
 
-      {/* Sheet: dettaglio scheda archivio */}
-      <Sheet open={!!detailScheda} onClose={() => setDetailScheda(null)} title={detailScheda?.nomeVino || detailScheda?.nome || 'Scheda ASPI'}>
-        {detailScheda && <AspiDetail scheda={detailScheda} />}
+      {/* Sheet: modifica scheda ASPI esistente */}
+      <Sheet open={!!editScheda} onClose={() => setEditScheda(null)} title={editScheda ? `Modifica — ${editScheda.nomeVino || editScheda.nome || 'Scheda ASPI'}` : ''}>
+        {editScheda && <AspiForm initial={editScheda} oggi={editScheda.data} onSave={handleUpdateScheda} saveLabel="Salva modifiche" />}
       </Sheet>
 
       <Toast msg={toast} />
