@@ -373,7 +373,7 @@ export default function App() {
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: 16, WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}>
         {loading ? <Spinner /> : <>
           {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} />}
           {tab === 'statistiche' && <Statistiche cantina={cantina} archivio={archivio} />}
