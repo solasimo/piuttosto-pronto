@@ -6,42 +6,32 @@
   --wine: #7B1E2E;
   --cream: #F5EFE0;
   --bg: #F4F1EC;
-  --bg2: #FDFBF8;
   --border: #E2DDD6;
   --text: #1C1410;
   --text2: #7A6E65;
   --text3: #B0A89E;
-  --green: #2D6A4F;
-  --amber: #C77B13;
-  --red: #9B2335;
 }
 
-html {
+html, body {
   height: 100%;
-  /* dvh gestisce correttamente sia browser che PWA installata */
-  height: 100dvh;
+  overscroll-behavior: none;
 }
 
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
-  /* Usa fill-available per compatibilità massima iOS Safari/Chrome PWA */
-  height: 100%;
-  height: -webkit-fill-available;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
-  overscroll-behavior: none;
 }
 
 #root {
-  height: 100%;
+  /* dvh esclude la barra del browser, risolve sia browser che PWA */
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  /* Evita che il contenuto vada sotto la home bar iOS */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow: hidden;
 }
 
 button, input, select, textarea {
