@@ -333,7 +333,7 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
   return (
     <>
       {/* Barra ricerca sticky */}
-      <div style={{ position: 'sticky', top: 0, background: '#F4F1EC', paddingBottom: 12, paddingTop: 4, zIndex: 10, boxShadow: '0 2px 8px rgba(244,241,236,0.98)' }}>
+      <div style={{ position: 'sticky', top: 0, background: '#F4F1EC', paddingBottom: 12, paddingTop: 8, marginTop: -8, zIndex: 10, boxShadow: '0 4px 0 #F4F1EC' }}>
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔍  Cerca nome, cantina, vitigno..." style={{ ...S.inp, marginBottom: 10 }} />
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
           {['', ...TIPOLOGIE].map(t => (
