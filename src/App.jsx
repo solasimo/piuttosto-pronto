@@ -3,7 +3,7 @@ import { seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottigl
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
-import Libreria, { getMaturita, matColor } from './Libreria'
+import Libreria, { getMaturita, matColor, DettaglioBottiglia, ModificaBottiglia } from './Libreria'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const stars = n => '⭐️'.repeat(n || 0)
@@ -264,6 +264,9 @@ export default function App() {
   const [toast, setToast] = useState('')
   const [aspiBottiglia, setAspiBottiglia] = useState(null)
   const [aspiLibera, setAspiLibera] = useState(false)
+  const [dettaglioBottiglia, setDettaglioBottiglia] = useState(null)
+  const [modalitaBottiglia, setModalitaBottiglia] = useState('detail')
+  const [savingBottiglia, setSavingBottiglia] = useState(false)
   const [editScheda, setEditScheda] = useState(null)  // scheda in modifica
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 2500) }
@@ -362,7 +365,7 @@ export default function App() {
   const aspiTitle = aspiBottiglia ? `${aspiBottiglia.nome}${aspiBottiglia.anno ? ' ' + aspiBottiglia.anno : ''}` : 'Nuova scheda ASPI'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#F4F1EC', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: '#F4F1EC', overflow: 'hidden' }}>
       {/* Topbar */}
       <div style={{ background: '#7B1E2E', padding: '12px 20px', paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <div>
@@ -373,9 +376,9 @@ export default function App() {
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: 16, WebkitOverflowScrolling: 'touch' }}>
         {loading ? <Spinner /> : <>
-          {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} />}
+          {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
           {tab === 'statistiche' && <Statistiche cantina={cantina} archivio={archivio} />}
           {tab === 'abbinamento' && <Abbinamento cantina={cantina} />}
           {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} />}
@@ -384,7 +387,7 @@ export default function App() {
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex' }}>
+      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex', paddingBottom: 'env(safe-area-inset-bottom, 0px)', marginBottom: 0 }}>
         {NAV.map(({ id, icon, label }) => {
           const active = tab === id
           return (
@@ -405,6 +408,30 @@ export default function App() {
       {/* Sheet: modifica scheda ASPI esistente */}
       <Sheet open={!!editScheda} onClose={() => setEditScheda(null)} title={editScheda ? `Modifica — ${editScheda.nomeVino || editScheda.nome || 'Scheda ASPI'}` : ''}>
         {editScheda && <AspiForm initial={editScheda} oggi={editScheda.data} onSave={handleUpdateScheda} saveLabel="Salva modifiche" />}
+      </Sheet>
+
+      {/* Sheet: dettaglio/modifica bottiglia — montato qui in App per stare sopra tutto */}
+      <Sheet open={!!dettaglioBottiglia} onClose={() => setDettaglioBottiglia(null)} title={dettaglioBottiglia?.nome || ''}>
+        {dettaglioBottiglia && <>
+          <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: '#E2DDD6', borderRadius: 10, padding: 3 }}>
+            {[['detail','Dettaglio'],['edit','Modifica']].map(([m, l]) => (
+              <button key={m} onClick={() => setModalitaBottiglia(m)} style={{ flex: 1, padding: '8px 0', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', background: modalitaBottiglia === m ? '#fff' : 'transparent', color: modalitaBottiglia === m ? '#1C1410' : '#7A6E65', transition: 'background 0.15s' }}>{l}</button>
+            ))}
+          </div>
+          {modalitaBottiglia === 'detail'
+            ? <DettaglioBottiglia b={dettaglioBottiglia} />
+            : <ModificaBottiglia
+                b={dettaglioBottiglia}
+                saving={savingBottiglia}
+                onSave={async (changes) => {
+                  setSavingBottiglia(true)
+                  await handleUpdateBottiglia(dettaglioBottiglia.id, changes)
+                  setSavingBottiglia(false)
+                  setDettaglioBottiglia(null)
+                }}
+              />
+          }
+        </>}
       </Sheet>
 
       <Toast msg={toast} />

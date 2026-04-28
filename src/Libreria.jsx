@@ -75,7 +75,7 @@ function ConfirmDialog({ open, nome, onConfirm, onCancel }) {
 }
 
 // ─── Sheet dettaglio bottiglia ────────────────────────────────────────────────
-function DettaglioBottiglia({ b }) {
+export function DettaglioBottiglia({ b }) {
   const m = getMaturita(b)
   const pct = m.pct !== null ? m.pct : null
   const bs = badgeStyle(b.tipologia)
@@ -163,7 +163,7 @@ function EditSelect({ label, value, onChange, options, full }) {
   )
 }
 
-function ModificaBottiglia({ b, onSave, saving }) {
+export function ModificaBottiglia({ b, onSave, saving }) {
   const [f, setF] = useState({
     nome: b.nome || '',
     cantina: b.cantina || '',
@@ -281,13 +281,10 @@ function BottigliaCard({ b, onBevuto, onQty, onDettaglio, onElimina }) {
 }
 
 // ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────────
-export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate }) {
+export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate, onDettaglio }) {
   const [q, setQ] = useState('')
   const [tipo, setTipo] = useState('')
-  const [dettaglio, setDettaglio] = useState(null)   // bottiglia in dettaglio/modifica
-  const [modalita, setModalita] = useState('detail') // 'detail' | 'edit'
-  const [confirmB, setConfirmB] = useState(null)     // bottiglia da eliminare
-  const [saving, setSaving] = useState(false)
+  const [confirmB, setConfirmB] = useState(null)
 
   // Filtra
   const filtered = useMemo(() =>
@@ -304,8 +301,6 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
       const m = getMaturita(b)
       g[m.label].push({ ...b, _pct: m.pct })
     })
-    // Ordina dentro ogni gruppo per percentuale decrescente
-    // (chi è più vicino a uscire dal gruppo appare prima)
     Object.keys(g).forEach(k => {
       g[k].sort((a, b) => {
         if (a._pct === null && b._pct === null) return 0
@@ -316,14 +311,6 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
     })
     return g
   }, [filtered])
-
-  const handleSaveEdit = async (changes) => {
-    if (!dettaglio) return
-    setSaving(true)
-    await onUpdate(dettaglio.id, changes)
-    setSaving(false)
-    setDettaglio(null)
-  }
 
   const handleConfirmElimina = async () => {
     await onElimina(confirmB)
@@ -366,7 +353,7 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
                   key={b.id} b={b}
                   onBevuto={onBevuto}
                   onQty={onQty}
-                  onDettaglio={b => { setDettaglio(b); setModalita('detail') }}
+                  onDettaglio={onDettaglio}
                   onElimina={setConfirmB}
                 />
               ))}
@@ -379,35 +366,6 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
         <div style={{ textAlign: 'center', padding: '48px 20px', color: '#B0A89E' }}>
           <div style={{ fontSize: 40, marginBottom: 10 }}>🍾</div>
           <div style={{ fontSize: 15, fontWeight: 500 }}>Nessuna bottiglia trovata</div>
-        </div>
-      )}
-
-      {/* Sheet dettaglio / modifica */}
-      {dettaglio && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-          <div onClick={() => setDettaglio(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(28,20,16,0.6)', backdropFilter: 'blur(2px)' }} />
-          <div style={{ position: 'relative', background: '#F4F1EC', borderRadius: '20px 20px 0 0', maxHeight: '95dvh', display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-              <div style={{ width: 36, height: 4, borderRadius: 2, background: '#D6D0C8' }} />
-            </div>
-            {/* Header sheet */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 20px 0' }}>
-              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 17, fontWeight: 600, color: '#1C1410', flex: 1, paddingRight: 12 }}>{dettaglio.nome}</div>
-              <button onClick={() => setDettaglio(null)} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#E2DDD6', cursor: 'pointer', fontSize: 14, color: '#7A6E65', flexShrink: 0 }}>✕</button>
-            </div>
-            {/* Toggle dettaglio / modifica */}
-            <div style={{ display: 'flex', gap: 0, margin: '12px 20px', background: '#E2DDD6', borderRadius: 10, padding: 3 }}>
-              {[['detail','Dettaglio'],['edit','Modifica']].map(([m, l]) => (
-                <button key={m} onClick={() => setModalita(m)} style={{ flex: 1, padding: '8px 0', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', background: modalita === m ? '#fff' : 'transparent', color: modalita === m ? '#1C1410' : '#7A6E65', transition: 'background 0.15s' }}>{l}</button>
-              ))}
-            </div>
-            <div style={{ overflowY: 'auto', padding: '0 20px 32px', flex: 1, WebkitOverflowScrolling: 'touch' }}>
-              {modalita === 'detail'
-                ? <DettaglioBottiglia b={dettaglio} />
-                : <ModificaBottiglia b={dettaglio} onSave={handleSaveEdit} saving={saving} />
-              }
-            </div>
-          </div>
         </div>
       )}
 
