@@ -20,8 +20,9 @@ export async function addBottiglia(b) {
 }
 
 export async function updateBottiglia(id, changes) {
-  const { error } = await supabase.from('cantina').update(changes).eq('id', id)
+  const { data, error } = await supabase.from('cantina').update(changes).eq('id', id).select().single()
   if (error) throw error
+  return data
 }
 
 export async function deleteBottiglia(id) {

@@ -3,20 +3,12 @@ import { seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottigl
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
+import Libreria, { getMaturita, matColor } from './Libreria'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function getMaturita(b) {
-  const eta = new Date().getFullYear() - b.anno
-  if (!b.invecchiamento) return { label: 'Da bere', cls: 'green' }
-  const r = eta / b.invecchiamento
-  if (r < 0.7) return { label: 'In evoluzione', cls: 'green' }
-  if (r <= 1.1) return { label: 'Al picco', cls: 'amber' }
-  return { label: 'Oltre il picco', cls: 'red' }
-}
 const stars = n => '⭐️'.repeat(n || 0)
 const money = n => '💶'.repeat(n || 0)
 const today = () => new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
-const matColor = cls => ({ green: '#2D6A4F', amber: '#C77B13', red: '#9B2335' })[cls]
 const badgeStyle = t => ({
   Rosso:      { bg: '#FAECE7', color: '#993C1D' },
   Bianco:     { bg: '#FAEEDA', color: '#854F0B' },
@@ -94,69 +86,6 @@ function Spinner() {
       <div style={{ width: 36, height: 36, border: '3px solid #E2DDD6', borderTopColor: '#7B1E2E', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       <div style={{ fontSize: 14, color: '#7A6E65' }}>Caricamento cantina…</div>
-    </div>
-  )
-}
-
-// ─── Bottiglia Card ───────────────────────────────────────────────────────────
-function BottigliaCard({ b, onBevuto, onQty }) {
-  const m = getMaturita(b)
-  const pct = b.invecchiamento > 0 ? Math.round(Math.min((new Date().getFullYear() - b.anno) / b.invecchiamento, 1) * 100) : 0
-  const bs = badgeStyle(b.tipologia)
-  return (
-    <div style={{ ...S.card, display: 'flex', flexDirection: 'column' }}>
-      <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', padding: '3px 9px', borderRadius: 100, marginBottom: 10, background: bs.bg, color: bs.color, alignSelf: 'flex-start' }}>{b.tipologia || '—'}</span>
-      <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 15, fontWeight: 600, lineHeight: 1.3, marginBottom: 3 }}>{b.nome}</div>
-      <div style={{ fontSize: 12, color: '#7A6E65', marginBottom: 12 }}>{b.cantina || '—'}</div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 16, fontWeight: 600 }}>{b.anno || '—'}</span>
-        <span style={{ fontSize: 12 }}>{stars(b.valutazione)}</span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <button onClick={() => onQty(b.id, -1)} disabled={b.quantita === 0} style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: 'none', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: b.quantita === 0 ? 0.3 : 1 }}>−</button>
-        <span style={{ fontSize: 15, fontWeight: 600, minWidth: 20, textAlign: 'center' }}>{b.quantita}</span>
-        <button onClick={() => onQty(b.id, 1)} style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: 'none', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-        <span style={{ fontSize: 12, color: '#B0A89E' }}>bott.</span>
-      </div>
-      <div style={{ height: 5, borderRadius: 3, background: '#F0ECE5', overflow: 'hidden', marginBottom: 10 }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: matColor(m.cls), borderRadius: 3 }} />
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: matColor(m.cls) }} />
-          <span style={{ fontSize: 12, fontWeight: 500, color: matColor(m.cls) }}>{m.label}</span>
-        </div>
-        <button onClick={() => onBevuto(b)} disabled={b.quantita === 0} style={{ fontSize: 12, fontWeight: 600, padding: '7px 14px', border: '1.5px solid #7B1E2E', borderRadius: 100, background: 'none', color: '#7B1E2E', cursor: 'pointer', opacity: b.quantita === 0 ? 0.35 : 1 }}>
-          L'ho bevuto
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ─── TAB Libreria ─────────────────────────────────────────────────────────────
-function Libreria({ cantina, onBevuto, onQty }) {
-  const [q, setQ] = useState('')
-  const [tipo, setTipo] = useState('')
-  const filtered = cantina
-    .filter(b => !q || (b.nome + b.cantina + (b.vitigno || '')).toLowerCase().includes(q.toLowerCase()))
-    .filter(b => !tipo || b.tipologia === tipo)
-  return (
-    <div>
-      <div style={{ position: 'sticky', top: 0, background: '#F4F1EC', paddingBottom: 12, paddingTop: 4, zIndex: 10, boxShadow: '0 4px 12px rgba(244, 241, 236, 0.95)'}}>
-        <input value={q} onChange={e => setQ(e.target.value)} placeholder="🔍  Cerca nome, cantina, vitigno..." style={{ ...S.inp, marginBottom: 10 }} />
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
-          {['', ...TIPOLOGIE].map(t => (
-            <button key={t} onClick={() => setTipo(t)} style={{ flexShrink: 0, padding: '6px 14px', borderRadius: 100, border: '1.5px solid', borderColor: tipo === t ? '#7B1E2E' : '#E2DDD6', background: tipo === t ? '#7B1E2E' : '#fff', color: tipo === t ? '#fff' : '#7A6E65', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-              {t || 'Tutti'}
-            </button>
-          ))}
-        </div>
-        <div style={{ fontSize: 12, color: '#B0A89E', marginTop: 8 }}>{filtered.length} bottigli{filtered.length === 1 ? 'a' : 'e'}</div>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
-        {filtered.map(b => <BottigliaCard key={b.id} b={b} onBevuto={onBevuto} onQty={onQty} />)}
-      </div>
     </div>
   )
 }
@@ -354,10 +283,22 @@ export default function App() {
 
   const handleQty = useCallback(async (id, delta) => {
     const b = cantina.find(x => x.id === id); if (!b) return
-    const nuova = Math.max(0, b.quantita + delta)
+    const nuova = Math.max(1, b.quantita + delta)  // minimo 1
     setCantina(prev => prev.map(x => x.id === id ? { ...x, quantita: nuova } : x))
     await updateBottiglia(id, { quantita: nuova })
   }, [cantina])
+
+  const handleDeleteBottiglia = useCallback(async (b) => {
+    await deleteBottiglia(b.id)
+    setCantina(prev => prev.filter(x => x.id !== b.id))
+    showToast(`🗑️ "${b.nome}" eliminata`)
+  }, [])
+
+  const handleUpdateBottiglia = useCallback(async (id, changes) => {
+    const updated = await updateBottiglia(id, changes)
+    setCantina(prev => prev.map(x => x.id === id ? updated : x))
+    showToast('✓ Bottiglia aggiornata!')
+  }, [])
 
   // Salva scheda — gestisce sia "da bottiglia" che "libera"
   const handleSaveASPI = useCallback(async (formData) => {
@@ -434,7 +375,7 @@ export default function App() {
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 16, WebkitOverflowScrolling: 'touch' }}>
         {loading ? <Spinner /> : <>
-          {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} />}
+          {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} />}
           {tab === 'statistiche' && <Statistiche cantina={cantina} archivio={archivio} />}
           {tab === 'abbinamento' && <Abbinamento cantina={cantina} />}
           {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} />}
@@ -443,7 +384,7 @@ export default function App() {
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex', paddingBottom: 0 }}>
+      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex', paddingBottom: 'env(safe-area-inset-bottom, 0px)', marginBottom: 0 }}>
         {NAV.map(({ id, icon, label }) => {
           const active = tab === id
           return (
