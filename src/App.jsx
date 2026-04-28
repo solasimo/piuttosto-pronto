@@ -443,7 +443,7 @@ export default function App() {
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex', paddingBottom: 'env(safe-area-inset-bottom, 0px)', marginBottom: 0 }}>
+      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex', paddingBottom: 0 }}>
         {NAV.map(({ id, icon, label }) => {
           const active = tab === id
           return (
