@@ -4,6 +4,7 @@ import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
 import Libreria, { getMaturita, matColor, DettaglioBottiglia, ModificaBottiglia } from './Libreria'
+import Statistiche from './Statistiche'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const stars = n => '⭐️'.repeat(n || 0)
@@ -86,59 +87,6 @@ function Spinner() {
       <div style={{ width: 36, height: 36, border: '3px solid #E2DDD6', borderTopColor: '#7B1E2E', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       <div style={{ fontSize: 14, color: '#7A6E65' }}>Caricamento cantina…</div>
-    </div>
-  )
-}
-
-// ─── TAB Statistiche ──────────────────────────────────────────────────────────
-function Statistiche({ cantina, archivio }) {
-  const [st, setSt] = useState('tipo')
-  const byTipo = {}, byReg = {}, byPrezzo = {}, byMat = {}
-  let tot = 0
-  cantina.forEach(b => {
-    byTipo[b.tipologia] = (byTipo[b.tipologia] || 0) + 1
-    if (b.regione) byReg[b.regione] = (byReg[b.regione] || 0) + 1
-    if (b.prezzo) byPrezzo['💶'.repeat(b.prezzo)] = (byPrezzo['💶'.repeat(b.prezzo)] || 0) + 1
-    const m = getMaturita(b); byMat[m.label] = (byMat[m.label] || 0) + 1
-    tot += (b.quantita || 0)
-  })
-  const maps = { tipo: byTipo, regione: byReg, prezzo: byPrezzo, maturita: byMat }
-  const colors = {
-    tipo: { Rosso: '#7B1E2E', Bianco: '#C8992A', Rosato: '#993556', Orange: '#C4621D', Bollicine: '#185FA5', Dolce: '#876200', Fortificato: '#5B2D8E' },
-    regione: Object.fromEntries(Object.keys(byReg).map(k => [k, '#7B1E2E'])),
-    prezzo: Object.fromEntries(Object.keys(byPrezzo).map(k => [k, '#C8992A'])),
-    maturita: { 'In evoluzione': '#2D6A4F', 'Al picco': '#C77B13', 'Oltre il picco': '#9B2335', 'Da bere': '#2D6A4F' },
-  }
-  const data = maps[st]; const maxV = Math.max(...Object.values(data), 1)
-  return (
-    <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
-        {[['🍾','Etichette',cantina.length],['📦','Bottiglie',tot],['🎯','Al picco',byMat['Al picco']||0],['📓','Schede ASPI',archivio.length]].map(([ico,l,v]) => (
-          <div key={l} style={{ ...S.card, textAlign: 'center', padding: '20px 12px' }}>
-            <div style={{ fontSize: 24, marginBottom: 4 }}>{ico}</div>
-            <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'Playfair Display, serif' }}>{v}</div>
-            <div style={{ fontSize: 12, color: '#7A6E65', marginTop: 2 }}>{l}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto' }}>
-        {[['tipo','Tipologia'],['regione','Regione'],['prezzo','Prezzo'],['maturita','Maturità']].map(([k,l]) => (
-          <button key={k} onClick={() => setSt(k)} style={{ flexShrink: 0, padding: '7px 16px', borderRadius: 100, border: '1.5px solid', borderColor: st === k ? '#7B1E2E' : '#E2DDD6', background: st === k ? '#7B1E2E' : '#fff', color: st === k ? '#fff' : '#7A6E65', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{l}</button>
-        ))}
-      </div>
-      <div style={S.card}>
-        {Object.entries(data).map(([k, v]) => (
-          <div key={k} style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-              <span style={{ fontSize: 13, fontWeight: 500 }}>{k}</span>
-              <span style={{ fontSize: 13, color: '#7A6E65' }}>{v}</span>
-            </div>
-            <div style={{ height: 8, borderRadius: 4, background: '#F0ECE5', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.round(v / maxV * 100)}%`, background: colors[st][k] || '#7B1E2E', borderRadius: 4, transition: 'width 0.5s ease' }} />
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
@@ -379,7 +327,7 @@ export default function App() {
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}>
         {loading ? <Spinner /> : <>
           {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
-          {tab === 'statistiche' && <Statistiche cantina={cantina} archivio={archivio} />}
+          {tab === 'statistiche' && <Statistiche cantina={cantina} />}
           {tab === 'abbinamento' && <Abbinamento cantina={cantina} />}
           {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} />}
           {tab === 'aggiungi'    && <AggiungiForm onAdd={handleAdd} showToast={showToast} />}
