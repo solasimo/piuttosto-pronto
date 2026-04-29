@@ -30,20 +30,15 @@ function buildAnalisiPayload(cantina) {
   return { byPaese, byTipo, byStato, totEtichette: cantina.length, totBottiglie: cantina.reduce((s,b) => s+(b.quantita||0),0), valTotale }
 }
 
-const SYSTEM_ANALISI = `Sei un consulente enologo esperto che analizza la cantina personale di un appassionato.
-
-Analizza i dati forniti e produci un report strutturato. Rispondi SOLO con JSON valido:
+const SYSTEM_ANALISI = `Sei un consulente enologo. Analizza la cantina e rispondi SOLO con JSON valido senza markdown:
 {
-  "punti_forza": ["<punto 1>", "<punto 2>", "<punto 3>"],
-  "lacune": [
-    { "tipo": "<geografica|tipologia|evolutiva>", "descrizione": "<lacuna specifica>", "priorita": "<alta|media>" }
-  ],
-  "acquisti_consigliati": [
-    { "vino": "<nome specifico: vitigno, regione, stile>", "motivo": "<perché colma una lacuna>", "urgenza": "<subito|prossimi mesi|quando capita>" }
-  ],
-  "equilibrio_evolutivo": "<analisi dello stato della cantina: troppi vini maturi? troppo giovani?>",
-  "consiglio_strategico": "<un consiglio concreto per i prossimi 6-12 mesi>"
-}`
+  "punti_forza": ["stringa1", "stringa2", "stringa3"],
+  "lacune": [{"tipo": "stringa", "descrizione": "stringa", "priorita": "alta|media"}],
+  "acquisti_consigliati": [{"vino": "stringa", "motivo": "stringa", "urgenza": "subito|prossimi mesi|quando capita"}],
+  "equilibrio_evolutivo": "stringa",
+  "consiglio_strategico": "stringa"
+}
+Massimo 2 elementi per array. Risposte brevi e concrete.`
 
 async function callClaude(payload) {
   const res = await fetch('/api/claude', {
@@ -51,7 +46,7 @@ async function callClaude(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1200,
+      max_tokens: 1500,
       system: SYSTEM_ANALISI,
       messages: [{ role: 'user', content: `CANTINA:\n${JSON.stringify(payload)}` }],
     }),
