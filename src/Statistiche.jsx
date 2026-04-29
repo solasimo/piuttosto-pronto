@@ -1,3 +1,66 @@
+import { useState, useMemo } from 'react'
+import { getMaturita, matColor, DettaglioBottiglia } from './Libreria'
+import { PAESI_REGIONI } from './dati'
+
+const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
+
+const TIPO_COLORS = {
+  Rosso:'#7B1E2E', Bianco:'#C8992A', Rosato:'#993556', Orange:'#C4621D',
+  Bollicine:'#185FA5', Dolce:'#876200', Fortificato:'#5B2D8E',
+}
+const TIPO_BG = {
+  Rosso:'#FAECE7', Bianco:'#FAEEDA', Rosato:'#FBEAF0', Orange:'#FDE8D0',
+  Bollicine:'#E6F1FB', Dolce:'#FDF4DC', Fortificato:'#EDE6F5',
+}
+
+const S = {
+  card: { background: '#fff', border: '1px solid #E2DDD6', borderRadius: 16, padding: 16 },
+  secTit: { fontSize: 11, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 12 },
+}
+
+// ─── Sheet bottiglia ──────────────────────────────────────────────────────────
+function BottigliaSheet({ b, onClose }) {
+  if (!b) return null
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(28,20,16,0.6)', backdropFilter: 'blur(2px)' }} />
+      <div style={{ position: 'relative', background: '#F4F1EC', borderRadius: '20px 20px 0 0', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#D6D0C8' }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 20px 12px' }}>
+          <span style={{ fontFamily: 'Playfair Display, serif', fontSize: 17, fontWeight: 600, color: '#1C1410', flex: 1, paddingRight: 12 }}>{b.nome}</span>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#E2DDD6', cursor: 'pointer', fontSize: 14, color: '#7A6E65' }}>✕</button>
+        </div>
+        <div style={{ overflowY: 'auto', padding: '0 20px 32px', flex: 1, WebkitOverflowScrolling: 'touch' }}>
+          <DettaglioBottiglia b={b} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Mini card bottiglia ──────────────────────────────────────────────────────
+function MiniCard({ b, onClick }) {
+  const m = getMaturita(b)
+  const tc = TIPO_COLORS[b.tipologia] || '#7B1E2E'
+  const tbg = TIPO_BG[b.tipologia] || '#F1EFE8'
+  return (
+    <div onClick={onClick} style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase', padding: '2px 8px', borderRadius: 100, background: tbg, color: tc }}>{b.tipologia}</span>
+        <span style={{ fontSize: 11, color: matColor(m.cls), fontWeight: 600 }}>●</span>
+      </div>
+      <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 13, fontWeight: 600, color: '#1C1410', lineHeight: 1.3, marginBottom: 2 }}>{b.nome}</div>
+      <div style={{ fontSize: 11, color: '#7A6E65', marginBottom: 4 }}>{b.cantina}</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#1C1410' }}>{b.anno}</span>
+        <span style={{ fontSize: 11, color: '#B0A89E' }}>{b.quantita} bott.</span>
+      </div>
+    </div>
+  )
+}
+
 function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
   const [open, setOpen] = useState(false)
   const totEtichette = bottigliePaese.length
