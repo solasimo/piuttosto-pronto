@@ -9,10 +9,13 @@ export function getMaturita(b) {
   if (b.invecchiamento === null || b.invecchiamento === undefined) {
     return { label: 'Da definire', cls: 'blue', pct: null }
   }
-  if (b.invecchiamento === 0) {
-    return { label: 'In evoluzione', cls: 'green', pct: 0 }
+  if (!b.anno) {
+    return { label: 'Da definire', cls: 'blue', pct: null }
   }
-  const eta = new Date().getFullYear() - (b.anno || new Date().getFullYear())
+  const eta = new Date().getFullYear() - b.anno
+  if (eta < 0) {
+    return { label: 'Da definire', cls: 'blue', pct: null }
+  }
   const r = eta / b.invecchiamento
   const pct = Math.round(r * 100)
   if (r > 1.1)  return { label: 'Oltre il picco', cls: 'red',   pct }
@@ -255,7 +258,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
       <EditInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
       <EditInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
       <EditInput label="Temp. servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" />
-      <EditSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:31},(_,i)=>[String(i),`${i} ann${i===1?'o':'i'}`])]} />
+      <EditSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ann${i+1===1?'o':'i'}`])]} />
       <EditInput label="Note" value={f.note} onChange={set('note')} placeholder="Dove l'hai comprato, ricordi..." full />
       <div style={{ gridColumn: '1/-1', marginTop: 4 }}>
         <button onClick={handleSave} disabled={saving} style={{ width: '100%', padding: 14, background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', opacity: saving ? 0.7 : 1 }}>
