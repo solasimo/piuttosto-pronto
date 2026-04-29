@@ -43,7 +43,8 @@ async function callClaude(systemPrompt, userMessage) {
   })
   const data = await res.json()
   if (data.error) throw new Error(data.error.message)
-  return data.content[0].text
+  const raw = data.content[0].text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+  return raw
 }
 
 const SYSTEM_ABBINAMENTO = `Sei un sommelier ASPI esperto. L'utente ha una cantina personale e vuole abbinare un piatto a un vino.

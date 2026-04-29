@@ -58,7 +58,8 @@ async function callClaude(payload) {
   })
   const data = await res.json()
   if (data.error) throw new Error(data.error.message)
-  return JSON.parse(data.content[0].text)
+  const raw = data.content[0].text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+  return JSON.parse(raw)
 }
 
 // ─── COMPONENTE ───────────────────────────────────────────────────────────────
