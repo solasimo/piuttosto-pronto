@@ -240,6 +240,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
   const [filtriAperti, setFiltriAperti] = useState(false)
   const [filtri, setFiltri] = useState(FILTRI_VUOTI)
   const [confermaElimina, setConfermaElimina] = useState(null)
+  const [cerca, setCerca] = useState('')
 
   const attiviFiltri = [
     ...(filtri.tipologie || []),
@@ -248,9 +249,10 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
     ...(filtri.annate || []),
   ].length
 
-  // Logica filtro AND
+  // Logica filtro AND + ricerca testuale
   const filtrate = useMemo(() => {
     return archivio.filter(a => {
+      if (cerca.trim() && !(a.nomeVino || a.nome || '').toLowerCase().includes(cerca.toLowerCase())) return false
       if (filtri.tipologie?.length && !filtri.tipologie.includes(a.tipologia)) return false
       if (filtri.annate?.length && !filtri.annate.includes(String(a.annata))) return false
       if (filtri.bouquetTipologie?.length) {
@@ -263,7 +265,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
       }
       return true
     })
-  }, [archivio, filtri])
+  }, [archivio, filtri, cerca])
 
   // Raggruppa per voto
   const gruppi = {}
@@ -280,12 +282,22 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
     onElimina(scheda)
   }
 
+  const inpStyle = { width: '100%', padding: '11px 14px', border: '1.5px solid #E2DDD6', borderRadius: 10, fontSize: 15, background: '#fff', color: '#1C1410', WebkitAppearance: 'none', appearance: 'none', boxSizing: 'border-box' }
+
   return (
     <div>
       {/* Pulsante nuova scheda */}
-      <button onClick={onNuova} style={{ width: '100%', padding: 14, background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+      <button onClick={onNuova} style={{ width: '100%', padding: 14, background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
         <span style={{ fontSize: 20 }}>+</span> Nuova scheda ASPI
       </button>
+
+      {/* Ricerca testuale */}
+      <input
+        value={cerca}
+        onChange={e => setCerca(e.target.value)}
+        placeholder="🔍  Cerca per nome vino..."
+        style={{ ...inpStyle, marginBottom: 12 }}
+      />
 
       {/* Barra filtri */}
       <div style={{ marginBottom: 16 }}>
@@ -320,8 +332,8 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
       ) : filtrate.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '32px 20px', color: '#B0A89E' }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🔍</div>
-          <div style={{ fontSize: 14 }}>Nessuna scheda corrisponde ai filtri selezionati</div>
-          <button onClick={() => setFiltri(FILTRI_VUOTI)} style={{ marginTop: 12, fontSize: 13, color: '#7B1E2E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Azzera filtri</button>
+          <div style={{ fontSize: 14 }}>Nessuna scheda corrisponde ai criteri di ricerca</div>
+          <button onClick={() => { setFiltri(FILTRI_VUOTI); setCerca('') }} style={{ marginTop: 12, fontSize: 13, color: '#7B1E2E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Azzera tutto</button>
         </div>
       ) : (
         ordine.filter(k => gruppi[k]?.length > 0).map(k => (

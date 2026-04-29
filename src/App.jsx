@@ -164,7 +164,7 @@ function FormSelect({ label, value, onChange, options, full }) {
     </div>
   )
 }
-const FORM0 = { nome: '', cantina: '', tipologia: '', anno: '', quantita: '1', paese: '', regione: '', denominazione: '', vitigno: '', valutazione: '', prezzo: '', temp: '', invecchiamento: 'non_so', note: '', foto_url: '' }
+const FORM0 = { nome: '', cantina: '', tipologia: '', anno: '', quantita: '1', paese: '', regione: '', denominazione: '', vitigno: '', valutazione: '', prezzo: '', prezzo_acquisto: '', canale_acquisto: '', temp: '', invecchiamento: 'non_so', note: '', foto_url: '' }
 
 function AggiungiForm({ onAdd, showToast }) {
   const [f, setF] = useState(FORM0)
@@ -190,6 +190,8 @@ function AggiungiForm({ onAdd, showToast }) {
       quantita: Math.max(1, parseInt(f.quantita) || 1),
       valutazione: parseInt(f.valutazione) || 3,
       prezzo: parseInt(f.prezzo) || 2,
+      prezzo_acquisto: f.prezzo_acquisto ? parseFloat(f.prezzo_acquisto) : null,
+      canale_acquisto: f.canale_acquisto.trim() || null,
       temp: f.temp.trim(),
       note: f.note.trim(),
       invecchiamento: f.invecchiamento === 'non_so' ? null : parseInt(f.invecchiamento),
@@ -229,6 +231,8 @@ function AggiungiForm({ onAdd, showToast }) {
       <FormInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" />
       <FormSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} />
       <FormSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
+      <FormInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
+      <FormInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
       <FormInput label="Temp. servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" />
       <FormSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:31},(_,i)=>[String(i),`${i} ann${i===1?'o':'i'}`])]} />
       <FormInput label="Note" value={f.note} onChange={set('note')} placeholder="Dove l'hai comprato, ricordi..." full />

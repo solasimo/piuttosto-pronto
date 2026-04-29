@@ -137,6 +137,9 @@ export function DettaglioBottiglia({ b }) {
         <Row label="Quantità" value={b.quantita ? `${b.quantita} bottigli${b.quantita === 1 ? 'a' : 'e'}` : null} />
         <Row label="Valutazione annata" value={b.valutazione ? stars(b.valutazione) : null} />
         <Row label="Fascia prezzo" value={b.prezzo ? money(b.prezzo) : null} />
+        <Row label="Prezzo acquisto" value={b.prezzo_acquisto ? `€ ${Number(b.prezzo_acquisto).toFixed(2)} / bott.` : null} />
+        <Row label="Valore in cantina" value={b.prezzo_acquisto && b.quantita ? `€ ${(Number(b.prezzo_acquisto) * b.quantita).toFixed(2)}` : null} />
+        <Row label="Canale di acquisto" value={b.canale_acquisto} />
         <Row label="Temperatura servizio" value={b.temp} />
         <Row label="Invecchiamento" value={b.invecchiamento !== null && b.invecchiamento !== undefined ? `${b.invecchiamento} anni` : 'Non specificato'} />
         <Row label="Note" value={b.note} />
@@ -177,12 +180,14 @@ export function ModificaBottiglia({ b, onSave, saving }) {
     tipologia: b.tipologia || '',
     anno: b.anno ? String(b.anno) : '',
     quantita: b.quantita ? String(b.quantita) : '1',
-    paese: '',          // reimposta sempre
-    regione: '',        // reimposta sempre
+    paese: '',
+    regione: '',
     denominazione: b.denominazione || '',
     vitigno: b.vitigno || '',
     valutazione: b.valutazione ? String(b.valutazione) : '',
     prezzo: b.prezzo ? String(b.prezzo) : '',
+    prezzo_acquisto: b.prezzo_acquisto ? String(b.prezzo_acquisto) : '',
+    canale_acquisto: b.canale_acquisto || '',
     temp: b.temp || '',
     invecchiamento: b.invecchiamento !== null && b.invecchiamento !== undefined ? String(b.invecchiamento) : 'non_so',
     note: b.note || '',
@@ -207,6 +212,8 @@ export function ModificaBottiglia({ b, onSave, saving }) {
       quantita: Math.max(1, parseInt(f.quantita) || 1),
       valutazione: parseInt(f.valutazione) || b.valutazione,
       prezzo: parseInt(f.prezzo) || b.prezzo,
+      prezzo_acquisto: f.prezzo_acquisto ? parseFloat(f.prezzo_acquisto) : null,
+      canale_acquisto: f.canale_acquisto.trim() || null,
       temp: f.temp.trim(),
       note: f.note.trim(),
       invecchiamento: f.invecchiamento === 'non_so' ? null : parseInt(f.invecchiamento),
@@ -245,6 +252,8 @@ export function ModificaBottiglia({ b, onSave, saving }) {
       <EditInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" />
       <EditSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} />
       <EditSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
+      <EditInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
+      <EditInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
       <EditInput label="Temp. servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" />
       <EditSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:31},(_,i)=>[String(i),`${i} ann${i===1?'o':'i'}`])]} />
       <EditInput label="Note" value={f.note} onChange={set('note')} placeholder="Dove l'hai comprato, ricordi..." full />
