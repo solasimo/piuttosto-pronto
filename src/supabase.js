@@ -68,7 +68,8 @@ export async function deleteScheda(id) {
 }
 
 export async function updateScheda(id, changes) {
-  const { data, error } = await supabase.from('archivio').update(changes).eq('id', id).select().single()
+  const { id: _id, ...rest } = changes
+  const { data, error } = await supabase.from('archivio').update(rest).eq('id', id).select().single()
   if (error) throw error
   return data
 }
