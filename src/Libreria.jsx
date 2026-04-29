@@ -335,6 +335,37 @@ function BottigliaCard({ b, onBevuto, onQty, onDettaglio, onElimina }) {
   )
 }
 
+// ─── Alert Da bere presto ─────────────────────────────────────────────────────
+function DaBerePresto({ cantina, onDettaglio }) {
+  const urgenti = cantina.filter(b => {
+    const m = getMaturita(b)
+    if (m.pct === null) return false
+    return m.pct >= 108 && m.pct < 110
+  })
+  if (urgenti.length === 0) return null
+  return (
+    <div style={{ background: '#FEF3E2', border: '1.5px solid #F6A623', borderRadius: 14, padding: 14, marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 18 }}>⚠️</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#854F0B' }}>Da bere presto — {urgenti.length} {urgenti.length === 1 ? 'bottiglia' : 'bottiglie'}</span>
+      </div>
+      {urgenti.map(b => (
+        <div key={b.id} onClick={() => onDettaglio(b)}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#fff', borderRadius: 10, marginBottom: 6, cursor: 'pointer', border: '1px solid #F6A62333' }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1C1410' }}>{b.nome}</div>
+            <div style={{ fontSize: 11, color: '#7A6E65' }}>{b.cantina} · {b.anno}</div>
+          </div>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#C77B13' }}>{b.quantita} bott.</div>
+            <div style={{ fontSize: 10, color: '#B0A89E' }}>{getMaturita(b).pct}% del potenziale</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────────
 export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate, onDettaglio }) {
   const [q, setQ] = useState('')
@@ -386,6 +417,8 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
         </div>
         <div style={{ fontSize: 12, color: '#B0A89E', marginTop: 8 }}>{filtered.length} bottigli{filtered.length === 1 ? 'a' : 'e'}</div>
       </div>
+
+      <DaBerePresto cantina={cantina} onDettaglio={onDettaglio} />
 
       {/* Gruppi */}
       {GRUPPI_ORDINE.map(gruppo => {
