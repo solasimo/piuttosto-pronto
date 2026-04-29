@@ -343,7 +343,7 @@ function DaBerePresto({ cantina, onDettaglio }) {
   const urgenti = cantina.filter(b => {
     const m = getMaturita(b)
     if (m.pct === null) return false
-    return m.pct >= 100 && m.pct < 110
+    return m.pct >= 108 && m.pct < 110
   })
   if (urgenti.length === 0) return null
   return (
