@@ -4,10 +4,9 @@ import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
 import Libreria, { getMaturita, matColor, DettaglioBottiglia, ModificaBottiglia } from './Libreria'
-import Statistiche, { PAESI_REGIONI } from './Statistiche'
+import Statistiche from './Statistiche'
+import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
-
-const PAESI_OPTIONS = ['', ...Object.keys(PAESI_REGIONI), 'Altro']
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const stars = n => '⭐️'.repeat(n || 0)

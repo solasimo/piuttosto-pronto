@@ -1,9 +1,7 @@
 import { useState, useMemo } from 'react'
 import { TIPOLOGIE } from './AspiForm'
-import { PAESI_REGIONI } from './Statistiche'
+import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
-
-const PAESI_OPTIONS = ['', ...Object.keys(PAESI_REGIONI), 'Altro']
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import ImageUpload from './ImageUpload'
-import { PAESI_REGIONI } from './Statistiche'
+import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 
-const PAESI_OPTIONS_ASPI = ['', ...Object.keys(PAESI_REGIONI), 'Altro']
+const PAESI_OPTIONS_ASPI = PAESI_OPTIONS
 
 // ─── Costanti ASPI ────────────────────────────────────────────────────────────
 
