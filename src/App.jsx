@@ -186,7 +186,7 @@ function AggiungiForm({ onAdd, showToast }) {
       <FormInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
       <FormInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
       <FormInput label="Temp. servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" />
-      <FormSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:31},(_,i)=>[String(i),`${i} ann${i===1?'o':'i'}`])]} />
+      <FormSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ann${i+1===1?'o':'i'}`])]} />
       <FormInput label="Note" value={f.note} onChange={set('note')} placeholder="Dove l'hai comprato, ricordi..." full />
       <div style={{ gridColumn: '1/-1', marginTop: 4 }}>
         <button onClick={handleAdd} disabled={saving} style={{ ...S.btn, opacity: saving ? 0.7 : 1 }}>{saving ? 'Salvataggio...' : '+ Aggiungi alla cantina'}</button>
