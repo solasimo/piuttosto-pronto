@@ -286,11 +286,6 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
 
   return (
     <div>
-      {/* Pulsante nuova scheda */}
-      <button onClick={onNuova} style={{ width: '100%', padding: 14, background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-        <span style={{ fontSize: 20 }}>+</span> Nuova scheda ASPI
-      </button>
-
       {/* Ricerca testuale */}
       <input
         value={cerca}

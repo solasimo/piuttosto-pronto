@@ -329,7 +329,6 @@ export default function App() {
     showToast(`✓ "${bottiglia.nome}" aggiunta!`)
     setTab('libreria')
   }, [])
-
   const handleDeleteScheda = useCallback(async (scheda) => {
     await deleteScheda(scheda.id)
     setArchivio(prev => prev.filter(s => s.id !== scheda.id))
@@ -382,14 +381,36 @@ export default function App() {
           {tab === 'statistiche' && <Statistiche cantina={cantina} />}
           {tab === 'abbinamento' && <Abbinamento cantina={cantina} />}
           {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} />}
-          {tab === 'aggiungi'    && <AggiungiForm onAdd={handleAdd} showToast={showToast} />}
+          {tab === 'aggiungi'    && (
+            <div style={{ paddingTop: 8 }}>
+              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 600, color: '#1C1410', marginBottom: 6 }}>Cosa vuoi aggiungere?</div>
+              <div style={{ fontSize: 14, color: '#7A6E65', marginBottom: 24 }}>Scegli il tipo di inserimento</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <button onClick={() => setTab('aggiungi-bottiglia')} style={{ background: '#fff', border: '1.5px solid #E2DDD6', borderRadius: 16, padding: '20px 20px', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <span style={{ fontSize: 36 }}>🍾</span>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>Nuova bottiglia in cantina</div>
+                    <div style={{ fontSize: 13, color: '#7A6E65' }}>Aggiungi un vino alla tua collezione</div>
+                  </div>
+                </button>
+                <button onClick={() => { setAspiBottiglia(null); setAspiLibera(true) }} style={{ background: '#fff', border: '1.5px solid #E2DDD6', borderRadius: 16, padding: '20px 20px', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <span style={{ fontSize: 36 }}>📓</span>
+                  <div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>Nuova scheda ASPI</div>
+                    <div style={{ fontSize: 13, color: '#7A6E65' }}>Compila una scheda di degustazione</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+          {tab === 'aggiungi-bottiglia' && <AggiungiForm onAdd={handleAdd} showToast={showToast} />}
         </>}
       </div>
 
       {/* Bottom Nav */}
       <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex' }}>
         {NAV.map(({ id, icon, label }) => {
-          const active = tab === id
+          const active = tab === id || (id === 'aggiungi' && tab === 'aggiungi-bottiglia')
           return (
             <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: '10px 4px 10px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span style={{ fontSize: id === 'aggiungi' ? 22 : 20, lineHeight: 1, color: active ? '#7B1E2E' : '#B0A89E', fontWeight: id === 'aggiungi' || id === 'abbinamento' ? 700 : 400 }}>{icon}</span>

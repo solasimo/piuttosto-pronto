@@ -124,7 +124,7 @@ function VistaTipologie({ cantina }) {
   })
   const maxE = Math.max(...Object.values(byTipo).map(v => v.etichette), 1)
   return (
-    <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 16, padding: 16 }}>
+    <div style={S.card}>
       {TIPOLOGIE.map(t => {
         const v = byTipo[t]
         if (v.etichette === 0) return (
@@ -259,7 +259,14 @@ export default function Statistiche({ cantina }) {
   const fmtVal = v => v > 0 ? '€ ' + v.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '—'
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+      {/* Valore cantina — prima in alto */}
+      <div style={{ ...S.card, textAlign: 'center', padding: '16px', marginBottom: 12, background: valoreTotale > 0 ? '#F5EFE0' : '#fff', border: valoreTotale > 0 ? '1px solid #C8992A' : '1px solid #E2DDD6' }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#7A6E65', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Valore cantina</div>
+        <div style={{ fontSize: 30, fontWeight: 700, fontFamily: 'Playfair Display, serif', color: valoreTotale > 0 ? '#854F0B' : '#B0A89E' }}>{fmtVal(valoreTotale)}</div>
+        {valoreTotale === 0 && <div style={{ fontSize: 12, color: '#B0A89E', marginTop: 4 }}>Aggiungi il prezzo di acquisto alle bottiglie</div>}
+      </div>
+      {/* 4 KPI */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
         {[['🍾','Etichette',cantina.length],['📦','Bottiglie',totBottiglie],['🌍','Paesi coperti',paesiCoperti+'/'+totPaesi],['🎨','Tipologie',tipologieCoperte+'/7']].map(([ico,l,v]) => (
           <div key={l} style={{ ...S.card, textAlign: 'center', padding: '14px 10px' }}>
             <div style={{ fontSize: 20, marginBottom: 3 }}>{ico}</div>
@@ -267,11 +274,6 @@ export default function Statistiche({ cantina }) {
             <div style={{ fontSize: 11, color: '#7A6E65', marginTop: 2 }}>{l}</div>
           </div>
         ))}
-      </div>
-      <div style={{ ...S.card, textAlign: 'center', padding: '16px', marginBottom: 20, background: valoreTotale > 0 ? '#F5EFE0' : '#fff', border: valoreTotale > 0 ? '1px solid #C8992A' : '1px solid #E2DDD6' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#7A6E65', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Valore cantina</div>
-        <div style={{ fontSize: 30, fontWeight: 700, fontFamily: 'Playfair Display, serif', color: valoreTotale > 0 ? '#854F0B' : '#B0A89E' }}>{fmtVal(valoreTotale)}</div>
-        {valoreTotale === 0 && <div style={{ fontSize: 12, color: '#B0A89E', marginTop: 4 }}>Aggiungi il prezzo di acquisto alle bottiglie</div>}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[['paesi','🌍 Per paese'],['tipologie','🎨 Per tipologia']].map(([k,l]) => (
