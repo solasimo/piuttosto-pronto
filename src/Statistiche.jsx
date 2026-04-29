@@ -61,6 +61,105 @@ function MiniCard({ b, onClick }) {
   )
 }
 
+// ─── RegioneRow ───────────────────────────────────────────────────────────────
+function RegioneRow({ regione, bottiglie, onBottigliaClick }) {
+  const [open, setOpen] = useState(false)
+  const tot = bottiglie.reduce((s, b) => s + (b.quantita || 0), 0)
+  const valore = bottiglie.reduce((s, b) => s + (b.prezzo_acquisto || 0) * (b.quantita || 0), 0)
+  const byTipo = {}
+  bottiglie.forEach(b => { byTipo[b.tipologia] = (byTipo[b.tipologia] || 0) + (b.quantita || 0) })
+  const totTipo = Object.values(byTipo).reduce((s, v) => s + v, 0)
+  return (
+    <div style={{ marginBottom: 6 }}>
+      <div onClick={() => setOpen(o => !o)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#fff', border: '1px solid #E2DDD6', borderRadius: open ? '12px 12px 0 0' : 12, cursor: 'pointer' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>{regione}</div>
+          <div style={{ height: 6, borderRadius: 3, background: '#F0ECE5', overflow: 'hidden', display: 'flex' }}>
+            {TIPOLOGIE.filter(t => byTipo[t]).map(t => (
+              <div key={t} style={{ height: '100%', width: Math.round((byTipo[t] / totTipo) * 100) + '%', background: TIPO_COLORS[t] }} />
+            ))}
+          </div>
+        </div>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#1C1410' }}>{bottiglie.length}</div>
+          <div style={{ fontSize: 10, color: '#B0A89E' }}>etich.</div>
+        </div>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#1C1410' }}>{tot}</div>
+          <div style={{ fontSize: 10, color: '#B0A89E' }}>bott.</div>
+        </div>
+        {valore > 0 && (
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#2D6A4F' }}>€{valore.toFixed(0)}</div>
+            <div style={{ fontSize: 10, color: '#B0A89E' }}>valore</div>
+          </div>
+        )}
+        <span style={{ fontSize: 14, color: '#B0A89E', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>›</span>
+      </div>
+      {open && (
+        <div style={{ background: '#F9F7F4', border: '1px solid #E2DDD6', borderTop: 'none', borderRadius: '0 0 12px 12px', padding: 12 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+            {TIPOLOGIE.filter(t => byTipo[t]).map(t => (
+              <span key={t} style={{ fontSize: 11, padding: '3px 10px', borderRadius: 100, background: TIPO_BG[t], color: TIPO_COLORS[t], fontWeight: 600 }}>{t}: {byTipo[t]}</span>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
+            {bottiglie.map(b => <MiniCard key={b.id} b={b} onClick={() => onBottigliaClick(b)} />)}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── VistaTipologie ───────────────────────────────────────────────────────────
+function VistaTipologie({ cantina }) {
+  const byTipo = {}
+  TIPOLOGIE.forEach(t => byTipo[t] = { etichette: 0, bottiglie: 0, valore: 0 })
+  cantina.forEach(b => {
+    if (!byTipo[b.tipologia]) return
+    byTipo[b.tipologia].etichette++
+    byTipo[b.tipologia].bottiglie += (b.quantita || 0)
+    byTipo[b.tipologia].valore += (b.prezzo_acquisto || 0) * (b.quantita || 0)
+  })
+  const maxE = Math.max(...Object.values(byTipo).map(v => v.etichette), 1)
+  return (
+    <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 16, padding: 16 }}>
+      {TIPOLOGIE.map(t => {
+        const v = byTipo[t]
+        if (v.etichette === 0) return (
+          <div key={t} style={{ marginBottom: 14, opacity: 0.4 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+              <span style={{ fontSize: 13, color: '#B0A89E' }}>{t}</span>
+              <span style={{ fontSize: 12, color: '#B0A89E' }}>—</span>
+            </div>
+            <div style={{ height: 8, borderRadius: 4, background: '#F0ECE5' }} />
+          </div>
+        )
+        return (
+          <div key={t} style={{ marginBottom: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: TIPO_COLORS[t] }}>{t}</span>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: '#7A6E65' }}>{v.etichette} etich.</span>
+                <span style={{ fontSize: 12, color: '#B0A89E' }}>·</span>
+                <span style={{ fontSize: 12, color: '#7A6E65' }}>{v.bottiglie} bott.</span>
+                {v.valore > 0 && <>
+                  <span style={{ fontSize: 12, color: '#B0A89E' }}>·</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#2D6A4F' }}>€{v.valore.toFixed(0)}</span>
+                </>}
+              </div>
+            </div>
+            <div style={{ height: 8, borderRadius: 4, background: '#F0ECE5', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: Math.round((v.etichette / maxE) * 100) + '%', background: TIPO_COLORS[t], borderRadius: 4, transition: 'width 0.5s' }} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
   const [open, setOpen] = useState(false)
   const totEtichette = bottigliePaese.length
