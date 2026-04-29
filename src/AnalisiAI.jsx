@@ -46,7 +46,7 @@ Analizza i dati forniti e produci un report strutturato. Rispondi SOLO con JSON 
 }`
 
 async function callClaude(payload) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('/api/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
