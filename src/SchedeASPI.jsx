@@ -195,7 +195,7 @@ function SchedaCard({ a, onOpen, onElimina }) {
 
   return (
     <div style={{ ...S.card, marginBottom: 8 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
         {/* Contenuto principale — cliccabile */}
         <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => onOpen(a)}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
@@ -217,8 +217,13 @@ function SchedaCard({ a, onOpen, onElimina }) {
           </div>
         </div>
 
-        {/* Azioni */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginLeft: 10, flexShrink: 0 }}>
+        {/* Thumbnail foto se presente */}
+        {a.foto_url && (
+          <div onClick={() => onOpen(a)} style={{ cursor: 'pointer', flexShrink: 0 }}>
+            <img src={a.foto_url} alt="" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8, border: '1px solid #E2DDD6' }} />
+          </div>
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
           <button
             onClick={() => onOpen(a)}
             style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}

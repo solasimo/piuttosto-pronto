@@ -274,54 +274,63 @@ function BottigliaCard({ b, onBevuto, onQty, onDettaglio, onElimina }) {
 
   return (
     <div style={{ ...S.card, display: 'flex', flexDirection: 'column' }}>
-      {/* Header card: badge + azioni */}
+      {/* Header card: badge + cestino */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', padding: '3px 9px', borderRadius: 100, background: bs.bg, color: bs.color }}>
           {b.tipologia || '—'}
         </span>
-        <div style={{ display: 'flex', gap: 4 }}>
-          <button onClick={() => onElimina(b)} title="Elimina" style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', background: '#FFF0F0', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🗑️</button>
-        </div>
+        <button onClick={() => onElimina(b)} title="Elimina" style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', background: '#FFF0F0', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🗑️</button>
       </div>
 
-      {/* Nome — cliccabile per aprire dettaglio */}
-      <div onClick={() => onDettaglio(b)} style={{ cursor: 'pointer' }}>
+      {/* Nome + cantina — cliccabile per dettaglio */}
+      <div onClick={() => onDettaglio(b)} style={{ cursor: 'pointer', flex: 1 }}>
         <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 15, fontWeight: 600, lineHeight: 1.3, marginBottom: 3 }}>{b.nome}</div>
         <div style={{ fontSize: 12, color: '#7A6E65', marginBottom: 10 }}>{b.cantina || '—'}</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-          <span style={{ fontSize: 16, fontWeight: 600 }}>{b.anno || '—'}</span>
-          <span style={{ fontSize: 12 }}>{stars(b.valutazione)}</span>
-        </div>
+
+        {/* Anno */}
+        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{b.anno || '—'}</div>
+
+        {/* Annata e Prezzo */}
+        {b.valutazione > 0 && (
+          <div style={{ fontSize: 12, color: '#7A6E65', marginBottom: 4 }}>
+            <span style={{ fontWeight: 500 }}>Annata: </span>{stars(b.valutazione)}
+          </div>
+        )}
+        {b.prezzo > 0 && (
+          <div style={{ fontSize: 12, color: '#7A6E65', marginBottom: 10 }}>
+            <span style={{ fontWeight: 500 }}>Prezzo: </span>{money(b.prezzo)}
+          </div>
+        )}
       </div>
 
-      {/* Quantità — minimo 1 */}
+      {/* Quantità */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <button
-          onClick={() => onQty(b.id, -1)}
-          disabled={b.quantita <= 1}
+        <button onClick={() => onQty(b.id, -1)} disabled={b.quantita <= 1}
           style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: 'none', fontSize: 18, cursor: b.quantita <= 1 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: b.quantita <= 1 ? 0.3 : 1 }}>−</button>
         <span style={{ fontSize: 15, fontWeight: 600, minWidth: 20, textAlign: 'center' }}>{b.quantita}</span>
-        <button
-          onClick={() => onQty(b.id, 1)}
+        <button onClick={() => onQty(b.id, 1)}
           style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: 'none', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
         <span style={{ fontSize: 12, color: '#B0A89E' }}>bott.</span>
       </div>
 
       {/* Barra maturità */}
-      <div style={{ height: 5, borderRadius: 3, background: '#F0ECE5', overflow: 'hidden', marginBottom: 8 }}>
+      <div style={{ height: 5, borderRadius: 3, background: '#F0ECE5', overflow: 'hidden', marginBottom: 6 }}>
         <div style={{ height: '100%', width: `${pct}%`, background: matColor(m.cls), borderRadius: 3 }} />
       </div>
 
-      {/* Footer: stato + L'ho bevuto */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: matColor(m.cls) }} />
-          <span style={{ fontSize: 11, fontWeight: 500, color: matColor(m.cls) }}>{m.label}</span>
-        </div>
-        <button onClick={() => onBevuto(b)} style={{ fontSize: 11, fontWeight: 600, padding: '6px 12px', border: '1.5px solid #7B1E2E', borderRadius: 100, background: 'none', color: '#7B1E2E', cursor: 'pointer' }}>
-          L'ho bevuto
-        </button>
+      {/* Stato + percentuale */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10 }}>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: matColor(m.cls), flexShrink: 0 }} />
+        <span style={{ fontSize: 11, fontWeight: 500, color: matColor(m.cls) }}>{m.label}</span>
+        {m.pct !== null && (
+          <span style={{ fontSize: 11, color: '#B0A89E', marginLeft: 2 }}>({m.pct}%)</span>
+        )}
       </div>
+
+      {/* Bottone Bevuto — largo tutta la card */}
+      <button onClick={() => onBevuto(b)} style={{ width: '100%', padding: '9px 0', border: 'none', borderRadius: 10, background: '#7B1E2E', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', letterSpacing: '0.3px' }}>
+        Bevuto
+      </button>
     </div>
   )
 }

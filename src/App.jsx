@@ -249,6 +249,8 @@ export default function App() {
   const handleUpdateBottiglia = useCallback(async (id, changes) => {
     const updated = await updateBottiglia(id, changes)
     setCantina(prev => prev.map(x => x.id === id ? updated : x))
+    setDettaglioBottiglia(updated)  // aggiorna il dettaglio aperto
+    setModalitaBottiglia('detail')  // torna alla vista dettaglio
     showToast('✓ Bottiglia aggiornata!')
   }, [])
 
