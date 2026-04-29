@@ -72,3 +72,32 @@ export async function updateScheda(id, changes) {
   if (error) throw error
   return data
 }
+
+// ─── ANALISI CANTINA ──────────────────────────────────────────────────────────
+
+export async function getAnalisiCantina() {
+  const { data, error } = await supabase
+    .from('analisi_cantina')
+    .select('*')
+    .order('id', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function saveAnalisiCantina(contenuto, cantina_hash) {
+  // Prima cancella quella vecchia
+  await supabase.from('analisi_cantina').delete().neq('id', 0)
+  const { data, error } = await supabase
+    .from('analisi_cantina')
+    .insert([{ contenuto, cantina_hash }])
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteAnalisiCantina() {
+  await supabase.from('analisi_cantina').delete().neq('id', 0)
+}

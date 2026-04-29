@@ -5,6 +5,7 @@ import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
 import Libreria, { getMaturita, matColor, DettaglioBottiglia, ModificaBottiglia } from './Libreria'
 import Statistiche from './Statistiche'
+import AIChef from './AIChef'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
 
@@ -93,55 +94,6 @@ function Spinner() {
   )
 }
 
-// ─── TAB Abbinamento ──────────────────────────────────────────────────────────
-function Abbinamento({ cantina }) {
-  const [piatto, setPiatto] = useState('')
-  const [res, setRes] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const cerca = () => {
-    if (!piatto.trim()) return
-    setLoading(true)
-    setTimeout(() => {
-      const pL = piatto.toLowerCase()
-      const matched = RULES.filter(r => r.words.some(w => pL.includes(w)))
-      const rules = matched.length ? matched : RULES
-      const scored = cantina.filter(b => b.quantita > 0).map(b => ({ ...b, ...scoreVino(b, rules) })).sort((a, b) => b.score - a.score).slice(0, 3)
-      setRes({ piatto, lista: scored }); setLoading(false)
-    }, 1400)
-  }
-  return (
-    <div>
-      <div style={{ background: '#7B1E2E', borderRadius: 16, padding: 20, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{ fontSize: 32 }}>✦</div>
-        <div>
-          <div style={{ fontFamily: 'Playfair Display, serif', color: '#F5EFE0', fontSize: 18, fontWeight: 600 }}>Sommelier AI</div>
-          <div style={{ color: 'rgba(245,239,224,0.7)', fontSize: 13, marginTop: 2 }}>Dimmi cosa mangi, scelgo io.</div>
-        </div>
-      </div>
-      <div style={{ display: 'flex', gap: 10, marginBottom: 24 }}>
-        <input value={piatto} onChange={e => setPiatto(e.target.value)} onKeyDown={e => e.key === 'Enter' && cerca()} placeholder="es. risotto al tartufo..." style={{ ...S.inp, flex: 1 }} />
-        <button onClick={cerca} disabled={loading} style={{ padding: '11px 18px', background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 18, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, flexShrink: 0 }}>{loading ? '…' : '→'}</button>
-      </div>
-      {res && res.lista.map((b, i) => (
-        <div key={b.id} style={{ ...S.card, marginBottom: 12 }}>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <span style={{ fontSize: 28, flexShrink: 0 }}>{['🥇','🥈','🥉'][i]}</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 16, fontWeight: 600, marginBottom: 2 }}>{b.nome}</div>
-              <div style={{ fontSize: 12, color: '#7A6E65', marginBottom: 8 }}>{b.cantina} · {b.anno} · {b.tipologia}</div>
-              <div style={{ fontSize: 13, color: '#3D3530', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 8 }}>"{b.note}"</div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {[stars(b.valutazione), money(b.prezzo), getMaturita(b).label, `${b.quantita} bott.`].map((tag, j) => (
-                  <span key={j} style={{ fontSize: 11, background: '#F5EFE0', color: '#7B1E2E', padding: '3px 8px', borderRadius: 100, fontWeight: 500 }}>{tag}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 
 
@@ -379,7 +331,7 @@ export default function App() {
         {loading ? <Spinner /> : <>
           {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
           {tab === 'statistiche' && <Statistiche cantina={cantina} />}
-          {tab === 'abbinamento' && <Abbinamento cantina={cantina} />}
+          {tab === 'abbinamento' && <AIChef cantina={cantina} />}
           {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} />}
           {tab === 'aggiungi'    && (
             <div style={{ paddingTop: 8 }}>

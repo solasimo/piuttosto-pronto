@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { getMaturita, matColor, DettaglioBottiglia } from './Libreria'
 import { PAESI_REGIONI } from './dati'
+import AnalisiAI from './AnalisiAI'
 
 const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
 
@@ -296,6 +297,7 @@ export default function Statistiche({ cantina }) {
         </div>
       )}
       {vista === 'tipologie' && <VistaTipologie cantina={cantina} />}
+      <AnalisiAI cantina={cantina} />
       <BottigliaSheet b={bottSelected} onClose={() => setBottSelected(null)} />
     </div>
   )
