@@ -4,7 +4,10 @@ import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
 import Libreria, { getMaturita, matColor, DettaglioBottiglia, ModificaBottiglia } from './Libreria'
-import Statistiche from './Statistiche'
+import Statistiche, { PAESI_REGIONI } from './Statistiche'
+import ImageUpload from './ImageUpload'
+
+const PAESI_OPTIONS = ['', ...Object.keys(PAESI_REGIONI), 'Altro']
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const stars = n => '⭐️'.repeat(n || 0)
@@ -162,25 +165,68 @@ function FormSelect({ label, value, onChange, options, full }) {
     </div>
   )
 }
-const FORM0 = { nome: '', cantina: '', tipologia: '', anno: '', quantita: '1', regione: '', vitigno: '', valutazione: '', prezzo: '', temp: '', invecchiamento: 'non_so', note: '' }
+const FORM0 = { nome: '', cantina: '', tipologia: '', anno: '', quantita: '1', paese: '', regione: '', denominazione: '', vitigno: '', valutazione: '', prezzo: '', temp: '', invecchiamento: 'non_so', note: '', foto_url: '' }
+
 function AggiungiForm({ onAdd, showToast }) {
   const [f, setF] = useState(FORM0)
   const [saving, setSaving] = useState(false)
   const set = k => v => setF(p => ({ ...p, [k]: v }))
+
+  const regioniOptions = f.paese && PAESI_REGIONI[f.paese]
+    ? [['', '— seleziona —'], ...PAESI_REGIONI[f.paese].map(r => [r, r])]
+    : null
+
   const handleAdd = async () => {
     if (!f.nome.trim()) { showToast('⚠️ Il nome è obbligatorio'); return }
     setSaving(true)
-    await onAdd({ nome: f.nome.trim(), cantina: f.cantina.trim(), tipologia: f.tipologia || 'Rosso', paese: 'Italia', regione: f.regione.trim(), vitigno: f.vitigno.trim(), anno: parseInt(f.anno) || new Date().getFullYear(), quantita: Math.max(1, parseInt(f.quantita) || 1), valutazione: parseInt(f.valutazione) || 3, prezzo: parseInt(f.prezzo) || 2, temp: f.temp.trim(), note: f.note.trim(), invecchiamento: f.invecchiamento === 'non_so' ? null : parseInt(f.invecchiamento) })
+    await onAdd({
+      nome: f.nome.trim(),
+      cantina: f.cantina.trim(),
+      tipologia: f.tipologia || 'Rosso',
+      paese: f.paese || null,
+      regione: f.paese === 'Altro' ? f.regione.trim() : (f.regione || null),
+      denominazione: f.denominazione.trim(),
+      vitigno: f.vitigno.trim(),
+      anno: parseInt(f.anno) || new Date().getFullYear(),
+      quantita: Math.max(1, parseInt(f.quantita) || 1),
+      valutazione: parseInt(f.valutazione) || 3,
+      prezzo: parseInt(f.prezzo) || 2,
+      temp: f.temp.trim(),
+      note: f.note.trim(),
+      invecchiamento: f.invecchiamento === 'non_so' ? null : parseInt(f.invecchiamento),
+      foto_url: f.foto_url || null,
+    })
     setF(FORM0); setSaving(false)
   }
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <ImageUpload value={f.foto_url} onChange={set('foto_url')} label="Foto etichetta" folder="vini" />
       <FormInput label="Nome vino *" value={f.nome} onChange={set('nome')} placeholder="es. Barolo Cannubi 2018" full />
-      <FormInput label="Cantina" value={f.cantina} onChange={set('cantina')} placeholder="Produttore" />
+      <FormInput label="Denominazione" value={f.denominazione} onChange={set('denominazione')} placeholder="es. Barolo DOCG" full />
+      <FormInput label="Cantina / Produttore" value={f.cantina} onChange={set('cantina')} placeholder="es. Ceretto" />
       <FormSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} />
       <FormInput label="Anno" value={f.anno} onChange={set('anno')} placeholder="2019" type="number" />
       <FormInput label="Quantità (bott.)" value={f.quantita} onChange={set('quantita')} type="number" min={1} />
-      <FormInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Piemonte" />
+      {/* Paese dropdown */}
+      <div style={{ gridColumn: '1/-1' }}>
+        <span style={S.lbl}>Paese</span>
+        <select style={S.inp} value={f.paese} onChange={e => setF(p => ({ ...p, paese: e.target.value, regione: '' }))}>
+          {PAESI_OPTIONS.map(p => <option key={p} value={p}>{p || '— seleziona —'}</option>)}
+        </select>
+      </div>
+      {/* Regione condizionale */}
+      {f.paese && f.paese !== 'Altro' && regioniOptions && (
+        <div style={{ gridColumn: '1/-1' }}>
+          <span style={S.lbl}>Regione</span>
+          <select style={S.inp} value={f.regione} onChange={e => set('regione')(e.target.value)}>
+            {regioniOptions.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        </div>
+      )}
+      {f.paese === 'Altro' && (
+        <FormInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Borgogna" full />
+      )}
       <FormInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" />
       <FormSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} />
       <FormSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
@@ -306,7 +352,10 @@ export default function App() {
     annata: aspiBottiglia.anno ? String(aspiBottiglia.anno) : '',
     tipologia: aspiBottiglia.tipologia || '',
     temperatura: aspiBottiglia.temp || '',
-    denominazione: '',
+    denominazione: aspiBottiglia.denominazione || '',
+    paese: aspiBottiglia.paese || '',
+    regione: aspiBottiglia.regione || '',
+    foto_url: aspiBottiglia.foto_url || '',
   } : {}
 
   const aspiSheetOpen = !!aspiBottiglia || aspiLibera

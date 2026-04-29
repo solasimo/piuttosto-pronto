@@ -1,5 +1,9 @@
 import { useState, useMemo } from 'react'
 import { TIPOLOGIE } from './AspiForm'
+import { PAESI_REGIONI } from './Statistiche'
+import ImageUpload from './ImageUpload'
+
+const PAESI_OPTIONS = ['', ...Object.keys(PAESI_REGIONI), 'Altro']
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -92,6 +96,11 @@ export function DettaglioBottiglia({ b }) {
 
   return (
     <div>
+      {/* Foto bottiglia */}
+      {b.foto_url && (
+        <img src={b.foto_url} alt={b.nome} style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 14, marginBottom: 16, border: '1px solid #E2DDD6' }} />
+      )}
+
       {/* Badge tipologia */}
       <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase', padding: '4px 12px', borderRadius: 100, marginBottom: 16, background: bs.bg, color: bs.color }}>
         {b.tipologia || '—'}
@@ -170,22 +179,31 @@ export function ModificaBottiglia({ b, onSave, saving }) {
     tipologia: b.tipologia || '',
     anno: b.anno ? String(b.anno) : '',
     quantita: b.quantita ? String(b.quantita) : '1',
-    regione: b.regione || '',
+    paese: '',          // reimposta sempre
+    regione: '',        // reimposta sempre
+    denominazione: b.denominazione || '',
     vitigno: b.vitigno || '',
     valutazione: b.valutazione ? String(b.valutazione) : '',
     prezzo: b.prezzo ? String(b.prezzo) : '',
     temp: b.temp || '',
     invecchiamento: b.invecchiamento !== null && b.invecchiamento !== undefined ? String(b.invecchiamento) : 'non_so',
     note: b.note || '',
+    foto_url: b.foto_url || '',
   })
   const set = k => v => setF(p => ({ ...p, [k]: v }))
+
+  const regioniOptions = f.paese && PAESI_REGIONI[f.paese]
+    ? [['', '— seleziona —'], ...PAESI_REGIONI[f.paese].map(r => [r, r])]
+    : null
 
   const handleSave = () => {
     onSave({
       nome: f.nome.trim(),
       cantina: f.cantina.trim(),
       tipologia: f.tipologia || 'Rosso',
-      regione: f.regione.trim(),
+      paese: f.paese || null,
+      regione: f.paese === 'Altro' ? f.regione.trim() : (f.regione || null),
+      denominazione: f.denominazione.trim(),
       vitigno: f.vitigno.trim(),
       anno: parseInt(f.anno) || b.anno,
       quantita: Math.max(1, parseInt(f.quantita) || 1),
@@ -194,17 +212,38 @@ export function ModificaBottiglia({ b, onSave, saving }) {
       temp: f.temp.trim(),
       note: f.note.trim(),
       invecchiamento: f.invecchiamento === 'non_so' ? null : parseInt(f.invecchiamento),
+      foto_url: f.foto_url || null,
     })
   }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <ImageUpload value={f.foto_url} onChange={set('foto_url')} label="Foto etichetta" folder="vini" />
       <EditInput label="Nome vino *" value={f.nome} onChange={set('nome')} placeholder="es. Barolo Cannubi" full />
-      <EditInput label="Cantina" value={f.cantina} onChange={set('cantina')} placeholder="Produttore" />
+      <EditInput label="Denominazione" value={f.denominazione} onChange={set('denominazione')} placeholder="es. Barolo DOCG" full />
+      <EditInput label="Cantina / Produttore" value={f.cantina} onChange={set('cantina')} placeholder="es. Ceretto" />
       <EditSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} />
       <EditInput label="Anno" value={f.anno} onChange={set('anno')} placeholder="2019" type="number" />
       <EditInput label="Quantità (min. 1)" value={f.quantita} onChange={v => set('quantita')(String(Math.max(1, parseInt(v)||1)))} type="number" />
-      <EditInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Piemonte" />
+      {/* Paese dropdown */}
+      <div style={{ gridColumn: '1/-1' }}>
+        <span style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#7A6E65', marginBottom: 5 }}>Paese</span>
+        <select style={S.inp} value={f.paese} onChange={e => setF(p => ({ ...p, paese: e.target.value, regione: '' }))}>
+          {PAESI_OPTIONS.map(p => <option key={p} value={p}>{p || '— seleziona —'}</option>)}
+        </select>
+      </div>
+      {/* Regione — dropdown o testo libero */}
+      {f.paese && f.paese !== 'Altro' && regioniOptions && (
+        <div style={{ gridColumn: '1/-1' }}>
+          <span style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#7A6E65', marginBottom: 5 }}>Regione</span>
+          <select style={S.inp} value={f.regione} onChange={e => set('regione')(e.target.value)}>
+            {regioniOptions.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        </div>
+      )}
+      {f.paese === 'Altro' && (
+        <EditInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Borgogna" full />
+      )}
       <EditInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" />
       <EditSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} />
       <EditSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />

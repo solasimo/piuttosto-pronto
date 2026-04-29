@@ -53,6 +53,8 @@ export default function AspiDetail({ scheda: s }) {
         <Row label="Annata" value={s.annata} />
         <Row label="Tipologia" value={s.tipologia} />
         <Row label="Temperatura" value={s.temperatura} />
+        <Row label="Paese" value={s.paese} />
+        <Row label="Regione" value={s.regione} />
       </div>
 
       {/* Visivo */}
@@ -121,6 +123,14 @@ export default function AspiDetail({ scheda: s }) {
         <div style={S.secBox}>
           <div style={S.secTit}>Note</div>
           <p style={{ fontSize: 14, color: '#1C1410', lineHeight: 1.7 }}>{s.note}</p>
+        </div>
+      )}
+
+      {/* Foto */}
+      {s.foto_url && (
+        <div style={S.secBox}>
+          <div style={S.secTit}>Foto</div>
+          <img src={s.foto_url} alt="Foto degustazione" style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: 10, border: '1px solid #E2DDD6' }} />
         </div>
       )}
     </div>

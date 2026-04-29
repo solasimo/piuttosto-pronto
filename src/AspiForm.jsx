@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import ImageUpload from './ImageUpload'
+import { PAESI_REGIONI } from './Statistiche'
+
+const PAESI_OPTIONS_ASPI = ['', ...Object.keys(PAESI_REGIONI), 'Altro']
 
 // ─── Costanti ASPI ────────────────────────────────────────────────────────────
 
@@ -88,7 +92,7 @@ export const ASPI_EMPTY = {
   armonia: '', statoEvolutivo: '', potenzialitaInv: '', riconoscimentoVitigno: '',
   abbinare: '', tempServizio: '', formaCalice: '', rapportoQP: '',
   // Extra
-  note: '', voto: 0,
+  paese: '', regione: '', note: '', voto: 0, foto_url: '',
 }
 
 // ─── Stili condivisi ──────────────────────────────────────────────────────────
@@ -238,6 +242,24 @@ export default function AspiForm({ initial = {}, onSave, oggi, saveLabel }) {
             </select>
           </Field>
           <Sel label="Temperatura di servizio" value={f.temperatura} onChange={s('temperatura')} options={TEMP_SERVIZIO} />
+          {/* Paese */}
+          <Field label="Paese" full>
+            <select style={S.inp} value={f.paese} onChange={e => setF(p => ({ ...p, paese: e.target.value, regione: '' }))}>
+              {PAESI_OPTIONS_ASPI.map(p => <option key={p} value={p}>{p || '— seleziona —'}</option>)}
+            </select>
+          </Field>
+          {/* Regione condizionale */}
+          {f.paese && f.paese !== 'Altro' && PAESI_REGIONI[f.paese] && (
+            <Field label="Regione" full>
+              <select style={S.inp} value={f.regione} onChange={e => s('regione')(e.target.value)}>
+                <option value="">— seleziona —</option>
+                {PAESI_REGIONI[f.paese].map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </Field>
+          )}
+          {f.paese === 'Altro' && (
+            <Inp label="Regione" value={f.regione} onChange={s('regione')} placeholder="es. Borgogna" full />
+          )}
         </div>
       </div>
 
@@ -380,6 +402,9 @@ export default function AspiForm({ initial = {}, onSave, oggi, saveLabel }) {
       <div style={S.secBox}>
         <div style={S.secTit}>Note</div>
         <Textarea value={f.note} onChange={s('note')} placeholder="Impressioni libere, contesto della degustazione, ricordi..." />
+        <div style={{ marginTop: 14 }}>
+          <ImageUpload value={f.foto_url} onChange={s('foto_url')} label="Foto (bottiglia o calice)" folder="schede" />
+        </div>
       </div>
 
       {/* ── VOTO ── */}
