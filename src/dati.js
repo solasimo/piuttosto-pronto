@@ -7,7 +7,7 @@ export const PAESI_REGIONI = {
   Germania: ['Ahr','Baden','Franken','Hessische Bergstraße','Mittelrhein','Mosel','Nahe','Pfalz','Rheingau','Rheinhessen','Saale-Unstrut','Sachsen','Württemberg'],
   Austria: ['Niederösterreich','Burgenland','Steiermark','Wien'],
   Svizzera: ['Vallese','Vaud','Ginevra','Ticino','Tre Laghi','Svizzera Tedesca'],
-  Spagna: ['Rioja','Ribera del Duero / Rueda / Toro','Priorat','Cava','Galizia','Jerez','Canarie'],
+  Spagna: ['Rioja','Ribera del Duero / Rueda / Toro','Priorat','Catalogna','Galizia','Jerez','Canarie','Castilla-La Mancha'],
   Portogallo: ['Vinho Verde','Douro / Porto','Dão','Bairrada','Alentejo','Setúbal','Madeira'],
 }
 
