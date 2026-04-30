@@ -48,7 +48,7 @@ const OLFATTIVO = {
     Secondario: ['Vinoso','Da malolattica','Da lieviti'],
     Terziario: ['Speziato','Tostato','Animale','Confetture','Frutta secca','Sottobosco'],
   },
-  complessita: ['Semplice','Complesso','Ampio'],
+  complessita: ['Semplice',' Media','Complesso','Ampio'],
   qualita: ['Comune','Poco fine','Piuttosto fine','Fine','Eccellente'],
 }
 
@@ -59,7 +59,7 @@ const GUSTATIVO = {
   acidi: ['Piatto','Leggermente fresco','Piuttosto fresco','Fresco','Acidulo'],
   tannini: ['Molle','Leggermente tannico','Piuttosto tannico','Tannico','Astringente'],
   saliMinerali: ['Scipito','Leggermente sapido','Piuttosto sapido','Sapido','Salato'],
-  struttura: ['Magro','Leggero','Di corpo','Robusto','Pesante'],
+  struttura: ['Magro','Leggero','Media','Di corpo','Robusto','Pesante'],
   equilibrio: ['Scarsamente equilibrato','Piuttosto equilibrato','Equilibrato'],
   intensitaGustativa: ['Sfuggente','Poco intenso','Piuttosto intenso','Intenso','Penetrante'],
   persistenza: ['Molto breve','Di media durata','Lunga','Molto lunga'],
