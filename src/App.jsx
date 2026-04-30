@@ -98,99 +98,249 @@ function Spinner() {
 
 
 // ─── TAB Aggiungi ─────────────────────────────────────────────────────────────
-function FormInput({ label, value, onChange, placeholder, type, min, full }) {
+function FormInput({ label, value, onChange, placeholder, type, min, full, aiField }) {
   return (
     <div style={full ? { gridColumn: '1/-1' } : {}}>
-      <span style={S.lbl}>{label}</span>
-      <input style={S.inp} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder || ''} type={type || 'text'} min={min} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+        <span style={S.lbl}>{label}</span>
+        {aiField && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
+      </div>
+      <input style={{ ...S.inp, borderColor: aiField ? '#185FA5' : undefined }} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder || ''} type={type || 'text'} min={min} />
     </div>
   )
 }
-function FormSelect({ label, value, onChange, options, full }) {
+function FormSelect({ label, value, onChange, options, full, aiField }) {
   return (
     <div style={full ? { gridColumn: '1/-1' } : {}}>
-      <span style={S.lbl}>{label}</span>
-      <select style={S.inp} value={value} onChange={e => onChange(e.target.value)}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+        <span style={S.lbl}>{label}</span>
+        {aiField && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
+      </div>
+      <select style={{ ...S.inp, borderColor: aiField ? '#185FA5' : undefined }} value={value} onChange={e => onChange(e.target.value)}>
         {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
       </select>
     </div>
   )
 }
-const FORM0 = { nome: '', cantina: '', tipologia: '', anno: '', quantita: '1', paese: '', regione: '', denominazione: '', vitigno: '', valutazione: '', prezzo: '', prezzo_acquisto: '', canale_acquisto: '', temp: '', invecchiamento: 'non_so', note: '', foto_url: '' }
+
+function FormTextarea({ label, value, onChange, placeholder, aiField }) {
+  return (
+    <div style={{ gridColumn: '1/-1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+        <span style={S.lbl}>{label}</span>
+        {aiField && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
+      </div>
+      <textarea
+        style={{ ...S.inp, minHeight: 70, resize: 'vertical', lineHeight: 1.5 }}
+        value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder || ''} />
+    </div>
+  )
+}
+
+function SecBox({ title, children }) {
+  return (
+    <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 14, padding: 16, marginBottom: 14 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 14, paddingBottom: 8, borderBottom: '1px solid #F0ECE5' }}>{title}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+const FORM0 = {
+  nome: '', cantina: '', tipologia: '', anno: '', paese: '', regione: '', note: '',
+  canale_acquisto: '', prezzo_acquisto: '', prezzo: '', quantita: '1',
+  denominazione: '', vitigno: '', valutazione: '', temp: '', invecchiamento: 'non_so',
+  info_cantina: '', caratteristiche_bottiglia: '', caratteristiche_annata: '',
+  foto_url: '',
+}
+
+// Campi compilati dall'AI (per mostrare badge)
+const AI_FIELDS_SET = new Set()
+
+async function callAI(payload) {
+  const res = await fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  const data = await res.json()
+  if (data.error) throw new Error(data.error.message)
+  const raw = data.content[0].text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+  return JSON.parse(raw)
+}
 
 function AggiungiForm({ onAdd, showToast }) {
   const [f, setF] = useState(FORM0)
   const [saving, setSaving] = useState(false)
-  const set = k => v => setF(p => ({ ...p, [k]: v }))
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiFields, setAiFields] = useState(new Set()) // campi compilati da AI
+  const set = k => v => {
+    setAiFields(prev => { const n = new Set(prev); n.delete(k); return n }) // rimuove badge AI se utente modifica
+    setF(p => ({ ...p, [k]: v }))
+  }
 
   const regioniOptions = f.paese && PAESI_REGIONI[f.paese]
     ? [['', '— seleziona —'], ...PAESI_REGIONI[f.paese].map(r => [r, r])]
     : null
 
+  // Unica chiamata AI che compila tutto
+  const handleAI = async () => {
+    if (!f.nome && !f.foto_url) { showToast('⚠️ Inserisci almeno nome o foto'); return }
+    setAiLoading(true)
+    try {
+      const SYSTEM = `Sei un esperto enologo. Analizza le informazioni sul vino e restituisci SOLO JSON valido senza markdown.
+Compila solo i campi di cui sei 100% certo. Lascia stringa vuota "" se non sei certo.
+Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incerto).
+{
+  "nome":"","cantina":"","tipologia":"","anno":"","paese":"","regione":"","denominazione":"","vitigno":"",
+  "valutazione":"","temp":"","invecchiamento":"",
+  "info_cantina":"","caratteristiche_bottiglia":"","caratteristiche_annata":"","note":""
+}`
+
+      const userContent = []
+      if (f.foto_url) {
+        // Scarica l'immagine e la converte in base64
+        const imgRes = await fetch(f.foto_url)
+        const blob = await imgRes.blob()
+        const base64 = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.readAsDataURL(blob) })
+        userContent.push({ type: 'image', source: { type: 'base64', media_type: blob.type || 'image/jpeg', data: base64 } })
+      }
+      const testo = [f.nome, f.cantina, f.anno, f.paese, f.regione, f.vitigno].filter(Boolean).join(', ')
+      userContent.push({ type: 'text', text: testo ? `Vino: ${testo}` : 'Analizza l\'etichetta nella foto.' })
+
+      const result = await callAI({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 800,
+        system: SYSTEM,
+        messages: [{ role: 'user', content: userContent }],
+      })
+
+      // Applica solo campi non vuoti e non già compilati dall'utente
+      const newAiFields = new Set()
+      const updates = {}
+      const campiAI = ['nome','cantina','tipologia','anno','paese','regione','denominazione','vitigno','valutazione','temp','invecchiamento','info_cantina','caratteristiche_bottiglia','caratteristiche_annata','note']
+      campiAI.forEach(k => {
+        const v = result[k]
+        if (v && String(v) !== '0' && String(v) !== '') {
+          if (!f[k] || f[k] === '' || f[k] === 'non_so') {
+            updates[k] = String(v)
+            newAiFields.add(k)
+          }
+        }
+      })
+      setF(p => ({ ...p, ...updates }))
+      setAiFields(newAiFields)
+      if (newAiFields.size === 0) showToast('ℹ️ Nessun campo compilato con certezza')
+      else showToast(`✨ ${newAiFields.size} campi compilati dall'AI`)
+    } catch (e) {
+      showToast('⚠️ Errore AI. Riprova.')
+      console.error(e)
+    } finally { setAiLoading(false) }
+  }
+
   const handleAdd = async () => {
     if (!f.nome.trim()) { showToast('⚠️ Il nome è obbligatorio'); return }
     setSaving(true)
     await onAdd({
-      nome: f.nome.trim(),
-      cantina: f.cantina.trim(),
-      tipologia: f.tipologia || 'Rosso',
+      nome: f.nome.trim(), cantina: f.cantina.trim(),
+      tipologia: f.tipologia || null,
       paese: f.paese || null,
       regione: f.paese === 'Altro' ? f.regione.trim() : (f.regione || null),
-      denominazione: f.denominazione.trim(),
-      vitigno: f.vitigno.trim(),
-      anno: parseInt(f.anno) || new Date().getFullYear(),
+      denominazione: f.denominazione.trim(), vitigno: f.vitigno.trim(),
+      anno: parseInt(f.anno) || null,
       quantita: Math.max(1, parseInt(f.quantita) || 1),
-      valutazione: parseInt(f.valutazione) || 3,
-      prezzo: parseInt(f.prezzo) || 2,
+      valutazione: parseInt(f.valutazione) || null,
+      prezzo: parseInt(f.prezzo) || null,
       prezzo_acquisto: f.prezzo_acquisto ? parseFloat(f.prezzo_acquisto) : null,
       canale_acquisto: f.canale_acquisto.trim() || null,
-      temp: f.temp.trim(),
-      note: f.note.trim(),
-      invecchiamento: f.invecchiamento === 'non_so' ? null : parseInt(f.invecchiamento),
+      temp: f.temp.trim() || null,
+      note: f.note.trim() || null,
+      invecchiamento: f.invecchiamento === 'non_so' || f.invecchiamento === '0' ? null : parseInt(f.invecchiamento),
+      info_cantina: f.info_cantina.trim() || null,
+      caratteristiche_bottiglia: f.caratteristiche_bottiglia.trim() || null,
+      caratteristiche_annata: f.caratteristiche_annata.trim() || null,
       foto_url: f.foto_url || null,
     })
-    setF(FORM0); setSaving(false)
+    setF(FORM0); setAiFields(new Set()); setSaving(false)
   }
 
+  const ai = k => aiFields.has(k)
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-      <ImageUpload value={f.foto_url} onChange={set('foto_url')} label="Foto etichetta" folder="vini" />
-      <FormInput label="Nome vino *" value={f.nome} onChange={set('nome')} placeholder="es. Barolo Cannubi 2018" full />
-      <FormInput label="Denominazione" value={f.denominazione} onChange={set('denominazione')} placeholder="es. Barolo DOCG" full />
-      <FormInput label="Cantina / Produttore" value={f.cantina} onChange={set('cantina')} placeholder="es. Ceretto" />
-      <FormSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} />
-      <FormInput label="Anno" value={f.anno} onChange={set('anno')} placeholder="2019" type="number" />
-      <FormInput label="Quantità (bott.)" value={f.quantita} onChange={set('quantita')} type="number" min={1} />
-      {/* Paese dropdown */}
-      <div style={{ gridColumn: '1/-1' }}>
-        <span style={S.lbl}>Paese</span>
-        <select style={S.inp} value={f.paese} onChange={e => setF(p => ({ ...p, paese: e.target.value, regione: '' }))}>
-          {PAESI_OPTIONS.map(p => <option key={p} value={p}>{p || '— seleziona —'}</option>)}
-        </select>
-      </div>
-      {/* Regione condizionale */}
-      {f.paese && f.paese !== 'Altro' && regioniOptions && (
+    <div>
+      {/* SEZIONE 0 — Foto */}
+      <SecBox title="Foto etichetta">
         <div style={{ gridColumn: '1/-1' }}>
-          <span style={S.lbl}>Regione</span>
-          <select style={S.inp} value={f.regione} onChange={e => set('regione')(e.target.value)}>
-            {regioniOptions.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          <ImageUpload value={f.foto_url} onChange={set('foto_url')} label="" folder="vini" />
+        </div>
+        <div style={{ gridColumn: '1/-1' }}>
+          <button onClick={handleAI} disabled={aiLoading}
+            style={{ width: '100%', padding: 12, background: aiLoading ? '#F4F1EC' : '#1C1410', color: aiLoading ? '#7A6E65' : '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: aiLoading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            {aiLoading ? <>⏳ AI sta analizzando…</> : <>✨ Compila con AI</>}
+          </button>
+          <div style={{ fontSize: 11, color: '#B0A89E', textAlign: 'center', marginTop: 6 }}>
+            Usa foto + dati già inseriti · Compila solo i campi certi · I campi AI sono evidenziati in blu
+          </div>
+        </div>
+      </SecBox>
+
+      {/* SEZIONE 1 — Dati del vino */}
+      <SecBox title="Dati del vino">
+        <FormInput label="Nome vino *" value={f.nome} onChange={set('nome')} placeholder="es. Barolo Cannubi" full aiField={ai('nome')} />
+        <FormInput label="Cantina / Produttore" value={f.cantina} onChange={set('cantina')} placeholder="es. Ceretto" aiField={ai('cantina')} />
+        <FormSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} aiField={ai('tipologia')} />
+        <FormInput label="Anno vendemmia" value={f.anno} onChange={set('anno')} placeholder="2019" type="number" aiField={ai('anno')} />
+        <div style={{ gridColumn: '1/-1' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+            <span style={S.lbl}>Paese</span>
+            {ai('paese') && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
+          </div>
+          <select style={{ ...S.inp, borderColor: ai('paese') ? '#185FA5' : undefined }} value={f.paese} onChange={e => setF(p => ({ ...p, paese: e.target.value, regione: '' }))}>
+            {PAESI_OPTIONS.map(p => <option key={p} value={p}>{p || '— seleziona —'}</option>)}
           </select>
         </div>
-      )}
-      {f.paese === 'Altro' && (
-        <FormInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Borgogna" full />
-      )}
-      <FormInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" />
-      <FormSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} />
-      <FormSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
-      <FormInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
-      <FormInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
-      <FormInput label="Temp. servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" />
-      <FormSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ann${i+1===1?'o':'i'}`])]} />
-      <FormInput label="Note" value={f.note} onChange={set('note')} placeholder="Dove l'hai comprato, ricordi..." full />
-      <div style={{ gridColumn: '1/-1', marginTop: 4 }}>
-        <button onClick={handleAdd} disabled={saving} style={{ ...S.btn, opacity: saving ? 0.7 : 1 }}>{saving ? 'Salvataggio...' : '+ Aggiungi alla cantina'}</button>
-      </div>
+        {f.paese && f.paese !== 'Altro' && regioniOptions && (
+          <div style={{ gridColumn: '1/-1' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+              <span style={S.lbl}>Regione</span>
+              {ai('regione') && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
+            </div>
+            <select style={{ ...S.inp, borderColor: ai('regione') ? '#185FA5' : undefined }} value={f.regione} onChange={e => set('regione')(e.target.value)}>
+              {regioniOptions.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+          </div>
+        )}
+        {f.paese === 'Altro' && (
+          <FormInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Borgogna" full aiField={ai('regione')} />
+        )}
+        <FormTextarea label="Note" value={f.note} onChange={set('note')} placeholder="Appunti liberi sul vino..." aiField={ai('note')} />
+      </SecBox>
+
+      {/* SEZIONE 2 — Dati di acquisto */}
+      <SecBox title="Dati di acquisto">
+        <FormInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
+        <FormInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
+        <FormSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
+        <FormInput label="Quantità (bott.)" value={f.quantita} onChange={set('quantita')} type="number" min={1} />
+      </SecBox>
+
+      {/* SEZIONE 3 — Arricchimento */}
+      <SecBox title="Arricchimento">
+        <FormInput label="Denominazione" value={f.denominazione} onChange={set('denominazione')} placeholder="es. Barolo DOCG" full aiField={ai('denominazione')} />
+        <FormInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" aiField={ai('vitigno')} />
+        <FormSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} aiField={ai('valutazione')} />
+        <FormInput label="Temperatura di servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" aiField={ai('temp')} />
+        <FormSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ann${i+1===1?'o':'i'}`])]} full aiField={ai('invecchiamento')} />
+        <FormTextarea label="Informazioni sulla cantina" value={f.info_cantina} onChange={set('info_cantina')} placeholder="Storia, filosofia, territorio..." aiField={ai('info_cantina')} />
+        <FormTextarea label="Caratteristiche della bottiglia" value={f.caratteristiche_bottiglia} onChange={set('caratteristiche_bottiglia')} placeholder="Profilo organolettico, stile..." aiField={ai('caratteristiche_bottiglia')} />
+        <FormTextarea label="Caratteristiche dell'annata" value={f.caratteristiche_annata} onChange={set('caratteristiche_annata')} placeholder="Clima, resa, particolarità..." aiField={ai('caratteristiche_annata')} />
+      </SecBox>
+
+      <button onClick={handleAdd} disabled={saving} style={{ ...S.btn, opacity: saving ? 0.7 : 1, marginBottom: 8 }}>
+        {saving ? 'Salvataggio...' : '+ Aggiungi alla cantina'}
+      </button>
     </div>
   )
 }
