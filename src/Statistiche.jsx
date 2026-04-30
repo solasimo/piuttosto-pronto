@@ -242,9 +242,8 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
 }
 
 // --- COMPONENTE PRINCIPALE ---
-export default function Statistiche({ cantina }) {
+export default function Statistiche({ cantina, onBottigliaClick }) {
   const [vista, setVista] = useState('paesi')
-  const [bottSelected, setBottSelected] = useState(null)
   const totBottiglie = cantina.reduce((s, b) => s + (b.quantita || 0), 0)
   const valoreTotale = cantina.reduce((s, b) => s + (b.prezzo_acquisto || 0) * (b.quantita || 0), 0)
   const paesiPresenti = new Set(cantina.map(b => b.paese).filter(Boolean))
@@ -284,13 +283,13 @@ export default function Statistiche({ cantina }) {
       {vista === 'paesi' && (
         <div>
           {Object.entries(PAESI_REGIONI).map(([paese, regioni]) => (
-            <PaeseSection key={paese} paese={paese} regioni={regioni} bottigliePaese={byPaese[paese] || []} onBottigliaClick={setBottSelected} />
+            <PaeseSection key={paese} paese={paese} regioni={regioni} bottigliePaese={byPaese[paese] || []} onBottigliaClick={onBottigliaClick} />
           ))}
           {Object.entries(byPaese).filter(([p]) => !PAESI_REGIONI[p] && p !== 'Altro').map(([paese, bott]) => (
             <div key={paese} style={{ ...S.card, marginBottom: 12 }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#7A6E65', marginBottom: 8 }}>{paese || 'Paese non specificato'}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
-                {bott.map(b => <MiniCard key={b.id} b={b} onClick={() => setBottSelected(b)} />)}
+                {bott.map(b => <MiniCard key={b.id} b={b} onClick={() => onBottigliaClick(b)} />)}
               </div>
             </div>
           ))}
@@ -298,7 +297,6 @@ export default function Statistiche({ cantina }) {
       )}
       {vista === 'tipologie' && <VistaTipologie cantina={cantina} />}
       <AnalisiAI cantina={cantina} />
-      <BottigliaSheet b={bottSelected} onClose={() => setBottSelected(null)} />
-    </div>
+     </div>
   )
 }
