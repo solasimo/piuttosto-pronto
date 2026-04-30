@@ -482,7 +482,7 @@ export default function App() {
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}>
         {loading ? <Spinner /> : <>
           {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
-          {tab === 'statistiche' && <Statistiche cantina={cantina} />}
+          {tab === 'statistiche' && <Statistiche cantina={cantina} onBottigliaClick={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
           {tab === 'abbinamento' && <AIChef cantina={cantina} />}
           {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} onUpdateScheda={updated => setArchivio(prev => prev.map(s => s.id === updated.id ? updated : s))} />}
           {tab === 'aggiungi'    && (
