@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import BenchmarkASPI from './BenchmarkASPI'
 
 // ─── Opzioni filtri ───────────────────────────────────────────────────────────
 const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
@@ -184,7 +185,7 @@ function ConfermaElimina({ scheda, onConferma, onAnnulla }) {
 }
 
 // ─── Card singola scheda ──────────────────────────────────────────────────────
-function SchedaCard({ a, onOpen, onElimina }) {
+function SchedaCard({ a, onOpen, onElimina, onBenchmark }) {
   const votoLabel = ['','Ordinario','Discreto','Buono','Ottimo','Eccellente'][a.voto] || ''
   const bs = {
     Rosso:{ bg:'#FAECE7',color:'#993C1D' }, Bianco:{ bg:'#FAEEDA',color:'#854F0B' },
@@ -196,7 +197,6 @@ function SchedaCard({ a, onOpen, onElimina }) {
   return (
     <div style={{ ...S.card, marginBottom: 8 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
-        {/* Contenuto principale — cliccabile */}
         <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => onOpen(a)}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             {a.tipologia && (
@@ -205,6 +205,7 @@ function SchedaCard({ a, onOpen, onElimina }) {
               </span>
             )}
             {a.annata && <span style={{ fontSize: 12, color: '#B0A89E' }}>{a.annata}</span>}
+            {a.benchmark_ai && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI ✓</span>}
           </div>
           <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 15, fontWeight: 600, marginBottom: 3, color: '#1C1410' }}>
             {a.nomeVino || a.nome}
@@ -216,20 +217,19 @@ function SchedaCard({ a, onOpen, onElimina }) {
             {a.data} {a.voto > 0 && `· ${'⭐️'.repeat(a.voto)} ${votoLabel}`}
           </div>
         </div>
-
-        {/* Thumbnail foto se presente */}
         {a.foto_url && (
           <div onClick={() => onOpen(a)} style={{ cursor: 'pointer', flexShrink: 0 }}>
             <img src={a.foto_url} alt="" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8, border: '1px solid #E2DDD6' }} />
           </div>
         )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
-          <button
-            onClick={() => onOpen(a)}
+          <button onClick={() => onBenchmark(a)}
+            style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #E6F1FB', background: '#E6F1FB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}
+            title="Benchmark AI">✨</button>
+          <button onClick={() => onOpen(a)}
             style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}
             title="Modifica">✏️</button>
-          <button
-            onClick={() => onElimina(a)}
+          <button onClick={() => onElimina(a)}
             style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #FAECE7', background: '#FAECE7', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}
             title="Elimina">🗑️</button>
         </div>
@@ -241,11 +241,12 @@ function SchedaCard({ a, onOpen, onElimina }) {
 // ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────────
 const FILTRI_VUOTI = { tipologie: [], bouquetTipologie: [], bouquetCategorie: [], annate: [] }
 
-export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
+export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpdateScheda }) {
   const [filtriAperti, setFiltriAperti] = useState(false)
   const [filtri, setFiltri] = useState(FILTRI_VUOTI)
   const [confermaElimina, setConfermaElimina] = useState(null)
   const [cerca, setCerca] = useState('')
+  const [benchmarkScheda, setBenchmarkScheda] = useState(null)
 
   const attiviFiltri = [
     ...(filtri.tipologie || []),
@@ -342,7 +343,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
               {labelVoto[k]} <span style={{ color: '#B0A89E', fontWeight: 400 }}>({gruppi[k].length})</span>
             </div>
             {gruppi[k].map(a => (
-              <SchedaCard key={a.id} a={a} onOpen={onOpen} onElimina={setConfermaElimina} />
+              <SchedaCard key={a.id} a={a} onOpen={onOpen} onElimina={setConfermaElimina} onBenchmark={setBenchmarkScheda} />
             ))}
           </div>
         ))
@@ -354,6 +355,18 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina }) {
         onConferma={handleConfermaElimina}
         onAnnulla={() => setConfermaElimina(null)}
       />
+
+      {/* Benchmark AI — fullscreen */}
+      {benchmarkScheda && (
+        <BenchmarkASPI
+          scheda={benchmarkScheda}
+          onClose={() => setBenchmarkScheda(null)}
+          onSaved={(updated) => {
+            setBenchmarkScheda(null)
+            if (onUpdateScheda) onUpdateScheda(updated)
+          }}
+        />
+      )}
     </div>
   )
 }

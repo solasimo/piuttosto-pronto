@@ -211,7 +211,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
       userContent.push({ type: 'text', text: testo ? `Vino: ${testo}` : 'Analizza l\'etichetta nella foto.' })
 
       const result = await callAI({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-opus-4-6',
         max_tokens: 800,
         system: SYSTEM,
         messages: [{ role: 'user', content: userContent }],
@@ -484,7 +484,7 @@ export default function App() {
           {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
           {tab === 'statistiche' && <Statistiche cantina={cantina} />}
           {tab === 'abbinamento' && <AIChef cantina={cantina} />}
-          {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} />}
+          {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} onUpdateScheda={updated => setArchivio(prev => prev.map(s => s.id === updated.id ? updated : s))} />}
           {tab === 'aggiungi'    && (
             <div style={{ paddingTop: 8 }}>
               <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 600, color: '#1C1410', marginBottom: 6 }}>Cosa vuoi aggiungere?</div>
