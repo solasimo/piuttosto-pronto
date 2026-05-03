@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda } from './supabase'
+import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen } from './supabase'
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
@@ -8,6 +8,8 @@ import Statistiche from './Statistiche'
 import AIChef from './AIChef'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
+import Auth from './Auth'
+import Admin from './Admin'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const stars = n => '⭐️'.repeat(n || 0)
@@ -356,6 +358,9 @@ const NAV = [
 
 // ─── APP ROOT ─────────────────────────────────────────────────────────────────
 export default function App() {
+  const [session, setSession] = useState(undefined) // undefined = caricamento, null = non loggato
+  const [profilo, setProfilo] = useState(null)
+  const [showAdmin, setShowAdmin] = useState(false)
   const [tab, setTab] = useState('libreria')
   const [cantina, setCantina] = useState([])
   const [archivio, setArchivio] = useState([])
@@ -366,22 +371,37 @@ export default function App() {
   const [dettaglioBottiglia, setDettaglioBottiglia] = useState(null)
   const [modalitaBottiglia, setModalitaBottiglia] = useState('detail')
   const [savingBottiglia, setSavingBottiglia] = useState(false)
-  const [editScheda, setEditScheda] = useState(null)  // scheda in modifica
+  const [editScheda, setEditScheda] = useState(null)
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 2500) }
 
+  // Gestione sessione auth
   useEffect(() => {
-    (async () => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      if (!session) { setCantina([]); setArchivio([]) }
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  // Carica dati quando loggato
+  useEffect(() => {
+    if (!session) return
+    ;(async () => {
       try {
-        await seedIfEmpty()
-        const [c, a] = await Promise.all([getBottiglie(), getSchede()])
-        setCantina(c); setArchivio(a)
+        const [c, a, p] = await Promise.all([getBottiglie(), getSchede(), getProfilo()])
+        setCantina(c); setArchivio(a); setProfilo(p)
+        aggiornaLastSeen()
       } catch (e) {
         showToast('⚠️ Errore connessione database')
         console.error(e)
       } finally { setLoading(false) }
     })()
-  }, [])
+  }, [session])
+
+  // Timeout 30 giorni — Supabase gestisce automaticamente con autoRefreshToken
+  // Se il token è scaduto, onAuthStateChange restituisce null e mostriamo il login
 
   const handleQty = useCallback(async (id, delta) => {
     const b = cantina.find(x => x.id === id); if (!b) return
@@ -467,6 +487,14 @@ export default function App() {
   const aspiSheetOpen = !!aspiBottiglia || aspiLibera
   const aspiTitle = aspiBottiglia ? `${aspiBottiglia.nome}${aspiBottiglia.anno ? ' ' + aspiBottiglia.anno : ''}` : 'Nuova scheda ASPI'
 
+  // Auth guard
+  if (session === undefined) return (
+    <div style={{ height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F1EC' }}>
+      <div style={{ fontSize: 40 }}>🍷</div>
+    </div>
+  )
+  if (session === null) return <Auth />
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#F4F1EC', overflow: 'hidden' }}>
       {/* Topbar */}
@@ -475,14 +503,24 @@ export default function App() {
           <div style={{ fontFamily: 'Playfair Display, serif', color: '#F5EFE0', fontSize: 20, fontWeight: 600 }}>Piuttosto Pronto</div>
           <div style={{ color: 'rgba(245,239,224,0.6)', fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 1 }}>La mia cantina</div>
         </div>
-        <div style={{ fontSize: 26 }}>🍷</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {profilo?.is_admin && (
+            <button onClick={() => setShowAdmin(true)}
+              style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 100, background: 'rgba(255,255,255,0.2)', color: '#F5EFE0', border: 'none', cursor: 'pointer' }}>
+              ADMIN
+            </button>
+          )}
+          <button onClick={() => supabase.auth.signOut()}
+            style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#F5EFE0', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Esci">↩</button>
+        </div>
       </div>
 
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}>
         {loading ? <Spinner /> : <>
           {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
-          {tab === 'statistiche' && <Statistiche cantina={cantina} onBottigliaClick={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
+          {tab === 'statistiche' && <Statistiche cantina={cantina} />}
           {tab === 'abbinamento' && <AIChef cantina={cantina} />}
           {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} onUpdateScheda={updated => setArchivio(prev => prev.map(s => s.id === updated.id ? updated : s))} />}
           {tab === 'aggiungi'    && (
@@ -558,6 +596,8 @@ export default function App() {
           }
         </>}
       </Sheet>
+
+      {showAdmin && <Admin onClose={() => setShowAdmin(false)} />}
 
       <Toast msg={toast} />
     </div>
