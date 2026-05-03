@@ -19,6 +19,7 @@ export default async function handler(req, res) {
   if (error || !invito) return res.status(404).json({ error: 'Codice non valido' })
   if (invito.usato_da) return res.status(400).json({ error: 'Codice già utilizzato' })
   if (new Date(invito.scade_at) < new Date()) return res.status(400).json({ error: 'Codice scaduto' })
-
+// Marca l'invito come usato — solo dopo registrazione riuscita
+// Questa funzione viene richiamata separatamente dopo signUp
   return res.status(200).json({ valido: true, id: invito.id })
 }
