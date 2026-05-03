@@ -32,6 +32,21 @@ export default async function handler(req, res) {
         return res.json({ gruppo: membro.gruppi, membri })
       }
 
+      case 'crea_gruppo': {
+        const { data: membroEsistente } = await supabase
+          .from('gruppi_membri').select('gruppo_id').eq('user_id', user.id).maybeSingle()
+        if (membroEsistente) return res.status(400).json({ error: 'Sei già in un gruppo' })
+        const { data: profilo } = await supabase
+          .from('profili').select('nome').eq('id', user.id).single()
+        const nome = `Cantina di ${profilo?.nome || 'utente'}`
+        const { data: gruppo } = await supabase
+          .from('gruppi').insert({ nome }).select().single()
+        await supabase.from('gruppi_membri').insert({ gruppo_id: gruppo.id, user_id: user.id, ruolo: 'proprietario' })
+        await supabase.from('cantina').update({ gruppo_id: gruppo.id }).eq('user_id', user.id)
+        await supabase.from('archivio').update({ gruppo_id: gruppo.id }).eq('user_id', user.id)
+        return res.json({ ok: true, gruppo })
+      }
+
       case 'crea_invito_gruppo': {
         const { data: membro } = await supabase
           .from('gruppi_membri').select('gruppo_id')
