@@ -68,7 +68,7 @@ console.log('User dopo signUp:', data.user.id)
 
       setMessaggio('Registrazione completata! Controlla la tua email per confermare l\'account.')
       setModo('login')
-    } catch(e) { setErrore('Errore durante la registrazione') }
+    } catch(e) { setErrore('Errore: ' + e.message); console.error('ERRORE REGISTRAZIONE:', e) }
     setLoading(false)
   }
 
