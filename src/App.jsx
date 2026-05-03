@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen } from './supabase'
+import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaInvitoGruppo, uniscitiGruppo } from './supabase'
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
@@ -356,11 +356,113 @@ const NAV = [
   { id: 'aggiungi',    icon: '+',   label: 'Aggiungi' },
 ]
 
+// ─── Pannello condivisione cantina ───────────────────────────────────────────
+function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }) {
+  const [codiceInput, setCodiceInput] = useState('')
+  const [codiceGenerato, setCodiceGenerato] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleCreaInvito = async () => {
+    setLoading(true)
+    try {
+      const { codice } = await creaInvitoGruppo()
+      setCodiceGenerato(codice)
+    } catch(e) { showToast('Errore: ' + e.message) }
+    setLoading(false)
+  }
+
+  const handleUnisciti = async () => {
+    if (!codiceInput.trim()) return
+    setLoading(true)
+    try {
+      const { gruppo_id } = await uniscitiGruppo(codiceInput.trim())
+      showToast('✓ Ti sei unito al gruppo!')
+      onGruppoAggiornato({ id: gruppo_id })
+      onClose()
+    } catch(e) { showToast('Errore: ' + e.message) }
+    setLoading(false)
+  }
+
+  const S_inp = { width: '100%', padding: '12px 14px', border: '1.5px solid #E2DDD6', borderRadius: 10, fontSize: 15, background: '#fff', color: '#1C1410', WebkitAppearance: 'none', boxSizing: 'border-box' }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(28,20,16,0.6)', backdropFilter: 'blur(2px)' }} />
+      <div style={{ position: 'relative', background: '#F4F1EC', borderRadius: '20px 20px 0 0', maxHeight: '80dvh', display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#D6D0C8' }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 20px 16px' }}>
+          <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, fontWeight: 600, color: '#1C1410' }}>Condivisione cantina</div>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#E2DDD6', cursor: 'pointer', fontSize: 14, color: '#7A6E65' }}>✕</button>
+        </div>
+        <div style={{ overflowY: 'auto', padding: '0 20px 32px', flex: 1 }}>
+
+          {/* Stato attuale */}
+          <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 14, padding: 16, marginBottom: 20 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>La tua cantina</div>
+            {gruppo ? (
+              <>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>{gruppo.nome}</div>
+                <div style={{ fontSize: 13, color: '#7A6E65' }}>Cantina condivisa attiva</div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>Cantina di {profilo?.nome}</div>
+                <div style={{ fontSize: 13, color: '#7A6E65' }}>Solo tu hai accesso a questa cantina</div>
+              </>
+            )}
+          </div>
+
+          {/* Invita qualcuno */}
+          <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 14, padding: 16, marginBottom: 16 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Invita qualcuno</div>
+            <div style={{ fontSize: 13, color: '#7A6E65', marginBottom: 14, lineHeight: 1.5 }}>
+              Genera un codice e condividilo con chi vuoi aggiungere alla tua cantina. Il codice è valido 7 giorni e può essere usato una sola volta.
+            </div>
+            {codiceGenerato ? (
+              <div style={{ background: '#F5EFE0', border: '1px solid #C8992A', borderRadius: 10, padding: 14, textAlign: 'center' }}>
+                <div style={{ fontSize: 11, color: '#854F0B', marginBottom: 6 }}>Codice invito generato</div>
+                <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 4, color: '#1C1410', fontFamily: 'monospace' }}>{codiceGenerato}</div>
+                <div style={{ fontSize: 12, color: '#7A6E65', marginTop: 6 }}>Condividilo con il tuo famigliare</div>
+              </div>
+            ) : (
+              <button onClick={handleCreaInvito} disabled={loading}
+                style={{ width: '100%', padding: 13, background: '#1C1410', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
+                {loading ? 'Generando…' : '+ Genera codice invito'}
+              </button>
+            )}
+          </div>
+
+          {/* Unisciti a una cantina */}
+          {!gruppo && (
+            <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 14, padding: 16 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Unisciti a una cantina</div>
+              <div style={{ fontSize: 13, color: '#7A6E65', marginBottom: 14, lineHeight: 1.5 }}>
+                Hai ricevuto un codice? Inseriscilo qui per unire la tua cantina a quella di un famigliare.
+              </div>
+              <input value={codiceInput} onChange={e => setCodiceInput(e.target.value.toUpperCase())}
+                placeholder="Inserisci codice (es. G1234567)"
+                style={{ ...S_inp, marginBottom: 10, letterSpacing: 2, fontFamily: 'monospace' }} />
+              <button onClick={handleUnisciti} disabled={loading || !codiceInput.trim()}
+                style={{ width: '100%', padding: 13, background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: (loading || !codiceInput.trim()) ? 0.6 : 1 }}>
+                {loading ? 'Connessione…' : 'Unisciti alla cantina'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── APP ROOT ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [session, setSession] = useState(undefined) // undefined = caricamento, null = non loggato
+  const [session, setSession] = useState(undefined)
   const [profilo, setProfilo] = useState(null)
+  const [gruppo, setGruppo] = useState(null)
   const [showAdmin, setShowAdmin] = useState(false)
+  const [showGruppo, setShowGruppo] = useState(false)
   const [tab, setTab] = useState('libreria')
   const [cantina, setCantina] = useState([])
   const [archivio, setArchivio] = useState([])
@@ -375,7 +477,6 @@ export default function App() {
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 2500) }
 
-  // Gestione sessione auth
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -385,16 +486,13 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Carica dati quando loggato
-useEffect(() => {
-  if (!session) return
-  if (cantina.length > 0) return  // già caricato
-  ;(async () => {
+  useEffect(() => {
+    if (!session) return
+    if (cantina.length > 0) return
+    ;(async () => {
       try {
-        const [c, a, p] = await Promise.all([getBottiglie(), getSchede(), getProfilo()])
-console.log('PROFILO:', JSON.stringify(p))
-setCantina(c); setArchivio(a); setProfilo(p)
-        setCantina(c); setArchivio(a); setProfilo(p)
+        const [c, a, p, g] = await Promise.all([getBottiglie(), getSchede(), getProfilo(), getGruppo()])
+        setCantina(c); setArchivio(a); setProfilo(p); setGruppo(g.gruppo)
         if (!loading) aggiornaLastSeen()
       } catch (e) {
         showToast('⚠️ Errore connessione database')
@@ -402,9 +500,6 @@ setCantina(c); setArchivio(a); setProfilo(p)
       } finally { setLoading(false) }
     })()
   }, [session])
-
-  // Timeout 30 giorni — Supabase gestisce automaticamente con autoRefreshToken
-  // Se il token è scaduto, onAuthStateChange restituisce null e mostriamo il login
 
   const handleQty = useCallback(async (id, delta) => {
     const b = cantina.find(x => x.id === id); if (!b) return
@@ -502,9 +597,11 @@ setCantina(c); setArchivio(a); setProfilo(p)
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#F4F1EC', overflow: 'hidden' }}>
       {/* Topbar */}
       <div style={{ background: '#7B1E2E', padding: '12px 20px', paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <div>
+        <div onClick={() => setShowGruppo(true)} style={{ cursor: 'pointer' }}>
           <div style={{ fontFamily: 'Playfair Display, serif', color: '#F5EFE0', fontSize: 20, fontWeight: 600 }}>Piuttosto Pronto</div>
-          <div style={{ color: 'rgba(245,239,224,0.6)', fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 1 }}>La mia cantina</div>
+          <div style={{ color: 'rgba(245,239,224,0.6)', fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 1 }}>
+            {gruppo?.nome || `Cantina di ${profilo?.nome || '...'}`}
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {profilo?.is_admin && (
@@ -513,6 +610,9 @@ setCantina(c); setArchivio(a); setProfilo(p)
               ADMIN
             </button>
           )}
+          <button onClick={() => setShowGruppo(true)}
+            style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#F5EFE0', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Condivisione">👥</button>
           <button onClick={() => supabase.auth.signOut()}
             style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#F5EFE0', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             title="Esci">↩</button>
@@ -601,6 +701,16 @@ setCantina(c); setArchivio(a); setProfilo(p)
       </Sheet>
 
       {showAdmin && <Admin onClose={() => setShowAdmin(false)} />}
+
+      {showGruppo && (
+        <GruppoPanel
+          profilo={profilo}
+          gruppo={gruppo}
+          onClose={() => setShowGruppo(false)}
+          onGruppoAggiornato={(g) => { setGruppo(g); setCantina([]); setArchivio([]) }}
+          showToast={showToast}
+        />
+      )}
 
       <Toast msg={toast} />
     </div>

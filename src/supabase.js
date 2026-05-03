@@ -122,3 +122,27 @@ export async function seedIfEmpty() {
     await supabase.from('cantina').insert(DATI)
   }
 }
+
+// ─── GRUPPI ───────────────────────────────────────────────────────────────────
+
+async function getToken() {
+  const { data: { session } } = await supabase.auth.getSession()
+  return session?.access_token
+}
+
+async function gruppiCall(action, payload = {}) {
+  const token = await getToken()
+  const res = await fetch('/api/gruppi', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ action, payload }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data
+}
+
+export const getGruppo = () => gruppiCall('get_gruppo')
+export const creaInvitoGruppo = () => gruppiCall('crea_invito_gruppo')
+export const uniscitiGruppo = (codice) => gruppiCall('unisciti', { codice })
+export const lasciаGruppo = () => gruppiCall('lascia_gruppo')
