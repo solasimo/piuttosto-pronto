@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { codice } = req.body
+  const { codice, user_id } = req.body
   if (!codice) return res.status(400).json({ error: 'Codice mancante' })
 
   const supabase = createClient(
@@ -19,18 +19,16 @@ export default async function handler(req, res) {
   if (error || !invito) return res.status(404).json({ error: 'Codice non valido' })
   if (invito.usato_da) return res.status(400).json({ error: 'Codice già utilizzato' })
   if (new Date(invito.scade_at) < new Date()) return res.status(400).json({ error: 'Codice scaduto' })
-// Marca l'invito come usato — solo dopo registrazione riuscita
-// Questa funzione viene richiamata separatamente dopo signUp
+
+  // Se viene passato user_id, marca subito come usato
+  if (user_id) {
+    const { error: updErr } = await supabase
+      .from('inviti')
+      .update({ usato_da: user_id, usato_at: new Date().toISOString() })
+      .eq('id', invito.id)
+    if (updErr) return res.status(500).json({ error: 'Errore aggiornamento invito: ' + updErr.message })
+    return res.status(200).json({ valido: true, marcato: true })
+  }
+
   return res.status(200).json({ valido: true, id: invito.id })
 }
-
-// Se viene passato user_id, marca l'invito come usato
-if (req.body.user_id) {
-  const { error: updErr } = await supabase.from('inviti')
-    .update({ usato_da: req.body.user_id, usato_at: new Date().toISOString() })
-    .eq('codice', req.body.codice.trim().toUpperCase())
-  console.log('Update invito:', req.body.user_id, updErr)
-  return res.status(200).json({ valido: true, marcato: true, errore: updErr?.message })
-}
-
-return res.status(200).json({ valido: true, id: invito.id })
