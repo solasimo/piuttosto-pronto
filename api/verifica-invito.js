@@ -23,3 +23,13 @@ export default async function handler(req, res) {
 // Questa funzione viene richiamata separatamente dopo signUp
   return res.status(200).json({ valido: true, id: invito.id })
 }
+
+// Se viene passato user_id, marca l'invito come usato
+if (req.body.user_id) {
+  await supabase.from('inviti')
+    .update({ usato_da: req.body.user_id, usato_at: new Date().toISOString() })
+    .eq('id', invito.id)
+  return res.status(200).json({ valido: true, marcato: true })
+}
+
+return res.status(200).json({ valido: true, id: invito.id })
