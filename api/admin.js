@@ -34,11 +34,26 @@ export default async function handler(req, res) {
       }
 
       case 'get_gruppi': {
-        const { data } = await supabaseAdmin
-          .from('gruppi')
-          .select('*, gruppi_membri(user_id, profili(nome, cognome))')
-          .order('created_at', { ascending: false })
-        return res.json({ data })
+        const { data: gruppi } = await supabaseAdmin
+          .from('gruppi').select('*').order('created_at', { ascending: false })
+        if (!gruppi || gruppi.length === 0) return res.json({ data: [] })
+
+        // Per ogni gruppo carica i membri separatamente
+        const gruppiConMembri = await Promise.all(gruppi.map(async g => {
+          const { data: membri } = await supabaseAdmin
+            .from('gruppi_membri').select('user_id, ruolo').eq('gruppo_id', g.id)
+          const userIds = (membri || []).map(m => m.user_id)
+          const { data: profili } = userIds.length > 0
+            ? await supabaseAdmin.from('profili').select('id, nome, cognome').in('id', userIds)
+            : { data: [] }
+          const membriConProfilo = (membri || []).map(m => ({
+            ...m,
+            profili: (profili || []).find(p => p.id === m.user_id)
+          }))
+          return { ...g, gruppi_membri: membriConProfilo }
+        }))
+
+        return res.json({ data: gruppiConMembri })
       }
 
       case 'crea_invito': {
@@ -58,18 +73,10 @@ export default async function handler(req, res) {
         return res.json({ ok: true })
       }
 
-case 'elimina_utente': {
-  const uid = payload.id
-  // Prima elimina tutti i dati collegati
-  await supabaseAdmin.from('cantina').delete().eq('user_id', uid)
-  await supabaseAdmin.from('archivio').delete().eq('user_id', uid)
-  await supabaseAdmin.from('inviti').update({ creato_da: null }).eq('creato_da', uid)
-  await supabaseAdmin.from('gruppi_membri').delete().eq('user_id', uid)
-  await supabaseAdmin.from('profili').delete().eq('id', uid)
-  // Poi elimina l'utente da auth
-  await supabaseAdmin.auth.admin.deleteUser(uid)
-  return res.json({ ok: true })
-}
+      case 'elimina_utente': {
+        await supabaseAdmin.from('profili').delete().eq('id', payload.id)
+        return res.json({ ok: true })
+      }
 
       case 'revoca_gruppo': {
         const { gruppo_id } = payload
