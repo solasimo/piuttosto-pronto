@@ -5,10 +5,7 @@ async function adminCall(action, payload = {}) {
   const { data: { session } } = await supabase.auth.getSession()
   const res = await fetch('/api/admin', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
-    },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
     body: JSON.stringify({ action, payload }),
   })
   const data = await res.json()
@@ -20,6 +17,7 @@ export default function Admin({ onClose }) {
   const [tab, setTab] = useState('utenti')
   const [utenti, setUtenti] = useState([])
   const [inviti, setInviti] = useState([])
+  const [gruppi, setGruppi] = useState([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState('')
 
@@ -30,28 +28,24 @@ export default function Admin({ onClose }) {
   const carica = async () => {
     setLoading(true)
     try {
-      const [{ data: u }, { data: i }] = await Promise.all([
+      const [{ data: u }, { data: i }, { data: g }] = await Promise.all([
         adminCall('get_utenti'),
         adminCall('get_inviti'),
+        adminCall('get_gruppi'),
       ])
-      setUtenti(u || []); setInviti(i || [])
+      setUtenti(u || []); setInviti(i || []); setGruppi(g || [])
     } catch(e) { showToast('Errore: ' + e.message) }
     setLoading(false)
   }
 
   const creaInvito = async () => {
-    try {
-      await adminCall('crea_invito')
-      showToast('✓ Invito creato')
-      carica()
-    } catch(e) { showToast('Errore: ' + e.message) }
+    try { await adminCall('crea_invito'); showToast('✓ Invito creato'); carica() }
+    catch(e) { showToast('Errore: ' + e.message) }
   }
 
   const revocaInvito = async (id) => {
-    try {
-      await adminCall('revoca_invito', { id })
-      showToast('Invito revocato'); carica()
-    } catch(e) { showToast('Errore: ' + e.message) }
+    try { await adminCall('revoca_invito', { id }); showToast('Invito revocato'); carica() }
+    catch(e) { showToast('Errore: ' + e.message) }
   }
 
   const toggleAttivo = async (utente) => {
@@ -63,10 +57,14 @@ export default function Admin({ onClose }) {
 
   const eliminaUtente = async (utente) => {
     if (!confirm(`Eliminare ${utente.email}?`)) return
-    try {
-      await adminCall('elimina_utente', { id: utente.id })
-      showToast('Utente eliminato'); carica()
-    } catch(e) { showToast('Errore: ' + e.message) }
+    try { await adminCall('elimina_utente', { id: utente.id }); showToast('Utente eliminato'); carica() }
+    catch(e) { showToast('Errore: ' + e.message) }
+  }
+
+  const revocaGruppo = async (gruppo_id, nome) => {
+    if (!confirm(`Revocare la condivisione del gruppo "${nome}"? I dati rimarranno ma la condivisione verrà rimossa.`)) return
+    try { await adminCall('revoca_gruppo', { gruppo_id }); showToast('✓ Condivisione revocata'); carica() }
+    catch(e) { showToast('Errore: ' + e.message) }
   }
 
   const fmtData = d => d ? new Date(d).toLocaleDateString('it-IT', { day:'numeric', month:'short', year:'numeric' }) : '—'
@@ -74,7 +72,6 @@ export default function Admin({ onClose }) {
 
   return (
     <div style={{ position:'fixed', inset:0, zIndex:500, background:'#F4F1EC', display:'flex', flexDirection:'column' }}>
-      {/* Header */}
       <div style={{ background:'#1C1410', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
         <div>
           <div style={{ fontFamily:'Playfair Display, serif', color:'#F5EFE0', fontSize:17, fontWeight:600 }}>Dashboard Admin</div>
@@ -83,15 +80,13 @@ export default function Admin({ onClose }) {
         <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#F5EFE0', fontSize:16, cursor:'pointer' }}>✕</button>
       </div>
 
-      {/* Tab */}
       <div style={{ display:'flex', background:'#fff', borderBottom:'1px solid #E2DDD6', flexShrink:0 }}>
-        {[['utenti','👥 Utenti'],['inviti','✉️ Inviti']].map(([k,l]) => (
+        {[['utenti','👥 Utenti'],['inviti','✉️ Inviti'],['gruppi','🔗 Gruppi']].map(([k,l]) => (
           <button key={k} onClick={() => setTab(k)}
-            style={{ flex:1, padding:'12px 0', border:'none', borderBottom:tab===k?'2px solid #7B1E2E':'2px solid transparent', background:'none', fontSize:13, fontWeight:600, color:tab===k?'#7B1E2E':'#7A6E65', cursor:'pointer' }}>{l}</button>
+            style={{ flex:1, padding:'12px 0', border:'none', borderBottom:tab===k?'2px solid #7B1E2E':'2px solid transparent', background:'none', fontSize:12, fontWeight:600, color:tab===k?'#7B1E2E':'#7A6E65', cursor:'pointer' }}>{l}</button>
         ))}
       </div>
 
-      {/* Contenuto */}
       <div style={{ flex:1, overflowY:'auto', padding:16, WebkitOverflowScrolling:'touch' }}>
         {loading ? (
           <div style={{ textAlign:'center', padding:40, color:'#B0A89E' }}>Caricamento…</div>
@@ -102,14 +97,14 @@ export default function Admin({ onClose }) {
               <div key={u.id} style={{ background:'#fff', border:'1px solid #E2DDD6', borderRadius:12, padding:14, marginBottom:10 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10 }}>
                   <div style={{ flex:1 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: '#1C1410' }}>{u.nome} {u.cognome}</span>
-                      <span style={{ fontSize: 12, color: '#7A6E65' }}>{u.email}</span>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2, flexWrap:'wrap' }}>
+                      <span style={{ fontSize:14, fontWeight:600, color:'#1C1410' }}>{u.nome} {u.cognome}</span>
                       {u.is_admin && <span style={{ fontSize:10, background:'#F5EFE0', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>ADMIN</span>}
                       {!u.is_active && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>SOSPESO</span>}
                     </div>
-                    <div style={{ fontSize:12, color:'#B0A89E' }}>Iscritto: {fmtData(u.created_at)}</div>
-                    {u.last_seen && <div style={{ fontSize:12, color:'#B0A89E' }}>Ultimo accesso: {fmtData(u.last_seen)}</div>}
+                    <div style={{ fontSize:12, color:'#7A6E65', marginBottom:2 }}>{u.email}</div>
+                    <div style={{ fontSize:11, color:'#B0A89E' }}>Iscritto: {fmtData(u.created_at)}</div>
+                    {u.last_seen && <div style={{ fontSize:11, color:'#B0A89E' }}>Ultimo accesso: {fmtData(u.last_seen)}</div>}
                   </div>
                   {!u.is_admin && (
                     <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
@@ -127,7 +122,7 @@ export default function Admin({ onClose }) {
               </div>
             ))}
           </>
-        ) : (
+        ) : tab === 'inviti' ? (
           <>
             <button onClick={creaInvito}
               style={{ width:'100%', padding:13, background:'#1C1410', color:'#fff', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', marginBottom:16 }}>
@@ -137,12 +132,14 @@ export default function Admin({ onClose }) {
             {inviti.map(inv => {
               const usato = !!inv.usato_da
               const scaduto = isScaduto(inv.scade_at) && !usato
+              const isGruppo = inv.codice?.startsWith('G')
               return (
                 <div key={inv.id} style={{ background:'#fff', border:'1px solid #E2DDD6', borderRadius:12, padding:14, marginBottom:10, opacity:usato||scaduto?0.6:1 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <div>
-                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
                         <span style={{ fontSize:16, fontWeight:700, letterSpacing:2, color:'#1C1410', fontFamily:'monospace' }}>{inv.codice}</span>
+                        {isGruppo && <span style={{ fontSize:10, background:'#E6F1FB', color:'#185FA5', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>GRUPPO</span>}
                         {usato && <span style={{ fontSize:10, background:'#F0F7F3', color:'#2D6A4F', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>USATO</span>}
                         {scaduto && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>SCADUTO</span>}
                         {!usato && !scaduto && <span style={{ fontSize:10, background:'#F5EFE0', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>ATTIVO</span>}
@@ -160,6 +157,33 @@ export default function Admin({ onClose }) {
                 </div>
               )
             })}
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize:12, color:'#7A6E65', marginBottom:12 }}>{gruppi.length} gruppi attivi</div>
+            {gruppi.length === 0 && (
+              <div style={{ textAlign:'center', padding:'32px 20px', color:'#B0A89E' }}>
+                <div style={{ fontSize:32, marginBottom:8 }}>🔗</div>
+                <div style={{ fontSize:14 }}>Nessun gruppo di condivisione attivo</div>
+              </div>
+            )}
+            {gruppi.map(g => (
+              <div key={g.id} style={{ background:'#fff', border:'1px solid #E2DDD6', borderRadius:12, padding:14, marginBottom:10 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10 }}>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:14, fontWeight:600, color:'#1C1410', marginBottom:6 }}>{g.nome}</div>
+                    <div style={{ fontSize:12, color:'#B0A89E', marginBottom:6 }}>Creato: {fmtData(g.created_at)}</div>
+                    <div style={{ fontSize:12, color:'#7A6E65' }}>
+                      Membri: {(g.gruppi_membri || []).map(m => m.profili?.nome || m.user_id?.slice(0,8)).join(', ')}
+                    </div>
+                  </div>
+                  <button onClick={() => revocaGruppo(g.id, g.nome)}
+                    style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #FAECE7', background:'#FAECE7', color:'#993C1D', cursor:'pointer', flexShrink:0 }}>
+                    Revoca
+                  </button>
+                </div>
+              </div>
+            ))}
           </>
         )}
       </div>
