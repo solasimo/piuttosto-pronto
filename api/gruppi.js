@@ -102,8 +102,11 @@ export default async function handler(req, res) {
 
 async function aggiornaGruppoNome(supabase, gruppo_id) {
   const { data: membri } = await supabase
-    .from('gruppi_membri').select('profili(nome)').eq('gruppo_id', gruppo_id)
-  const nomi = (membri || []).map(m => m.profili?.nome).filter(Boolean)
+    .from('gruppi_membri').select('user_id').eq('gruppo_id', gruppo_id)
+  const userIds = (membri || []).map(m => m.user_id)
+  const { data: profili } = await supabase
+    .from('profili').select('nome').in('id', userIds)
+  const nomi = (profili || []).map(p => p.nome).filter(Boolean)
   const nome = nomi.length >= 2
     ? `Cantina di ${nomi.slice(0, -1).join(', ')} e ${nomi[nomi.length - 1]}`
     : nomi.length === 1 ? `Cantina di ${nomi[0]}` : 'Cantina condivisa'
