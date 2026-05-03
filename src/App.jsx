@@ -391,6 +391,8 @@ export default function App() {
     ;(async () => {
       try {
         const [c, a, p] = await Promise.all([getBottiglie(), getSchede(), getProfilo()])
+console.log('PROFILO:', JSON.stringify(p))
+setCantina(c); setArchivio(a); setProfilo(p)
         setCantina(c); setArchivio(a); setProfilo(p)
         aggiornaLastSeen()
       } catch (e) {
