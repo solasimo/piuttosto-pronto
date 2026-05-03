@@ -58,10 +58,11 @@ export default async function handler(req, res) {
         return res.json({ ok: true })
       }
 
-      case 'elimina_utente': {
-        await supabaseAdmin.from('profili').delete().eq('id', payload.id)
-        return res.json({ ok: true })
-      }
+case 'elimina_utente': {
+  await supabaseAdmin.from('profili').delete().eq('id', payload.id)
+  await supabaseAdmin.auth.admin.deleteUser(payload.id)
+  return res.json({ ok: true })
+}
 
       case 'revoca_gruppo': {
         const { gruppo_id } = payload
