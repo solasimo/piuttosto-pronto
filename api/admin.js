@@ -59,8 +59,15 @@ export default async function handler(req, res) {
       }
 
 case 'elimina_utente': {
-  await supabaseAdmin.from('profili').delete().eq('id', payload.id)
-  await supabaseAdmin.auth.admin.deleteUser(payload.id)
+  const uid = payload.id
+  // Prima elimina tutti i dati collegati
+  await supabaseAdmin.from('cantina').delete().eq('user_id', uid)
+  await supabaseAdmin.from('archivio').delete().eq('user_id', uid)
+  await supabaseAdmin.from('inviti').update({ creato_da: null }).eq('creato_da', uid)
+  await supabaseAdmin.from('gruppi_membri').delete().eq('user_id', uid)
+  await supabaseAdmin.from('profili').delete().eq('id', uid)
+  // Poi elimina l'utente da auth
+  await supabaseAdmin.auth.admin.deleteUser(uid)
   return res.json({ ok: true })
 }
 
