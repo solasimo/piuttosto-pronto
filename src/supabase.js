@@ -28,7 +28,10 @@ export async function getBottiglie() {
 
 export async function addBottiglia(b) {
   const user_id = await getUserId()
-  const { data, error } = await supabase.from('cantina').insert([{ ...b, user_id }]).select().single()
+  // Recupera gruppo_id se esiste
+  const { data: membro } = await supabase.from('gruppi_membri').select('gruppo_id').eq('user_id', user_id).maybeSingle()
+  const gruppo_id = membro?.gruppo_id || null
+  const { data, error } = await supabase.from('cantina').insert([{ ...b, user_id, gruppo_id }]).select().single()
   if (error) throw error
   return data
 }
@@ -55,7 +58,9 @@ export async function getSchede() {
 
 export async function addScheda(s) {
   const user_id = await getUserId()
-  const { data, error } = await supabase.from('archivio').insert([{ ...s, user_id }]).select().single()
+  const { data: membro } = await supabase.from('gruppi_membri').select('gruppo_id').eq('user_id', user_id).maybeSingle()
+  const gruppo_id = membro?.gruppo_id || null
+  const { data, error } = await supabase.from('archivio').insert([{ ...s, user_id, gruppo_id }]).select().single()
   if (error) throw error
   return data
 }
