@@ -26,10 +26,11 @@ export default async function handler(req, res) {
 
 // Se viene passato user_id, marca l'invito come usato
 if (req.body.user_id) {
-  await supabase.from('inviti')
+  const { error: updErr } = await supabase.from('inviti')
     .update({ usato_da: req.body.user_id, usato_at: new Date().toISOString() })
-    .eq('id', invito.id)
-  return res.status(200).json({ valido: true, marcato: true })
+    .eq('codice', req.body.codice.trim().toUpperCase())
+  console.log('Update invito:', req.body.user_id, updErr)
+  return res.status(200).json({ valido: true, marcato: true, errore: updErr?.message })
 }
 
 return res.status(200).json({ valido: true, id: invito.id })
