@@ -3,7 +3,6 @@ import { createClient } from '@supabase/supabase-js'
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  // Verifica che chi chiama sia autenticato e admin
   const authHeader = req.headers.authorization
   if (!authHeader) return res.status(401).json({ error: 'Non autorizzato' })
 
@@ -12,12 +11,10 @@ export default async function handler(req, res) {
     process.env.SUPABASE_SERVICE_KEY
   )
 
-  // Verifica token utente
   const token = authHeader.replace('Bearer ', '')
   const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
   if (authError || !user) return res.status(401).json({ error: 'Token non valido' })
 
-  // Verifica che sia admin
   const { data: profilo } = await supabaseAdmin.from('profili').select('is_admin').eq('id', user.id).single()
   if (!profilo?.is_admin) return res.status(403).json({ error: 'Non sei admin' })
 
@@ -33,6 +30,14 @@ export default async function handler(req, res) {
 
       case 'get_inviti': {
         const { data } = await supabaseAdmin.from('inviti').select('*').order('created_at', { ascending: false })
+        return res.json({ data })
+      }
+
+      case 'get_gruppi': {
+        const { data } = await supabaseAdmin
+          .from('gruppi')
+          .select('*, gruppi_membri(user_id, profili(nome, cognome))')
+          .order('created_at', { ascending: false })
         return res.json({ data })
       }
 
@@ -55,6 +60,18 @@ export default async function handler(req, res) {
 
       case 'elimina_utente': {
         await supabaseAdmin.from('profili').delete().eq('id', payload.id)
+        return res.json({ ok: true })
+      }
+
+      case 'revoca_gruppo': {
+        const { gruppo_id } = payload
+        // Rimuovi tutti i membri
+        await supabaseAdmin.from('gruppi_membri').delete().eq('gruppo_id', gruppo_id)
+        // Rimuovi gruppo_id dai dati
+        await supabaseAdmin.from('cantina').update({ gruppo_id: null }).eq('gruppo_id', gruppo_id)
+        await supabaseAdmin.from('archivio').update({ gruppo_id: null }).eq('gruppo_id', gruppo_id)
+        // Elimina il gruppo
+        await supabaseAdmin.from('gruppi').delete().eq('id', gruppo_id)
         return res.json({ ok: true })
       }
 
