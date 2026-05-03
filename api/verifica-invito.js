@@ -28,7 +28,13 @@ export default async function handler(req, res) {
       .eq('id', invito.id)
     if (updErr) return res.status(500).json({ error: 'Errore aggiornamento invito: ' + updErr.message })
     // Crea profilo utente
-await supabase.from('profili').insert({ id: user_id, email: req.body.email || '', is_active: true })
+await supabase.from('profili').insert({ 
+  id: user_id, 
+  email: req.body.email || '', 
+  nome: req.body.nome || '',
+  cognome: req.body.cognome || '',
+  is_active: true 
+})
 return res.status(200).json({ valido: true, marcato: true })
   }
 
