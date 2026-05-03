@@ -386,15 +386,16 @@ export default function App() {
   }, [])
 
   // Carica dati quando loggato
-  useEffect(() => {
-    if (!session) return
-    ;(async () => {
+useEffect(() => {
+  if (!session) return
+  if (cantina.length > 0) return  // già caricato
+  ;(async () => {
       try {
         const [c, a, p] = await Promise.all([getBottiglie(), getSchede(), getProfilo()])
 console.log('PROFILO:', JSON.stringify(p))
 setCantina(c); setArchivio(a); setProfilo(p)
         setCantina(c); setArchivio(a); setProfilo(p)
-        aggiornaLastSeen()
+        if (!loading) aggiornaLastSeen()
       } catch (e) {
         showToast('⚠️ Errore connessione database')
         console.error(e)
