@@ -10,7 +10,7 @@ const S = {
 }
 
 export default function Auth() {
-  const [modo, setModo] = useState('login') // login | register | reset
+  const [modo, setModo] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [codiceInvito, setCodiceInvito] = useState('')
@@ -24,9 +24,7 @@ export default function Auth() {
     if (!email || !password) { setErrore('Inserisci email e password'); return }
     setLoading(true); reset()
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-    if (error) {
-      setErrore(error.message === 'Invalid login credentials' ? 'Email o password non corretti' : error.message)
-    }
+    if (error) setErrore(error.message === 'Invalid login credentials' ? 'Email o password non corretti' : error.message)
     setLoading(false)
   }
 
@@ -35,40 +33,39 @@ export default function Auth() {
     if (password.length < 8) { setErrore('La password deve essere di almeno 8 caratteri'); return }
     setLoading(true); reset()
     try {
-      // Verifica invito
-const marcaRes = await fetch('/api/verifica-invito', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id })
-})
-const marcaData = await marcaRes.json()
-console.log('Marca invito:', JSON.stringify(marcaData))
-const verificaData = await verificaRes.json()
-if (!verificaRes.ok) { setErrore(verificaData.error || 'Codice invito non valido'); setLoading(false); return }
-const invito = verificaData
+      // 1. Verifica codice invito (senza user_id = solo verifica)
+      const verificaRes = await fetch('/api/verifica-invito', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codice: codiceInvito.trim() })
+      })
+      const verificaData = await verificaRes.json()
+      if (!verificaRes.ok) { setErrore(verificaData.error || 'Codice invito non valido'); setLoading(false); return }
 
-      // Registra utente
-const { data, error } = await supabase.auth.signUp({
-  email: email.trim(), password,
-  options: { emailRedirectTo: 'https://piuttosto-pronto.vercel.app' }
-})
-if (error) { setErrore(error.message); setLoading(false); return }
-if (!data.user) { setErrore('Errore durante la registrazione'); setLoading(false); return }
-console.log('User dopo signUp:', data.user.id)
-      
-      // Aggiorna invito come usato
+      // 2. Registra utente
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(), password,
+        options: { emailRedirectTo: 'https://piuttosto-pronto.vercel.app' }
+      })
+      if (error) { setErrore(error.message); setLoading(false); return }
+      if (!data.user) { setErrore('Errore durante la registrazione'); setLoading(false); return }
+
+      // 3. Marca invito come usato (con user_id ora disponibile)
       await fetch('/api/verifica-invito', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id })
-})
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id })
+      })
 
-      // Crea profilo
+      // 4. Crea profilo
       await supabase.from('profili').insert({ id: data.user.id, email: email.trim() })
 
-      setMessaggio('Registrazione completata! Controlla la tua email per confermare l\'account.')
+      setMessaggio("Registrazione completata! Controlla la tua email per confermare l'account.")
       setModo('login')
-    } catch(e) { setErrore('Errore: ' + e.message); console.error('ERRORE REGISTRAZIONE:', e) }
+    } catch(e) {
+      setErrore('Errore: ' + e.message)
+      console.error('ERRORE REGISTRAZIONE:', e)
+    }
     setLoading(false)
   }
 
@@ -85,16 +82,13 @@ console.log('User dopo signUp:', data.user.id)
 
   return (
     <div style={{ minHeight: '100dvh', background: '#F4F1EC', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '24px 24px 48px' }}>
-      {/* Logo */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}>🍷</div>
         <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 28, fontWeight: 600, color: '#1C1410' }}>Piuttosto Pronto</div>
         <div style={{ fontSize: 13, color: '#7A6E65', letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 4 }}>La mia cantina</div>
       </div>
 
-      {/* Card */}
       <div style={{ background: '#fff', borderRadius: 20, padding: 24, border: '1px solid #E2DDD6' }}>
-        {/* Toggle */}
         <div style={{ display: 'flex', gap: 0, marginBottom: 24, background: '#F4F1EC', borderRadius: 10, padding: 3 }}>
           {[['login','Accedi'],['register','Registrati']].map(([m,l]) => (
             <button key={m} onClick={() => { setModo(m); reset() }}
@@ -105,7 +99,6 @@ console.log('User dopo signUp:', data.user.id)
         {errore && <div style={S.err}>{errore}</div>}
         {messaggio && <div style={S.ok}>{messaggio}</div>}
 
-        {/* Login */}
         {modo === 'login' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div><span style={S.lbl}>Email</span><input style={S.inp} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="tua@email.com" autoComplete="email" /></div>
@@ -115,7 +108,6 @@ console.log('User dopo signUp:', data.user.id)
           </div>
         )}
 
-        {/* Registrazione */}
         {modo === 'register' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div><span style={S.lbl}>Codice invito</span><input style={{ ...S.inp, textTransform: 'uppercase', letterSpacing: 2 }} value={codiceInvito} onChange={e=>setCodiceInvito(e.target.value)} placeholder="XXXXXX" /></div>
@@ -129,7 +121,6 @@ console.log('User dopo signUp:', data.user.id)
           </div>
         )}
 
-        {/* Reset password */}
         {modo === 'reset' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ fontSize: 14, color: '#7A6E65', marginBottom: 4 }}>Inserisci la tua email e ti mandiamo un link per reimpostare la password.</div>
