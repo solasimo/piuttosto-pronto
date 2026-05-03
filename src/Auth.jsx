@@ -36,10 +36,11 @@ export default function Auth() {
     setLoading(true); reset()
     try {
       // Verifica invito
-      const { data: invito, error: invErr } = await supabase
-        .from('inviti').select('*').eq('codice', codiceInvito.trim().toUpperCase())
-        .is('usato_da', null).gt('scade_at', new Date().toISOString()).maybeSingle()
-      if (invErr || !invito) { setErrore('Codice invito non valido o scaduto'); setLoading(false); return }
+const { data: invito, error: invErr } = await supabase
+  .from('inviti').select('*').eq('codice', codiceInvito.trim().toUpperCase()).maybeSingle()
+if (invErr || !invito) { setErrore('Codice invito non valido o scaduto'); setLoading(false); return }
+if (invito.usato_da) { setErrore('Questo codice invito è già stato utilizzato'); setLoading(false); return }
+if (new Date(invito.scade_at) < new Date()) { setErrore('Codice invito scaduto'); setLoading(false); return }
 
       // Registra utente
       const { data, error } = await supabase.auth.signUp({
