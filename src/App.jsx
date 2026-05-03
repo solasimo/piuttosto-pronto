@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaInvitoGruppo, uniscitiGruppo } from './supabase'
+import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaGruppo, creaInvitoGruppo, uniscitiGruppo } from './supabase'
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
@@ -362,6 +362,16 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
   const [codiceGenerato, setCodiceGenerato] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const handleCreaGruppo = async () => {
+    setLoading(true)
+    try {
+      const { gruppo: g } = await creaGruppo()
+      showToast('✓ Cantina condivisa creata')
+      onGruppoAggiornato(g)
+    } catch(e) { showToast('Errore: ' + e.message) }
+    setLoading(false)
+  }
+
   const handleCreaInvito = async () => {
     setLoading(true)
     try {
@@ -418,9 +428,16 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
           <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 14, padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Invita qualcuno</div>
             <div style={{ fontSize: 13, color: '#7A6E65', marginBottom: 14, lineHeight: 1.5 }}>
-              Genera un codice e condividilo con chi vuoi aggiungere alla tua cantina. Il codice è valido 7 giorni e può essere usato una sola volta.
+              {gruppo
+                ? 'Genera un codice e condividilo con chi vuoi aggiungere. Il codice è valido 7 giorni e può essere usato una sola volta.'
+                : 'Prima devi creare una cantina condivisa, poi potrai invitare qualcuno.'}
             </div>
-            {codiceGenerato ? (
+            {!gruppo ? (
+              <button onClick={handleCreaGruppo} disabled={loading}
+                style={{ width: '100%', padding: 13, background: '#1C1410', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
+                {loading ? 'Creazione…' : '🔗 Crea cantina condivisa'}
+              </button>
+            ) : codiceGenerato ? (
               <div style={{ background: '#F5EFE0', border: '1px solid #C8992A', borderRadius: 10, padding: 14, textAlign: 'center' }}>
                 <div style={{ fontSize: 11, color: '#854F0B', marginBottom: 6 }}>Codice invito generato</div>
                 <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 4, color: '#1C1410', fontFamily: 'monospace' }}>{codiceGenerato}</div>

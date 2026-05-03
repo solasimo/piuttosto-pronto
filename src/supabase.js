@@ -143,6 +143,7 @@ async function gruppiCall(action, payload = {}) {
 }
 
 export const getGruppo = () => gruppiCall('get_gruppo')
+export const creaGruppo = () => gruppiCall('crea_gruppo')
 export const creaInvitoGruppo = () => gruppiCall('crea_invito_gruppo')
 export const uniscitiGruppo = (codice) => gruppiCall('unisciti', { codice })
 export const lasciаGruppo = () => gruppiCall('lascia_gruppo')
