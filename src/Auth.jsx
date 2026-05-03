@@ -53,7 +53,11 @@ const invito = verificaData
       if (error) { setErrore(error.message); setLoading(false); return }
 
       // Aggiorna invito come usato
-      await supabase.from('inviti').update({ usato_da: data.user.id, usato_at: new Date().toISOString() }).eq('id', invito.id)
+      await fetch('/api/verifica-invito', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id })
+})
 
       // Crea profilo
       await supabase.from('profili').insert({ id: data.user.id, email: email.trim() })
