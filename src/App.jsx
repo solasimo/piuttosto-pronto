@@ -518,6 +518,27 @@ export default function App() {
     })()
   }, [session])
 
+  // Realtime — aggiornamenti in tempo reale per cantina condivisa
+  useEffect(() => {
+    if (!session) return
+    const cantinaChannel = supabase
+      .channel('cantina_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cantina' }, () => {
+        getBottiglie().then(setCantina).catch(console.error)
+      })
+      .subscribe()
+    const archivioChannel = supabase
+      .channel('archivio_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'archivio' }, () => {
+        getSchede().then(setArchivio).catch(console.error)
+      })
+      .subscribe()
+    return () => {
+      supabase.removeChannel(cantinaChannel)
+      supabase.removeChannel(archivioChannel)
+    }
+  }, [session])
+
   const handleQty = useCallback(async (id, delta) => {
     const b = cantina.find(x => x.id === id); if (!b) return
     const nuova = Math.max(1, b.quantita + delta)  // minimo 1
