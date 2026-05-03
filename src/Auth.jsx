@@ -36,11 +36,13 @@ export default function Auth() {
     setLoading(true); reset()
     try {
       // Verifica invito
-const verificaRes = await fetch('/api/verifica-invito', {
+const marcaRes = await fetch('/api/verifica-invito', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ codice: codiceInvito.trim() })
+  body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id })
 })
+const marcaData = await marcaRes.json()
+console.log('Marca invito:', JSON.stringify(marcaData))
 const verificaData = await verificaRes.json()
 if (!verificaRes.ok) { setErrore(verificaData.error || 'Codice invito non valido'); setLoading(false); return }
 const invito = verificaData
