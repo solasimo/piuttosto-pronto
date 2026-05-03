@@ -80,13 +80,16 @@ export default async function handler(req, res) {
 
       case 'revoca_gruppo': {
         const { gruppo_id } = payload
-        // Rimuovi tutti i membri
-        await supabaseAdmin.from('gruppi_membri').delete().eq('gruppo_id', gruppo_id)
-        // Rimuovi gruppo_id dai dati
-        await supabaseAdmin.from('cantina').update({ gruppo_id: null }).eq('gruppo_id', gruppo_id)
-        await supabaseAdmin.from('archivio').update({ gruppo_id: null }).eq('gruppo_id', gruppo_id)
-        // Elimina il gruppo
-        await supabaseAdmin.from('gruppi').delete().eq('id', gruppo_id)
+        const { error: e1 } = await supabaseAdmin.from('gruppi_membri').delete().eq('gruppo_id', gruppo_id)
+        if (e1) return res.status(500).json({ error: 'Errore rimozione membri: ' + e1.message })
+        const { error: e2 } = await supabaseAdmin.from('cantina').update({ gruppo_id: null }).eq('gruppo_id', gruppo_id)
+        if (e2) return res.status(500).json({ error: 'Errore cantina: ' + e2.message })
+        const { error: e3 } = await supabaseAdmin.from('archivio').update({ gruppo_id: null }).eq('gruppo_id', gruppo_id)
+        if (e3) return res.status(500).json({ error: 'Errore archivio: ' + e3.message })
+        const { error: e4 } = await supabaseAdmin.from('inviti').update({ gruppo_id: null }).eq('gruppo_id', gruppo_id)
+        if (e4) return res.status(500).json({ error: 'Errore inviti: ' + e4.message })
+        const { error: e5 } = await supabaseAdmin.from('gruppi').delete().eq('id', gruppo_id)
+        if (e5) return res.status(500).json({ error: 'Errore eliminazione gruppo: ' + e5.message })
         return res.json({ ok: true })
       }
 
