@@ -27,7 +27,9 @@ export default async function handler(req, res) {
       .update({ usato_da: user_id, usato_at: new Date().toISOString() })
       .eq('id', invito.id)
     if (updErr) return res.status(500).json({ error: 'Errore aggiornamento invito: ' + updErr.message })
-    return res.status(200).json({ valido: true, marcato: true })
+    // Crea profilo utente
+await supabase.from('profili').insert({ id: user_id, email: req.body.email || '', is_active: true })
+return res.status(200).json({ valido: true, marcato: true })
   }
 
   return res.status(200).json({ valido: true, id: invito.id })
