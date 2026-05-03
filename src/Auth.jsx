@@ -51,14 +51,11 @@ export default function Auth() {
       if (!data.user) { setErrore('Errore durante la registrazione'); setLoading(false); return }
 
       // 3. Marca invito come usato (con user_id ora disponibile)
-      await fetch('/api/verifica-invito', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id })
-      })
-
-      // 4. Crea profilo
-      await supabase.from('profili').insert({ id: data.user.id, email: email.trim() })
+await fetch('/api/verifica-invito', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id, email: email.trim() })
+})
 
       setMessaggio("Registrazione completata! Controlla la tua email per confermare l'account.")
       setModo('login')
