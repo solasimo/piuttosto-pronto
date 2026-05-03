@@ -103,7 +103,8 @@ export default function Admin({ onClose }) {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
-                      <span style={{ fontSize:14, fontWeight:600, color:'#1C1410' }}>{u.email}</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: '#1C1410' }}>{u.nome} {u.cognome}</span>
+                      <span style={{ fontSize: 12, color: '#7A6E65' }}>{u.email}</span>
                       {u.is_admin && <span style={{ fontSize:10, background:'#F5EFE0', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>ADMIN</span>}
                       {!u.is_active && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>SOSPESO</span>}
                     </div>
