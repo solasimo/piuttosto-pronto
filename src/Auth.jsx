@@ -48,12 +48,14 @@ if (!verificaRes.ok) { setErrore(verificaData.error || 'Codice invito non valido
 const invito = verificaData
 
       // Registra utente
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(), password,
-        options: { emailRedirectTo: 'https://piuttosto-pronto.vercel.app' }
-      })
-      if (error) { setErrore(error.message); setLoading(false); return }
-
+const { data, error } = await supabase.auth.signUp({
+  email: email.trim(), password,
+  options: { emailRedirectTo: 'https://piuttosto-pronto.vercel.app' }
+})
+if (error) { setErrore(error.message); setLoading(false); return }
+if (!data.user) { setErrore('Errore durante la registrazione'); setLoading(false); return }
+console.log('User dopo signUp:', data.user.id)
+      
       // Aggiorna invito come usato
       await fetch('/api/verifica-invito', {
   method: 'POST',
