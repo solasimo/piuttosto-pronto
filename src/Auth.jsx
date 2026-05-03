@@ -14,6 +14,8 @@ export default function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [codiceInvito, setCodiceInvito] = useState('')
+  const [nome, setNome] = useState('')
+  const [cognome, setCognome] = useState('')
   const [loading, setLoading] = useState(false)
   const [errore, setErrore] = useState('')
   const [messaggio, setMessaggio] = useState('')
@@ -30,6 +32,7 @@ export default function Auth() {
 
   const handleRegister = async () => {
     if (!email || !password || !codiceInvito) { setErrore('Compila tutti i campi'); return }
+    if (!nome.trim() || !cognome.trim()) { setErrore('Inserisci nome e cognome'); return }
     if (password.length < 8) { setErrore('La password deve essere di almeno 8 caratteri'); return }
     setLoading(true); reset()
     try {
@@ -51,11 +54,14 @@ export default function Auth() {
       if (!data.user) { setErrore('Errore durante la registrazione'); setLoading(false); return }
 
       // 3. Marca invito come usato (con user_id ora disponibile)
-await fetch('/api/verifica-invito', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id, email: email.trim() })
-})
+      await fetch('/api/verifica-invito', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codice: codiceInvito.trim(), user_id: data.user.id, email: email.trim(), nome: nome.trim(), cognome: cognome.trim() })
+      })
+
+      // 4. Crea profilo
+      await supabase.from('profili').insert({ id: data.user.id, email: email.trim() })
 
       setMessaggio("Registrazione completata! Controlla la tua email per confermare l'account.")
       setModo('login')
@@ -108,6 +114,10 @@ await fetch('/api/verifica-invito', {
         {modo === 'register' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div><span style={S.lbl}>Codice invito</span><input style={{ ...S.inp, textTransform: 'uppercase', letterSpacing: 2 }} value={codiceInvito} onChange={e=>setCodiceInvito(e.target.value)} placeholder="XXXXXX" /></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div><span style={S.lbl}>Nome</span><input style={S.inp} value={nome} onChange={e=>setNome(e.target.value)} placeholder="Mario" /></div>
+              <div><span style={S.lbl}>Cognome</span><input style={S.inp} value={cognome} onChange={e=>setCognome(e.target.value)} placeholder="Rossi" /></div>
+            </div>
             <div><span style={S.lbl}>Email</span><input style={S.inp} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="tua@email.com" autoComplete="email" /></div>
             <div>
               <span style={S.lbl}>Password</span>
