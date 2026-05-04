@@ -352,26 +352,25 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
         </div>
       </div>
 
-      {/* Hint gradiente — più visibile */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:56, background:`linear-gradient(to left, ${tipoSolid}cc 0%, ${tipoSolid}55 40%, transparent 100%)`, pointerEvents:'none', zIndex:1 }} />
-
       {/* Riga principale */}
       <div
         onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
         style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', background:'#0f0b08', position:'relative', zIndex:2, transform:`translateX(-${swipeX}px)`, transition:swiping?'none':'transform 0.25s ease' }}>
 
+        {/* Hint gradiente — dentro la riga, sul bordo destro */}
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:48, background:`linear-gradient(to left, ${tipoSolid}bb, transparent)`, pointerEvents:'none', zIndex:3 }} />
+
         {/* Left */}
         <div style={{ flex:1, minWidth:0 }}>
-          {/* Riga controlli: − bott. + 🍷 🗑️ */}
+          {/* Riga controlli: badge − X bott. + 🍷 🗑️ */}
           <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
-            <button onClick={e=>{e.stopPropagation();onQty(b.id,-1)}} disabled={b.quantita<=1}
-              style={{ width:22, height:22, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:b.quantita<=1?'#2a2318':'#8B7355', fontSize:16, cursor:b.quantita<=1?'default':'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>−</button>
             <span style={{ fontSize:8, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', padding:'2px 8px', borderRadius:3, background:tipoBg, color:tipoColor, border:`1px solid ${tipoColor}33`, flexShrink:0 }}>{b.tipologia||'—'}</span>
-            <span style={{ fontSize:11, color:'#5a4f3f' }}>{b.quantita} bott.</span>
+            <button onClick={e=>{e.stopPropagation();onQty(b.id,-1)}} disabled={b.quantita<=1}
+              style={{ width:20, height:20, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:b.quantita<=1?'#2a2318':'#8B7355', fontSize:14, cursor:b.quantita<=1?'default':'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>−</button>
+            <span style={{ fontSize:11, color:'#5a4f3f', flexShrink:0 }}>{b.quantita} bott.</span>
             <button onClick={e=>{e.stopPropagation();onQty(b.id,1)}}
-              style={{ width:22, height:22, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:'#8B7355', fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>+</button>
+              style={{ width:20, height:20, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:'#8B7355', fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>+</button>
             <div style={{ marginLeft:'auto', display:'flex', gap:4 }}>
-              {/* Bevuto — icona visibile su desktop */}
               <button onClick={e=>{e.stopPropagation();onBevuto(b)}}
                 style={{ width:22, height:22, borderRadius:'50%', border:`1px solid ${tipoColor}44`, background:tipoBg, color:tipoColor, fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }} title="Bevuto">🍷</button>
               <button onClick={e=>{e.stopPropagation();onElimina(b)}}
