@@ -47,15 +47,18 @@ export default async function handler(req, res) {
         return res.json({ ok: true, gruppo })
       }
 
-      case 'crea_invito_gruppo': {
-        const { data: membro } = await supabase
-          .from('gruppi_membri').select('gruppo_id')
-          .eq('user_id', user.id).maybeSingle()
-        if (!membro) return res.status(400).json({ error: 'Non sei in nessun gruppo' })
-        const codice = 'G' + nanoid(7)
-        const scade_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-        await supabase.from('inviti').insert({ codice, creato_da: user.id, scade_at, gruppo_id: membro.gruppo_id })
-        return res.json({ codice })
+case 'crea_invito_gruppo': {
+  const { data: membro } = await supabase
+    .from('gruppi_membri').select('gruppo_id')
+    .eq('user_id', user.id).maybeSingle()
+  if (!membro) return res.status(400).json({ error: 'Non sei in nessun gruppo' })
+
+  // Verifica limite 2 membri
+  const { count } = await supabase
+    .from('gruppi_membri')
+    .select('*', { count: 'exact', head: true })
+    .eq('gruppo_id', membro.gruppo_id)
+  if (count >= 2) return res.status(400).json({ error: 'Il gruppo ha già raggiunto il limite di 2 persone' })
       }
 
       case 'unisciti': {
