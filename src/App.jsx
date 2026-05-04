@@ -356,6 +356,90 @@ const NAV = [
   { id: 'aggiungi',    icon: '+',   label: 'Aggiungi' },
 ]
 
+// ─── Menu utente ─────────────────────────────────────────────────────────────
+function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, onLogout, showToast }) {
+  const [showCambioPassword, setShowCambioPassword] = useState(false)
+  const [nuovaPassword, setNuovaPassword] = useState('')
+  const [confermaPassword, setConfermaPassword] = useState('')
+  const [salvandoPwd, setSalvandoPwd] = useState(false)
+
+  const handleCambioPassword = async () => {
+    if (nuovaPassword.length < 8) { showToast('⚠️ Minimo 8 caratteri'); return }
+    if (nuovaPassword !== confermaPassword) { showToast('⚠️ Le password non coincidono'); return }
+    setSalvandoPwd(true)
+    const { error } = await supabase.auth.updateUser({ password: nuovaPassword })
+    if (error) showToast('⚠️ Errore: ' + error.message)
+    else { showToast('✓ Password aggiornata!'); setShowCambioPassword(false); setNuovaPassword(''); setConfermaPassword('') }
+    setSalvandoPwd(false)
+  }
+
+  const S_inp = { width:'100%', padding:'12px 14px', border:'1.5px solid #1e1a16', borderRadius:10, fontSize:15, background:'#1a1611', color:'#F5EFE0', WebkitAppearance:'none', boxSizing:'border-box' }
+  const S_btn = { width:'100%', padding:12, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:300, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
+      <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(4px)' }} />
+      <div style={{ position:'relative', background:'#0f0b08', borderRadius:'20px 20px 0 0', maxHeight:'85dvh', display:'flex', flexDirection:'column', paddingBottom:'env(safe-area-inset-bottom, 16px)', border:'1px solid #1e1a16', borderBottom:'none' }}>
+        <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 4px' }}>
+          <div style={{ width:36, height:4, borderRadius:2, background:'#2a2318' }} />
+        </div>
+
+        <div style={{ overflowY:'auto', padding:'8px 20px 32px', flex:1 }}>
+          {/* Info utente */}
+          <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:16 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Informazioni utente</div>
+            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:22, fontWeight:400, color:'#F5EFE0', marginBottom:4 }}>{profilo?.nome} {profilo?.cognome}</div>
+            <div style={{ fontSize:13, color:'#5a4f3f', marginBottom:12 }}>{profilo?.email}</div>
+
+            {!showCambioPassword ? (
+              <button onClick={()=>setShowCambioPassword(true)} style={{ fontSize:12, color:'#C8992A', background:'none', border:'1px solid #C8992A44', borderRadius:8, padding:'6px 12px', cursor:'pointer' }}>
+                Cambia password
+              </button>
+            ) : (
+              <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:8 }}>
+                <input type="password" value={nuovaPassword} onChange={e=>setNuovaPassword(e.target.value)} placeholder="Nuova password (min. 8)" style={S_inp} />
+                <input type="password" value={confermaPassword} onChange={e=>setConfermaPassword(e.target.value)} placeholder="Conferma password" style={S_inp} onKeyDown={e=>e.key==='Enter'&&handleCambioPassword()} />
+                <div style={{ display:'flex', gap:8 }}>
+                  <button onClick={()=>setShowCambioPassword(false)} style={{ flex:1, padding:10, background:'none', border:'1px solid #2a2318', borderRadius:10, color:'#5a4f3f', fontSize:13, cursor:'pointer' }}>Annulla</button>
+                  <button onClick={handleCambioPassword} disabled={salvandoPwd} style={{ flex:1, padding:10, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', opacity:salvandoPwd?0.7:1 }}>{salvandoPwd?'Salvataggio…':'Salva'}</button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Condividi cantina */}
+          <button onClick={onCondividi} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
+            <span style={{ fontSize:24 }}>👥</span>
+            <div>
+              <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>Condividi cantina</div>
+              <div style={{ fontSize:12, color:'#5a4f3f' }}>{gruppo ? `Condivisa — ${gruppo.nome}` : 'Invita qualcuno a condividere'}</div>
+            </div>
+            <span style={{ marginLeft:'auto', color:'#5a4f3f', fontSize:16 }}>›</span>
+          </button>
+
+          {/* Admin */}
+          {isAdmin && (
+            <button onClick={onAdmin} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
+              <span style={{ fontSize:24 }}>⚙️</span>
+              <div>
+                <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>Dashboard Admin</div>
+                <div style={{ fontSize:12, color:'#5a4f3f' }}>Gestisci utenti, inviti e gruppi</div>
+              </div>
+              <span style={{ marginLeft:'auto', color:'#5a4f3f', fontSize:16 }}>›</span>
+            </button>
+          )}
+
+          {/* Logout */}
+          <button onClick={onLogout} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#1a0a0a', border:'1px solid #2a1010', borderRadius:14, padding:16, cursor:'pointer', textAlign:'left' }}>
+            <span style={{ fontSize:24 }}>↩</span>
+            <div style={{ fontSize:14, fontWeight:600, color:'#9B2335' }}>Esci dall'app</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Pannello condivisione cantina ───────────────────────────────────────────
 function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }) {
   const [codiceInput, setCodiceInput] = useState('')
@@ -474,12 +558,15 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
 }
 
 // ─── APP ROOT ─────────────────────────────────────────────────────────────────
+// ─── APP ROOT ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [session, setSession] = useState(undefined)
   const [profilo, setProfilo] = useState(null)
   const [gruppo, setGruppo] = useState(null)
   const [showAdmin, setShowAdmin] = useState(false)
   const [showGruppo, setShowGruppo] = useState(false)
+  const [showUtente, setShowUtente] = useState(false)
+  const [showFab, setShowFab] = useState(false)
   const [tab, setTab] = useState('libreria')
   const [cantina, setCantina] = useState([])
   const [archivio, setArchivio] = useState([])
@@ -518,7 +605,6 @@ export default function App() {
     })()
   }, [session])
 
-  // Realtime — aggiornamenti in tempo reale per cantina condivisa
   useEffect(() => {
     if (!session) return
     const cantinaChannel = supabase
@@ -533,15 +619,12 @@ export default function App() {
         getSchede().then(setArchivio).catch(console.error)
       })
       .subscribe()
-    return () => {
-      supabase.removeChannel(cantinaChannel)
-      supabase.removeChannel(archivioChannel)
-    }
+    return () => { supabase.removeChannel(cantinaChannel); supabase.removeChannel(archivioChannel) }
   }, [session])
 
   const handleQty = useCallback(async (id, delta) => {
     const b = cantina.find(x => x.id === id); if (!b) return
-    const nuova = Math.max(1, b.quantita + delta)  // minimo 1
+    const nuova = Math.max(1, b.quantita + delta)
     setCantina(prev => prev.map(x => x.id === id ? { ...x, quantita: nuova } : x))
     await updateBottiglia(id, { quantita: nuova })
   }, [cantina])
@@ -555,17 +638,14 @@ export default function App() {
   const handleUpdateBottiglia = useCallback(async (id, changes) => {
     const updated = await updateBottiglia(id, changes)
     setCantina(prev => prev.map(x => x.id === id ? updated : x))
-    setDettaglioBottiglia(updated)  // aggiorna il dettaglio aperto
-    setModalitaBottiglia('detail')  // torna alla vista dettaglio
+    setDettaglioBottiglia(updated)
+    setModalitaBottiglia('detail')
     showToast('✓ Bottiglia aggiornata!')
   }, [])
 
-  // Salva scheda — gestisce sia "da bottiglia" che "libera"
   const handleSaveASPI = useCallback(async (formData) => {
     const oggi = today()
-    // Costruisce il record da salvare
     const record = { ...formData, data: oggi }
-    // Se viene da "L'ho bevuto" decrementa la quantità
     if (aspiBottiglia) {
       const b = aspiBottiglia
       const nuovaQty = Math.max(0, b.quantita - 1)
@@ -573,12 +653,8 @@ export default function App() {
       else { await updateBottiglia(b.id, { quantita: nuovaQty }); setCantina(prev => prev.map(x => x.id === b.id ? { ...x, quantita: nuovaQty } : x)) }
     }
     const saved = await addScheda(record)
-    setArchivio(prev => {
-      const nuova = [saved, ...prev]
-      return nuova.sort((a, b) => (b.voto || 0) - (a.voto || 0))
-    })
-    setAspiBottiglia(null)
-    setAspiLibera(false)
+    setArchivio(prev => [saved, ...prev].sort((a, b) => (b.voto || 0) - (a.voto || 0)))
+    setAspiBottiglia(null); setAspiLibera(false)
     showToast('📓 Scheda ASPI salvata!')
     setTab('schede')
   }, [aspiBottiglia])
@@ -589,6 +665,7 @@ export default function App() {
     showToast(`✓ "${bottiglia.nome}" aggiunta!`)
     setTab('libreria')
   }, [])
+
   const handleDeleteScheda = useCallback(async (scheda) => {
     await deleteScheda(scheda.id)
     setArchivio(prev => prev.filter(s => s.id !== scheda.id))
@@ -598,156 +675,160 @@ export default function App() {
   const handleUpdateScheda = useCallback(async (formData) => {
     if (!editScheda) return
     const updated = await updateScheda(editScheda.id, { ...formData, data: editScheda.data })
-    setArchivio(prev => {
-      const nuova = prev.map(s => s.id === editScheda.id ? updated : s)
-      return nuova.sort((a, b) => (b.voto || 0) - (a.voto || 0))
-    })
+    setArchivio(prev => prev.map(s => s.id === editScheda.id ? updated : s).sort((a, b) => (b.voto || 0) - (a.voto || 0)))
     setEditScheda(null)
     showToast('✓ Scheda aggiornata!')
     setTab('schede')
   }, [editScheda])
 
-  // Dati pre-compilati quando arriva da "L'ho bevuto"
   const aspiInitial = aspiBottiglia ? {
-    nomeVino: aspiBottiglia.nome || '',
-    cantina: aspiBottiglia.cantina || '',
+    nomeVino: aspiBottiglia.nome || '', cantina: aspiBottiglia.cantina || '',
     annata: aspiBottiglia.anno ? String(aspiBottiglia.anno) : '',
-    tipologia: aspiBottiglia.tipologia || '',
-    temperatura: aspiBottiglia.temp || '',
-    denominazione: aspiBottiglia.denominazione || '',
-    paese: aspiBottiglia.paese || '',
-    regione: aspiBottiglia.regione || '',
-    foto_url: aspiBottiglia.foto_url || '',
+    tipologia: aspiBottiglia.tipologia || '', temperatura: aspiBottiglia.temp || '',
+    denominazione: aspiBottiglia.denominazione || '', paese: aspiBottiglia.paese || '',
+    regione: aspiBottiglia.regione || '', foto_url: aspiBottiglia.foto_url || '',
   } : {}
-
   const aspiSheetOpen = !!aspiBottiglia || aspiLibera
   const aspiTitle = aspiBottiglia ? `${aspiBottiglia.nome}${aspiBottiglia.anno ? ' ' + aspiBottiglia.anno : ''}` : 'Nuova scheda ASPI'
 
-  // Auth guard
+  // KPI topbar
+  const totBottiglie = cantina.reduce((s,b) => s+(b.quantita||0), 0)
+  const totEtichette = cantina.length
+  const valoreEur = cantina.reduce((s,b) => s+(b.prezzo_acquisto||0)*(b.quantita||0), 0)
+  const fmtEur = v => v > 0 ? `€ ${v.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0})}` : '—'
+
   if (session === undefined) return (
-    <div style={{ height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F1EC' }}>
-      <div style={{ fontSize: 40 }}>🍷</div>
+    <div style={{ height:'100dvh', display:'flex', alignItems:'center', justifyContent:'center', background:'#0f0b08' }}>
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:40, color:'#C8992A' }}>🍷</div>
     </div>
   )
   if (session === null) return <Auth />
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#F4F1EC', overflow: 'hidden' }}>
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'#0f0b08', overflow:'hidden' }}>
+
       {/* Topbar */}
-      <div style={{ background: '#7B1E2E', padding: '12px 20px', paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <div onClick={() => setShowGruppo(true)} style={{ cursor: 'pointer' }}>
-          <div style={{ fontFamily: 'Playfair Display, serif', color: '#F5EFE0', fontSize: 20, fontWeight: 600 }}>Piuttosto Pronto</div>
-          <div style={{ color: 'rgba(245,239,224,0.6)', fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 1 }}>
-            {gruppo?.nome || `Cantina di ${profilo?.nome || '...'}`}
+      <div style={{ background:'#0f0b08', paddingTop:'calc(12px + env(safe-area-inset-top, 0px))', flexShrink:0, borderBottom:'1px solid #1e1a16' }}>
+        <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', padding:'0 16px' }}>
+          <div>
+            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:10, fontWeight:300, letterSpacing:3, textTransform:'uppercase', color:'#8B7355', marginBottom:3 }}>
+              {gruppo?.nome || `Cantina di ${profilo?.nome || '...'}`}
+            </div>
+            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:26, fontWeight:300, color:'#F5EFE0', fontStyle:'italic', lineHeight:1 }}>
+              Piuttosto Pronto
+            </div>
           </div>
+          <button onClick={() => setShowUtente(true)}
+            style={{ width:38, height:38, borderRadius:'50%', background:'#1a1611', border:'1px solid #2a2318', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, marginBottom:4 }}>
+            👤
+          </button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {profilo?.is_admin && (
-            <button onClick={() => setShowAdmin(true)}
-              style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 100, background: 'rgba(255,255,255,0.2)', color: '#F5EFE0', border: 'none', cursor: 'pointer' }}>
-              ADMIN
-            </button>
-          )}
-          <button onClick={() => setShowGruppo(true)}
-            style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#F5EFE0', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            title="Condivisione">👥</button>
-          <button onClick={() => supabase.auth.signOut()}
-            style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#F5EFE0', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            title="Esci">↩</button>
+        <div style={{ display:'flex', borderTop:'1px solid #1e1a16', marginTop:10 }}>
+          {[['Bottiglie',totBottiglie],['Etichette',totEtichette],['Valore',fmtEur(valoreEur)]].map(([lbl,val])=>(
+            <div key={lbl} style={{ flex:1, padding:'8px 12px', borderRight:'1px solid #1e1a16', textAlign:'center' }}>
+              <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:300, color:'#F5EFE0', lineHeight:1 }}>{val}</div>
+              <div style={{ fontSize:9, letterSpacing:1.5, textTransform:'uppercase', color:'#5a4f3f', marginTop:2 }}>{lbl}</div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', paddingBottom:80 }}>
         {loading ? <Spinner /> : <>
-          {tab === 'libreria'    && <Libreria cantina={cantina} onBevuto={b => { setAspiBottiglia(b); setAspiLibera(false) }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b => { setDettaglioBottiglia(b); setModalitaBottiglia('detail') }} />}
-          {tab === 'statistiche' && <Statistiche cantina={cantina} />}
-          {tab === 'abbinamento' && <AIChef cantina={cantina} />}
-          {tab === 'schede'      && <SchedeASPI archivio={archivio} onNuova={() => { setAspiBottiglia(null); setAspiLibera(true) }} onElimina={handleDeleteScheda} onOpen={scheda => setEditScheda(scheda)} onUpdateScheda={updated => setArchivio(prev => prev.map(s => s.id === updated.id ? updated : s))} />}
-          {tab === 'aggiungi'    && (
-            <div style={{ paddingTop: 8 }}>
-              <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 600, color: '#1C1410', marginBottom: 6 }}>Cosa vuoi aggiungere?</div>
-              <div style={{ fontSize: 14, color: '#7A6E65', marginBottom: 24 }}>Scegli il tipo di inserimento</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <button onClick={() => setTab('aggiungi-bottiglia')} style={{ background: '#fff', border: '1.5px solid #E2DDD6', borderRadius: 16, padding: '20px 20px', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <span style={{ fontSize: 36 }}>🍾</span>
-                  <div>
-                    <div style={{ fontSize: 16, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>Nuova bottiglia in cantina</div>
-                    <div style={{ fontSize: 13, color: '#7A6E65' }}>Aggiungi un vino alla tua collezione</div>
-                  </div>
-                </button>
-                <button onClick={() => { setAspiBottiglia(null); setAspiLibera(true) }} style={{ background: '#fff', border: '1.5px solid #E2DDD6', borderRadius: 16, padding: '20px 20px', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <span style={{ fontSize: 36 }}>📓</span>
-                  <div>
-                    <div style={{ fontSize: 16, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>Nuova scheda ASPI</div>
-                    <div style={{ fontSize: 13, color: '#7A6E65' }}>Compila una scheda di degustazione</div>
-                  </div>
-                </button>
-              </div>
-            </div>
-          )}
-          {tab === 'aggiungi-bottiglia' && <AggiungiForm onAdd={handleAdd} showToast={showToast} />}
+          {tab==='libreria' && <div style={{padding:'12px 14px 0'}}><Libreria cantina={cantina} onBevuto={b=>{setAspiBottiglia(b);setAspiLibera(false)}} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
+          {tab==='statistiche' && <div style={{padding:'0 14px'}}><Statistiche cantina={cantina} onBottigliaClick={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
+          {tab==='abbinamento' && <div style={{padding:'0 14px'}}><AIChef cantina={cantina} /></div>}
+          {tab==='schede' && <div style={{padding:'0 14px'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} /></div>}
         </>}
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #E2DDD6', display: 'flex' }}>
-        {NAV.map(({ id, icon, label }) => {
-          const active = tab === id || (id === 'aggiungi' && tab === 'aggiungi-bottiglia')
+      <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#0a0806', borderTop:'1px solid #1e1a16', display:'flex', paddingBottom:'env(safe-area-inset-bottom, 0px)', zIndex:50 }}>
+        {[['libreria','🍾','Cantina'],['statistiche','📊','Stats'],['abbinamento','✦','AI Chef'],['schede','📓','Schede']].map(([id,icon,label])=>{
+          const active = tab===id
           return (
-            <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: '10px 4px 10px', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <span style={{ fontSize: id === 'aggiungi' ? 22 : 20, lineHeight: 1, color: active ? '#7B1E2E' : '#B0A89E', fontWeight: id === 'aggiungi' || id === 'abbinamento' ? 700 : 400 }}>{icon}</span>
-              <span style={{ fontSize: 9, fontWeight: active ? 600 : 400, color: active ? '#7B1E2E' : '#B0A89E', textAlign: 'center', lineHeight: 1.2 }}>{label}</span>
-              {active && <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#7B1E2E' }} />}
+            <button key={id} onClick={()=>setTab(id)} style={{ flex:1, padding:'12px 4px 8px', border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
+              <span style={{ fontSize:18, lineHeight:1, color:active?'#C8992A':'#5a4f3f' }}>{icon}</span>
+              <span style={{ fontSize:9, letterSpacing:'0.8px', textTransform:'uppercase', fontWeight:active?600:400, color:active?'#C8992A':'#5a4f3f' }}>{label}</span>
+              {active && <div style={{ width:3, height:3, borderRadius:'50%', background:'#C8992A' }} />}
             </button>
           )
         })}
       </div>
 
-      {/* Sheet: compila nuova scheda ASPI */}
-      <Sheet open={aspiSheetOpen} onClose={() => { setAspiBottiglia(null); setAspiLibera(false) }} title={aspiTitle}>
+      {/* FAB */}
+      <button onClick={()=>setShowFab(v=>!v)}
+        style={{ position:'fixed', bottom:72, right:20, width:50, height:50, borderRadius:'50%', background:'#C8992A', border:'none', cursor:'pointer', fontSize:26, color:'#0f0b08', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px #C8992A44', zIndex:51, lineHeight:1 }}>
+        +
+      </button>
+
+      {showFab && (
+        <div style={{ position:'fixed', inset:0, zIndex:50 }} onClick={()=>setShowFab(false)}>
+          <div style={{ position:'absolute', bottom:134, right:20, display:'flex', flexDirection:'column', gap:10, alignItems:'flex-end' }}>
+            <button onClick={()=>{setShowFab(false);setAspiBottiglia(null);setAspiLibera(true)}}
+              style={{ display:'flex', alignItems:'center', gap:10, background:'#141009', border:'1px solid #2a2318', borderRadius:12, padding:'12px 16px', cursor:'pointer' }}>
+              <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500 }}>Nuova scheda ASPI</span>
+              <span style={{ fontSize:20 }}>📓</span>
+            </button>
+            <button onClick={()=>{setShowFab(false);setTab('aggiungi-bottiglia')}}
+              style={{ display:'flex', alignItems:'center', gap:10, background:'#141009', border:'1px solid #2a2318', borderRadius:12, padding:'12px 16px', cursor:'pointer' }}>
+              <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500 }}>Nuova bottiglia</span>
+              <span style={{ fontSize:20 }}>🍾</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sheet aggiungi bottiglia */}
+      <Sheet open={tab==='aggiungi-bottiglia'} onClose={()=>setTab('libreria')} title="Aggiungi bottiglia">
+        <AggiungiForm onAdd={handleAdd} showToast={showToast} />
+      </Sheet>
+
+      {/* Sheet: nuova scheda ASPI */}
+      <Sheet open={aspiSheetOpen} onClose={()=>{setAspiBottiglia(null);setAspiLibera(false)}} title={aspiTitle}>
         {aspiSheetOpen && <AspiForm initial={aspiInitial} oggi={today()} onSave={handleSaveASPI} />}
       </Sheet>
 
-      {/* Sheet: modifica scheda ASPI esistente */}
-      <Sheet open={!!editScheda} onClose={() => setEditScheda(null)} title={editScheda ? `Modifica — ${editScheda.nomeVino || editScheda.nome || 'Scheda ASPI'}` : ''}>
+      {/* Sheet: modifica scheda ASPI */}
+      <Sheet open={!!editScheda} onClose={()=>setEditScheda(null)} title={editScheda?`Modifica — ${editScheda.nomeVino||editScheda.nome||'Scheda ASPI'}`:''}>
         {editScheda && <AspiForm initial={editScheda} oggi={editScheda.data} onSave={handleUpdateScheda} saveLabel="Salva modifiche" />}
       </Sheet>
 
-      {/* Sheet: dettaglio/modifica bottiglia — montato qui in App per stare sopra tutto */}
-      <Sheet open={!!dettaglioBottiglia} onClose={() => setDettaglioBottiglia(null)} title={dettaglioBottiglia?.nome || ''}>
+      {/* Sheet: dettaglio/modifica bottiglia */}
+      <Sheet open={!!dettaglioBottiglia} onClose={()=>setDettaglioBottiglia(null)} title={dettaglioBottiglia?.nome||''}>
         {dettaglioBottiglia && <>
-          <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: '#E2DDD6', borderRadius: 10, padding: 3 }}>
-            {[['detail','Dettaglio'],['edit','Modifica']].map(([m, l]) => (
-              <button key={m} onClick={() => setModalitaBottiglia(m)} style={{ flex: 1, padding: '8px 0', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', background: modalitaBottiglia === m ? '#fff' : 'transparent', color: modalitaBottiglia === m ? '#1C1410' : '#7A6E65', transition: 'background 0.15s' }}>{l}</button>
+          <div style={{ display:'flex', gap:0, marginBottom:16, background:'#1a1611', borderRadius:10, padding:3 }}>
+            {[['detail','Dettaglio'],['edit','Modifica']].map(([m,l])=>(
+              <button key={m} onClick={()=>setModalitaBottiglia(m)} style={{ flex:1, padding:'8px 0', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', background:modalitaBottiglia===m?'#2a2318':'transparent', color:modalitaBottiglia===m?'#F5EFE0':'#5a4f3f' }}>{l}</button>
             ))}
           </div>
-          {modalitaBottiglia === 'detail'
-            ? <DettaglioBottiglia b={dettaglioBottiglia} />
-            : <ModificaBottiglia
-                b={dettaglioBottiglia}
-                saving={savingBottiglia}
-                onSave={async (changes) => {
-                  setSavingBottiglia(true)
-                  await handleUpdateBottiglia(dettaglioBottiglia.id, changes)
-                  setSavingBottiglia(false)
-                  setDettaglioBottiglia(null)
-                }}
-              />
+          {modalitaBottiglia==='detail'
+            ?<DettaglioBottiglia b={dettaglioBottiglia}/>
+            :<ModificaBottiglia b={dettaglioBottiglia} saving={savingBottiglia} onSave={async(changes)=>{setSavingBottiglia(true);await handleUpdateBottiglia(dettaglioBottiglia.id,changes);setSavingBottiglia(false);setDettaglioBottiglia(null)}}/>
           }
         </>}
       </Sheet>
 
-      {showAdmin && <Admin onClose={() => setShowAdmin(false)} />}
-
-      {showGruppo && (
-        <GruppoPanel
+      {/* Menu utente */}
+      {showUtente && (
+        <UtenteMenu
           profilo={profilo}
           gruppo={gruppo}
-          onClose={() => setShowGruppo(false)}
-          onGruppoAggiornato={(g) => { setGruppo(g); setCantina([]); setArchivio([]) }}
+          isAdmin={profilo?.is_admin}
+          onClose={()=>setShowUtente(false)}
+          onCondividi={()=>{setShowUtente(false);setShowGruppo(true)}}
+          onAdmin={()=>{setShowUtente(false);setShowAdmin(true)}}
+          onLogout={()=>supabase.auth.signOut()}
           showToast={showToast}
         />
+      )}
+
+      {showAdmin && <Admin onClose={()=>setShowAdmin(false)} />}
+
+      {showGruppo && (
+        <GruppoPanel profilo={profilo} gruppo={gruppo} onClose={()=>setShowGruppo(false)}
+          onGruppoAggiornato={(g)=>{setGruppo(g);setCantina([]);setArchivio([])}} showToast={showToast} />
       )}
 
       <Toast msg={toast} />
