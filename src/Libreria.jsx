@@ -329,7 +329,7 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
   const [swipeX, setSwipeX] = useState(0)
   const [swiping, setSwiping] = useState(false)
   const startX = useRef(0)
-  const THRESHOLD = 70
+  const THRESHOLD = 72
 
   const onTouchStart = e => { startX.current = e.touches[0].clientX; setSwiping(true) }
   const onTouchMove = e => {
@@ -344,38 +344,47 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
 
   return (
     <div style={{ position:'relative', overflow:'hidden', borderBottom:'1px solid #1a1611' }}>
-      {/* Sfondo swipe — colore tipologia */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:THRESHOLD, background:tipoSolid, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'0 0 0 0' }}>
-        <span style={{ fontSize:20 }}>🍷</span>
+      {/* Sfondo swipe — pieno, colore tipologia */}
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:THRESHOLD, background:tipoSolid, display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <div style={{ textAlign:'center' }}>
+          <div style={{ fontSize:18 }}>🍷</div>
+          <div style={{ fontSize:8, color:'rgba(245,239,224,0.7)', letterSpacing:1, textTransform:'uppercase', marginTop:2 }}>Bevuto</div>
+        </div>
       </div>
 
-      {/* Hint gradiente */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:40, background:`linear-gradient(to left, ${tipoSolid}88, transparent)`, pointerEvents:'none', zIndex:1 }} />
+      {/* Hint gradiente — più visibile */}
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:56, background:`linear-gradient(to left, ${tipoSolid}cc 0%, ${tipoSolid}55 40%, transparent 100%)`, pointerEvents:'none', zIndex:1 }} />
 
       {/* Riga principale */}
       <div
         onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-        style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', background:'#0f0b08', position:'relative', zIndex:2, transform:`translateX(-${swipeX}px)`, transition:swiping?'none':'transform 0.25s ease', cursor:'pointer' }}>
+        style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', background:'#0f0b08', position:'relative', zIndex:2, transform:`translateX(-${swipeX}px)`, transition:swiping?'none':'transform 0.25s ease' }}>
 
         {/* Left */}
-        <div style={{ flex:1, minWidth:0 }} onClick={() => onDettaglio(b)}>
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:5 }}>
+        <div style={{ flex:1, minWidth:0 }}>
+          {/* Riga controlli: − bott. + 🍷 🗑️ */}
+          <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
+            <button onClick={e=>{e.stopPropagation();onQty(b.id,-1)}} disabled={b.quantita<=1}
+              style={{ width:22, height:22, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:b.quantita<=1?'#2a2318':'#8B7355', fontSize:16, cursor:b.quantita<=1?'default':'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>−</button>
             <span style={{ fontSize:8, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', padding:'2px 8px', borderRadius:3, background:tipoBg, color:tipoColor, border:`1px solid ${tipoColor}33`, flexShrink:0 }}>{b.tipologia||'—'}</span>
             <span style={{ fontSize:11, color:'#5a4f3f' }}>{b.quantita} bott.</span>
-            <div style={{ display:'flex', alignItems:'center', gap:4, marginLeft:'auto' }}>
-              <button onClick={e=>{e.stopPropagation();onQty(b.id,-1)}} disabled={b.quantita<=1}
-                style={{ width:22, height:22, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:b.quantita<=1?'#2a2318':'#8B7355', fontSize:14, cursor:b.quantita<=1?'default':'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>−</button>
-              <button onClick={e=>{e.stopPropagation();onQty(b.id,1)}}
-                style={{ width:22, height:22, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:'#8B7355', fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>+</button>
+            <button onClick={e=>{e.stopPropagation();onQty(b.id,1)}}
+              style={{ width:22, height:22, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:'#8B7355', fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>+</button>
+            <div style={{ marginLeft:'auto', display:'flex', gap:4 }}>
+              {/* Bevuto — icona visibile su desktop */}
+              <button onClick={e=>{e.stopPropagation();onBevuto(b)}}
+                style={{ width:22, height:22, borderRadius:'50%', border:`1px solid ${tipoColor}44`, background:tipoBg, color:tipoColor, fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }} title="Bevuto">🍷</button>
               <button onClick={e=>{e.stopPropagation();onElimina(b)}}
                 style={{ width:22, height:22, borderRadius:'50%', border:'1px solid #2a2318', background:'none', color:'#5a4f3f', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>🗑️</button>
             </div>
           </div>
-          <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:17, fontWeight:400, color:'#F5EFE0', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginBottom:2, lineHeight:1.2 }}>{b.nome}</div>
-          <div style={{ fontSize:11, color:'#5a4f3f', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{b.cantina}</div>
+          <div onClick={() => onDettaglio(b)} style={{ cursor:'pointer' }}>
+            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:17, fontWeight:400, color:'#F5EFE0', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginBottom:2, lineHeight:1.2 }}>{b.nome}</div>
+            <div style={{ fontSize:11, color:'#5a4f3f', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{b.cantina}</div>
+          </div>
         </div>
 
-        {/* Right */}
+        {/* Right — cliccabile per dettaglio */}
         <div style={{ flexShrink:0, textAlign:'right', minWidth:70 }} onClick={() => onDettaglio(b)}>
           <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:22, fontWeight:300, color:'#8B7355', lineHeight:1, marginBottom:8 }}>{b.anno||'—'}</div>
           <div style={{ width:70, height:5, background:'#1e1a16', borderRadius:3, overflow:'hidden', marginBottom:5 }}>
@@ -394,15 +403,15 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
 // ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────────
 export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate, onDettaglio }) {
   const [q, setQ] = useState('')
-  const [tipo, setTipo] = useState('')
   const [confirmB, setConfirmB] = useState(null)
 
   const filtered = useMemo(() =>
-    cantina
-      .filter(b=>!q||(b.nome+(b.cantina||'')+(b.vitigno||'')).toLowerCase().includes(q.toLowerCase()))
-      .filter(b=>!tipo||b.tipologia===tipo),
-    [cantina,q,tipo]
+    cantina.filter(b=>!q||(b.nome+(b.cantina||'')+(b.vitigno||'')).toLowerCase().includes(q.toLowerCase())),
+    [cantina,q]
   )
+
+  // Conteggio bottiglie totali (unità fisiche) per la barra di ricerca
+  const totFiltered = filtered.reduce((s,b)=>s+(b.quantita||0), 0)
 
   const gruppi = useMemo(() => {
     const g={'Oltre il picco':[],'Al picco':[],'In evoluzione':[],'Da definire':[]}
@@ -421,34 +430,28 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
 
   return (
     <>
-      {/* Search + filtri */}
+      {/* Search */}
       <div style={{ position:'sticky', top:0, background:'#0f0b08', paddingBottom:10, paddingTop:16, zIndex:10, borderBottom:'1px solid #1e1a16' }}>
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="🔍  Cerca nome, cantina, vitigno..." style={{ ...S.inp, marginBottom:10, width:'100%' }} />
-        <div style={{ display:'flex', gap:6, overflowX:'auto', paddingBottom:2 }}>
-          {['',...TIPOLOGIE].map(t=>(
-            <button key={t} onClick={()=>setTipo(t)} style={{ flexShrink:0, padding:'5px 12px', borderRadius:100, border:'1px solid', borderColor:tipo===t?'#C8992A':'#2a2318', background:tipo===t?'#C8992A22':'none', color:tipo===t?'#C8992A':'#5a4f3f', fontSize:12, fontWeight:500, cursor:'pointer' }}>
-              {t||'Tutti'}
-            </button>
-          ))}
-        </div>
-        <div style={{ fontSize:11, color:'#5a4f3f', marginTop:8, letterSpacing:0.5 }}>{filtered.length} bottigli{filtered.length===1?'a':'e'}</div>
+        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="🔍  Cerca nome, cantina, vitigno..." style={{ ...S.inp, width:'100%' }} />
+        <div style={{ fontSize:11, color:'#5a4f3f', marginTop:8, letterSpacing:0.5 }}>{totFiltered} bottigli{totFiltered===1?'a':'e'} · {filtered.length} etichett{filtered.length===1?'a':'e'}</div>
       </div>
 
       {/* Alert da bere presto */}
       <DaBerePresto cantina={cantina} onDettaglio={onDettaglio} />
 
-      {/* Gruppi */}
-      {GRUPPI_ORDINE.map(gruppo=>{
+      {/* Gruppi — con separazione visiva netta */}
+      {GRUPPI_ORDINE.map((gruppo, idx)=>{
         const bott=gruppi[gruppo]
         if(bott.length===0)return null
         const meta=GRUPPI_META[gruppo]
         const colore=matColor(meta.cls)
         return (
-          <div key={gruppo}>
-            <div style={{ display:'flex', alignItems:'center', gap:8, padding:'14px 14px 8px', borderBottom:`1px solid ${colore}22` }}>
-              <div style={{ width:8, height:8, borderRadius:'50%', background:colore, flexShrink:0 }} />
-              <span style={{ fontSize:11, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:colore }}>{gruppo}</span>
-              <span style={{ fontSize:11, color:'#5a4f3f', marginLeft:'auto' }}>{meta.desc} · {bott.length} {bott.length===1?'bottiglia':'bottiglie'}</span>
+          <div key={gruppo} style={{ marginTop: idx > 0 ? 0 : 0 }}>
+            {/* Header gruppo — banda colorata */}
+            <div style={{ background:`${colore}12`, borderTop:`2px solid ${colore}44`, borderBottom:`1px solid ${colore}22`, padding:'10px 14px', display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ width:8, height:8, borderRadius:'50%', background:colore, flexShrink:0, boxShadow:`0 0 6px ${colore}88` }} />
+              <span style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:colore }}>{gruppo}</span>
+              <span style={{ fontSize:11, color:'#5a4f3f', marginLeft:'auto' }}>{meta.desc} · {bott.length} {bott.length===1?'etichetta':'etichette'}</span>
             </div>
             {bott.map(b=>(
               <BottigliaRow key={b.id} b={b} onBevuto={onBevuto} onQty={onQty} onDettaglio={onDettaglio} onElimina={setConfirmB} />

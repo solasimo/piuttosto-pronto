@@ -691,7 +691,7 @@ export default function App() {
   const aspiSheetOpen = !!aspiBottiglia || aspiLibera
   const aspiTitle = aspiBottiglia ? `${aspiBottiglia.nome}${aspiBottiglia.anno ? ' ' + aspiBottiglia.anno : ''}` : 'Nuova scheda ASPI'
 
-  // KPI topbar
+  // KPI topbar — bottiglie = unità fisiche totali, etichette = righe distinte
   const totBottiglie = cantina.reduce((s,b) => s+(b.quantita||0), 0)
   const totEtichette = cantina.length
   const valoreEur = cantina.reduce((s,b) => s+(b.prezzo_acquisto||0)*(b.quantita||0), 0)
@@ -757,9 +757,9 @@ export default function App() {
         })}
       </div>
 
-      {/* FAB */}
+      {/* FAB — sopra la bottom nav, non sovrapposto */}
       <button onClick={()=>setShowFab(v=>!v)}
-        style={{ position:'fixed', bottom:72, right:20, width:50, height:50, borderRadius:'50%', background:'#C8992A', border:'none', cursor:'pointer', fontSize:26, color:'#0f0b08', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px #C8992A44', zIndex:51, lineHeight:1 }}>
+        style={{ position:'fixed', bottom:'calc(env(safe-area-inset-bottom, 0px) + 68px)', right:20, width:50, height:50, borderRadius:'50%', background:'#C8992A', border:'none', cursor:'pointer', fontSize:26, color:'#0f0b08', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px #C8992A44', zIndex:51, lineHeight:1 }}>
         +
       </button>
 
