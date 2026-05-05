@@ -1,22 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --wine: #7B1E2E;
-  --cream: #F5EFE0;
-  --bg: #F4F1EC;
-  --border: #E2DDD6;
-  --text: #1C1410;
-  --text2: #7A6E65;
-  --text3: #B0A89E;
+  /* Dark palette */
+  --bg:        #0f0b08;
+  --bg2:       #141009;
+  --bg3:       #1a1611;
+  --border:    #1e1a16;
+  --border2:   #2a2318;
+
+  /* Text */
+  --text:      #F5EFE0;
+  --text2:     #8B7355;
+  --text3:     #5a4f3f;
+
+  /* Accents */
+  --gold:      #C8992A;
+  --wine:      #7B1E2E;
+
+  /* Stato evolutivo */
+  --red:       #9B2335;
+  --amber:     #C8992A;
+  --green:     #2D6A4F;
+  --blue:      #1A5FA8;
+
+  /* Tipologie */
+  --rosso-bg:       #FAECE722;
+  --rosso-color:    #993C1D;
+  --bianco-bg:      #FAEEDA22;
+  --bianco-color:   #854F0B;
+  --rosato-bg:      #FBEAF022;
+  --rosato-color:   #993556;
+  --orange-bg:      #FDE8D022;
+  --orange-color:   #9A4E0A;
+  --bollicine-bg:   #E6F1FB22;
+  --bollicine-color:#185FA5;
+  --dolce-bg:       #FDF4DC22;
+  --dolce-color:    #876200;
+  --fort-bg:        #EDE6F522;
+  --fort-color:     #5B2D8E;
+
+  /* Font */
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans:  'DM Sans', sans-serif;
 }
 
 html { height: 100%; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
+  font-family: var(--font-sans);
+  background: #0f0b08;
   color: var(--text);
   height: 100%;
   overflow: hidden;
@@ -33,7 +67,7 @@ body {
 }
 
 button, input, select, textarea {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   -webkit-appearance: none;
   appearance: none;
 }
@@ -42,4 +76,4 @@ input:focus, select:focus, textarea:focus { outline: none; }
 
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }

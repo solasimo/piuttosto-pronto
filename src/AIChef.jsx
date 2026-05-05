@@ -206,17 +206,8 @@ export default function AIChef({ cantina }) {
 
   return (
     <div>
-      {/* Header */}
-      <div style={{ background:'#7B1E2E', borderRadius:16, padding:20, marginBottom:20, display:'flex', alignItems:'center', gap:14 }}>
-        <span style={{ fontSize:32 }}>✦</span>
-        <div>
-          <div style={{ fontFamily:'Playfair Display, serif', color:'#F5EFE0', fontSize:18, fontWeight:600 }}>Sommelier AI</div>
-          <div style={{ color:'rgba(245,239,224,0.7)', fontSize:13, marginTop:2 }}>Powered by Claude Haiku</div>
-        </div>
-      </div>
-
       {/* Toggle modo */}
-      <div style={{ display:'flex', gap:0, marginBottom:20, background:'#E2DDD6', borderRadius:12, padding:3 }}>
+      <div style={{ display:'flex', gap:0, marginBottom:20, marginTop:16, background:'#E2DDD6', borderRadius:12, padding:3 }}>
         {[['abbinamento','🍽️ Ho un piatto'],['inverso','🍷 Ho un vino']].map(([k,l]) => (
           <button key={k} onClick={() => { setModo(k); setRisultato(null); setErrore('') }}
             style={{ flex:1, padding:'9px 0', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', background: modo===k ? '#fff' : 'transparent', color: modo===k ? '#1C1410' : '#7A6E65', transition:'background 0.15s' }}>{l}</button>

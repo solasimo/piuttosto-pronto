@@ -68,17 +68,17 @@ function Toast({ msg }) {
 function Sheet({ open, onClose, title, children }) {
   if (!open) return null
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(28,20,16,0.6)', backdropFilter: 'blur(2px)' }} />
-      <div style={{ position: 'relative', background: '#F4F1EC', borderRadius: '20px 20px 0 0', maxHeight: '95dvh', display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#D6D0C8' }} />
+    <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
+      <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)' }} />
+      <div style={{ position:'relative', background:'#0f0b08', borderRadius:'20px 20px 0 0', maxHeight:'95dvh', display:'flex', flexDirection:'column', border:'1px solid #1e1a16', borderBottom:'none' }}>
+        <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 4px', flexShrink:0 }}>
+          <div style={{ width:36, height:4, borderRadius:2, background:'#2a2318' }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 20px 12px' }}>
-          <span style={{ fontFamily: 'Playfair Display, serif', fontSize: 17, fontWeight: 600, color: '#1C1410', flex: 1, paddingRight: 12 }}>{title}</span>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#E2DDD6', cursor: 'pointer', fontSize: 14, color: '#7A6E65', flexShrink: 0 }}>✕</button>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'4px 20px 12px', flexShrink:0, borderBottom:'1px solid #1e1a16' }}>
+          <span style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:400, fontStyle:'italic', color:'#F5EFE0', flex:1, paddingRight:12 }}>{title}</span>
+          <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'1px solid #2a2318', background:'#1a1611', cursor:'pointer', fontSize:14, color:'#8B7355', flexShrink:0 }}>✕</button>
         </div>
-        <div style={{ overflowY: 'auto', padding: '0 16px 32px', flex: 1, WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ overflowY:'auto', padding:'16px 16px 40px', flex:1, WebkitOverflowScrolling:'touch', paddingBottom:'max(40px, calc(16px + env(safe-area-inset-bottom, 0px)))' }}>
           {children}
         </div>
       </div>
@@ -88,10 +88,10 @@ function Sheet({ open, onClose, title, children }) {
 
 function Spinner() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', gap: 16 }}>
-      <div style={{ width: 36, height: 36, border: '3px solid #E2DDD6', borderTopColor: '#7B1E2E', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'80px 20px', gap:16 }}>
+      <div style={{ width:32, height:32, border:'2px solid #2a2318', borderTopColor:'#C8992A', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-      <div style={{ fontSize: 14, color: '#7A6E65' }}>Caricamento cantina…</div>
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:16, color:'#5a4f3f', fontStyle:'italic' }}>Caricamento cantina…</div>
     </div>
   )
 }
@@ -357,7 +357,7 @@ const NAV = [
 ]
 
 // ─── Menu utente ─────────────────────────────────────────────────────────────
-function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, onLogout, showToast }) {
+function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, onLogout, showToast, modalitaSommelier, onToggleSommelier }) {
   const [showCambioPassword, setShowCambioPassword] = useState(false)
   const [nuovaPassword, setNuovaPassword] = useState('')
   const [confermaPassword, setConfermaPassword] = useState('')
@@ -428,6 +428,19 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
               <span style={{ marginLeft:'auto', color:'#5a4f3f', fontSize:16 }}>›</span>
             </button>
           )}
+
+          {/* Toggle modalità sommelier */}
+          <button onClick={onToggleSommelier} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
+            <span style={{ fontSize:24 }}>🎓</span>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>Modalità sommelier</div>
+              <div style={{ fontSize:12, color:'#5a4f3f' }}>{modalitaSommelier ? 'Attiva — schede ASPI e degustazione' : 'Disattiva — solo gestione cantina'}</div>
+            </div>
+            {/* Toggle switch */}
+            <div style={{ width:44, height:24, borderRadius:12, background:modalitaSommelier?'#C8992A':'#2a2318', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
+              <div style={{ width:20, height:20, borderRadius:'50%', background:'#F5EFE0', position:'absolute', top:2, left:modalitaSommelier?22:2, transition:'left 0.2s' }} />
+            </div>
+          </button>
 
           {/* Logout */}
           <button onClick={onLogout} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#1a0a0a', border:'1px solid #2a1010', borderRadius:14, padding:16, cursor:'pointer', textAlign:'left' }}>
@@ -567,6 +580,7 @@ export default function App() {
   const [showGruppo, setShowGruppo] = useState(false)
   const [showUtente, setShowUtente] = useState(false)
   const [showFab, setShowFab] = useState(false)
+  const [modalitaSommelier, setModalitaSommelier] = useState(true)
   const [tab, setTab] = useState('libreria')
   const [cantina, setCantina] = useState([])
   const [archivio, setArchivio] = useState([])
@@ -736,7 +750,10 @@ export default function App() {
       {/* Content */}
       <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', paddingBottom:80 }}>
         {loading ? <Spinner /> : <>
-          {tab==='libreria' && <div style={{padding:'12px 14px 0'}}><Libreria cantina={cantina} onBevuto={b=>{setAspiBottiglia(b);setAspiLibera(false)}} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
+          {tab==='libreria' && <div style={{padding:'12px 14px 0'}}><Libreria cantina={cantina} onBevuto={b=>{
+            if (modalitaSommelier) { setAspiBottiglia(b); setAspiLibera(false) }
+            else { handleQty(b.id, -1) }
+          }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
           {tab==='statistiche' && <div style={{padding:'0 14px'}}><Statistiche cantina={cantina} onBottigliaClick={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
           {tab==='abbinamento' && <div style={{padding:'0 14px'}}><AIChef cantina={cantina} /></div>}
           {tab==='schede' && <div style={{padding:'0 14px'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} /></div>}
@@ -744,40 +761,45 @@ export default function App() {
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#0a0806', borderTop:'1px solid #1e1a16', display:'flex', paddingBottom:'env(safe-area-inset-bottom, 0px)', zIndex:50 }}>
-        {[['libreria','🍾','Cantina'],['statistiche','📊','Stats'],['abbinamento','✦','AI Chef'],['schede','📓','Schede']].map(([id,icon,label])=>{
-          const active = tab===id
-          return (
-            <button key={id} onClick={()=>setTab(id)} style={{ flex:1, padding:'12px 4px 8px', border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
-              <span style={{ fontSize:18, lineHeight:1, color:active?'#C8992A':'#5a4f3f' }}>{icon}</span>
-              <span style={{ fontSize:9, letterSpacing:'0.8px', textTransform:'uppercase', fontWeight:active?600:400, color:active?'#C8992A':'#5a4f3f' }}>{label}</span>
-              {active && <div style={{ width:3, height:3, borderRadius:'50%', background:'#C8992A' }} />}
-            </button>
-          )
-        })}
+      <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#0a0806', borderTop:'1px solid #1e1a16', display:'flex', zIndex:50 }}>
+        {[['libreria','🍾','Cantina'],['statistiche','📊','Stats'],['abbinamento','✦','AI Chef'],...(modalitaSommelier?[['schede','📓','Schede']]:[])]
+          .map(([id,icon,label])=>{
+            const active = tab===id
+            return (
+              <button key={id} onClick={()=>setTab(id)} style={{ flex:1, padding:'12px 4px 10px', border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
+                <span style={{ fontSize:18, lineHeight:1, color:active?'#C8992A':'#5a4f3f' }}>{icon}</span>
+                <span style={{ fontSize:9, letterSpacing:'0.8px', textTransform:'uppercase', fontWeight:active?700:400, color:active?'#C8992A':'#5a4f3f' }}>{label}</span>
+              </button>
+            )
+          })}
+        <div style={{ position:'absolute', bottom:'-100px', left:0, right:0, height:'100px', background:'#0a0806' }} />
       </div>
 
-      {/* FAB — sopra la bottom nav, non sovrapposto */}
+      {/* FAB */}
       <button onClick={()=>setShowFab(v=>!v)}
-        style={{ position:'fixed', bottom:'calc(env(safe-area-inset-bottom, 0px) + 68px)', right:20, width:50, height:50, borderRadius:'50%', background:'#C8992A', border:'none', cursor:'pointer', fontSize:26, color:'#0f0b08', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px #C8992A44', zIndex:51, lineHeight:1 }}>
-        +
+        style={{ position:'fixed', bottom:70, right:20, width:50, height:50, borderRadius:'50%', background:'#C8992A', border:'none', cursor:'pointer', fontSize:26, color:'#0f0b08', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px #C8992A55', zIndex:52, lineHeight:1, fontWeight:300 }}>
+        {showFab ? '✕' : '+'}
       </button>
 
+      {/* FAB menu */}
       {showFab && (
-        <div style={{ position:'fixed', inset:0, zIndex:50 }} onClick={()=>setShowFab(false)}>
-          <div style={{ position:'absolute', bottom:134, right:20, display:'flex', flexDirection:'column', gap:10, alignItems:'flex-end' }}>
-            <button onClick={()=>{setShowFab(false);setAspiBottiglia(null);setAspiLibera(true)}}
-              style={{ display:'flex', alignItems:'center', gap:10, background:'#141009', border:'1px solid #2a2318', borderRadius:12, padding:'12px 16px', cursor:'pointer' }}>
-              <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500 }}>Nuova scheda ASPI</span>
-              <span style={{ fontSize:20 }}>📓</span>
-            </button>
+        <>
+          <div style={{ position:'fixed', inset:0, zIndex:51, background:'rgba(0,0,0,0.5)', backdropFilter:'blur(2px)' }} onClick={()=>setShowFab(false)} />
+          <div style={{ position:'fixed', bottom:132, right:20, display:'flex', flexDirection:'column', gap:10, alignItems:'flex-end', zIndex:52 }}>
+            {modalitaSommelier && (
+              <button onClick={()=>{setShowFab(false);setAspiBottiglia(null);setAspiLibera(true)}}
+                style={{ display:'flex', alignItems:'center', gap:12, background:'#1a1611', border:'1px solid #2a2318', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
+                <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>Nuova scheda ASPI</span>
+                <span style={{ fontSize:20 }}>📓</span>
+              </button>
+            )}
             <button onClick={()=>{setShowFab(false);setTab('aggiungi-bottiglia')}}
-              style={{ display:'flex', alignItems:'center', gap:10, background:'#141009', border:'1px solid #2a2318', borderRadius:12, padding:'12px 16px', cursor:'pointer' }}>
-              <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500 }}>Nuova bottiglia</span>
+              style={{ display:'flex', alignItems:'center', gap:12, background:'#1a1611', border:'1px solid #2a2318', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
+              <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>Nuova bottiglia</span>
               <span style={{ fontSize:20 }}>🍾</span>
             </button>
           </div>
-        </div>
+        </>
       )}
 
       {/* Sheet aggiungi bottiglia */}
@@ -821,6 +843,8 @@ export default function App() {
           onAdmin={()=>{setShowUtente(false);setShowAdmin(true)}}
           onLogout={()=>supabase.auth.signOut()}
           showToast={showToast}
+          modalitaSommelier={modalitaSommelier}
+          onToggleSommelier={()=>setModalitaSommelier(v=>!v)}
         />
       )}
 

@@ -242,8 +242,9 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
 }
 
 // --- COMPONENTE PRINCIPALE ---
-export default function Statistiche({ cantina, onBottigliaClick }) {
+export default function Statistiche({ cantina }) {
   const [vista, setVista] = useState('paesi')
+  const [bottSelected, setBottSelected] = useState(null)
   const totBottiglie = cantina.reduce((s, b) => s + (b.quantita || 0), 0)
   const valoreTotale = cantina.reduce((s, b) => s + (b.prezzo_acquisto || 0) * (b.quantita || 0), 0)
   const paesiPresenti = new Set(cantina.map(b => b.paese).filter(Boolean))
@@ -259,15 +260,9 @@ export default function Statistiche({ cantina, onBottigliaClick }) {
   const fmtVal = v => v > 0 ? '€ ' + v.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '—'
   return (
     <div>
-      {/* Valore cantina — prima in alto */}
-      <div style={{ ...S.card, textAlign: 'center', padding: '16px', marginBottom: 12, background: valoreTotale > 0 ? '#F5EFE0' : '#fff', border: valoreTotale > 0 ? '1px solid #C8992A' : '1px solid #E2DDD6' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#7A6E65', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Valore cantina</div>
-        <div style={{ fontSize: 30, fontWeight: 700, fontFamily: 'Playfair Display, serif', color: valoreTotale > 0 ? '#854F0B' : '#B0A89E' }}>{fmtVal(valoreTotale)}</div>
-        {valoreTotale === 0 && <div style={{ fontSize: 12, color: '#B0A89E', marginTop: 4 }}>Aggiungi il prezzo di acquisto alle bottiglie</div>}
-      </div>
-      {/* 4 KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-        {[['🍾','Etichette',cantina.length],['📦','Bottiglie',totBottiglie],['🌍','Paesi coperti',paesiCoperti+'/'+totPaesi],['🎨','Tipologie',tipologieCoperte+'/7']].map(([ico,l,v]) => (
+      {/* KPI: solo paesi e tipologie — bottiglie/etichette/valore sono in topbar */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20, marginTop: 16 }}>
+        {[['🌍','Paesi coperti',paesiCoperti+'/'+totPaesi],['🎨','Tipologie',tipologieCoperte+'/7']].map(([ico,l,v]) => (
           <div key={l} style={{ ...S.card, textAlign: 'center', padding: '14px 10px' }}>
             <div style={{ fontSize: 20, marginBottom: 3 }}>{ico}</div>
             <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'Playfair Display, serif', color: '#1C1410' }}>{v}</div>
@@ -283,13 +278,13 @@ export default function Statistiche({ cantina, onBottigliaClick }) {
       {vista === 'paesi' && (
         <div>
           {Object.entries(PAESI_REGIONI).map(([paese, regioni]) => (
-            <PaeseSection key={paese} paese={paese} regioni={regioni} bottigliePaese={byPaese[paese] || []} onBottigliaClick={onBottigliaClick} />
+            <PaeseSection key={paese} paese={paese} regioni={regioni} bottigliePaese={byPaese[paese] || []} onBottigliaClick={setBottSelected} />
           ))}
           {Object.entries(byPaese).filter(([p]) => !PAESI_REGIONI[p] && p !== 'Altro').map(([paese, bott]) => (
             <div key={paese} style={{ ...S.card, marginBottom: 12 }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#7A6E65', marginBottom: 8 }}>{paese || 'Paese non specificato'}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
-                {bott.map(b => <MiniCard key={b.id} b={b} onClick={() => onBottigliaClick(b)} />)}
+                {bott.map(b => <MiniCard key={b.id} b={b} onClick={() => setBottSelected(b)} />)}
               </div>
             </div>
           ))}
@@ -297,6 +292,7 @@ export default function Statistiche({ cantina, onBottigliaClick }) {
       )}
       {vista === 'tipologie' && <VistaTipologie cantina={cantina} />}
       <AnalisiAI cantina={cantina} />
-     </div>
+      <BottigliaSheet b={bottSelected} onClose={() => setBottSelected(null)} />
+    </div>
   )
 }
