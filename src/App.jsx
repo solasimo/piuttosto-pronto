@@ -357,11 +357,13 @@ const NAV = [
 ]
 
 // ─── Menu utente ─────────────────────────────────────────────────────────────
-function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, onLogout, showToast, modalitaSommelier, onToggleSommelier }) {
+function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, onLogout, showToast, modalitaSommelier, onToggleSommelier, onAvatarUpdate }) {
   const [showCambioPassword, setShowCambioPassword] = useState(false)
   const [nuovaPassword, setNuovaPassword] = useState('')
   const [confermaPassword, setConfermaPassword] = useState('')
   const [salvandoPwd, setSalvandoPwd] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState(profilo?.avatar_url || '')
+  const [salvandoAvatar, setSalvandoAvatar] = useState(false)
 
   const handleCambioPassword = async () => {
     if (nuovaPassword.length < 8) { showToast('⚠️ Minimo 8 caratteri'); return }
@@ -371,6 +373,17 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
     if (error) showToast('⚠️ Errore: ' + error.message)
     else { showToast('✓ Password aggiornata!'); setShowCambioPassword(false); setNuovaPassword(''); setConfermaPassword('') }
     setSalvandoPwd(false)
+  }
+
+  const handleSalvaAvatar = async (url) => {
+    setSalvandoAvatar(true)
+    try {
+      await supabase.from('profili').update({ avatar_url: url }).eq('id', profilo.id)
+      setAvatarUrl(url)
+      onAvatarUpdate(url)
+      showToast('✓ Foto profilo aggiornata!')
+    } catch(e) { showToast('⚠️ Errore salvataggio') }
+    setSalvandoAvatar(false)
   }
 
   const S_inp = { width:'100%', padding:'12px 14px', border:'1.5px solid #1e1a16', borderRadius:10, fontSize:15, background:'#1a1611', color:'#F5EFE0', WebkitAppearance:'none', boxSizing:'border-box' }
@@ -388,8 +401,26 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
           {/* Info utente */}
           <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:16 }}>
             <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Informazioni utente</div>
-            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:22, fontWeight:400, color:'#F5EFE0', marginBottom:4 }}>{profilo?.nome} {profilo?.cognome}</div>
-            <div style={{ fontSize:13, color:'#5a4f3f', marginBottom:12 }}>{profilo?.email}</div>
+
+            {/* Foto profilo */}
+            <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:14 }}>
+              <div style={{ position:'relative', flexShrink:0 }}>
+                {avatarUrl
+                  ? <img src={avatarUrl} alt="profilo" style={{ width:64, height:64, borderRadius:'50%', objectFit:'cover', border:'2px solid #C8992A44' }} />
+                  : <div style={{ width:64, height:64, borderRadius:'50%', background:'#1a1611', border:'2px solid #2a2318', display:'flex', alignItems:'center', justifyContent:'center', fontSize:28 }}>👤</div>
+                }
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:20, fontWeight:400, color:'#F5EFE0', marginBottom:2 }}>{profilo?.nome} {profilo?.cognome}</div>
+                <div style={{ fontSize:12, color:'#5a4f3f' }}>{profilo?.email}</div>
+              </div>
+            </div>
+
+            {/* Upload foto */}
+            <div style={{ marginBottom:12 }}>
+              <div style={{ fontSize:11, color:'#8B7355', marginBottom:6 }}>Foto profilo</div>
+              <ImageUpload value={avatarUrl} onChange={handleSalvaAvatar} label="" folder="avatars" />
+            </div>
 
             {!showCambioPassword ? (
               <button onClick={()=>setShowCambioPassword(true)} style={{ fontSize:12, color:'#C8992A', background:'none', border:'1px solid #C8992A44', borderRadius:8, padding:'6px 12px', cursor:'pointer' }}>
@@ -733,8 +764,11 @@ export default function App() {
             </div>
           </div>
           <button onClick={() => setShowUtente(true)}
-            style={{ width:38, height:38, borderRadius:'50%', background:'#1a1611', border:'1px solid #2a2318', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, marginBottom:4 }}>
-            👤
+            style={{ width:38, height:38, borderRadius:'50%', background:'#1a1611', border:'1px solid #2a2318', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, marginBottom:4, overflow:'hidden', padding:0 }}>
+            {profilo?.avatar_url
+              ? <img src={profilo.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+              : '👤'
+            }
           </button>
         </div>
         <div style={{ display:'flex', borderTop:'1px solid #1e1a16', marginTop:10 }}>
@@ -845,6 +879,7 @@ export default function App() {
           showToast={showToast}
           modalitaSommelier={modalitaSommelier}
           onToggleSommelier={()=>setModalitaSommelier(v=>!v)}
+          onAvatarUpdate={url=>setProfilo(p=>({...p,avatar_url:url}))}
         />
       )}
 
