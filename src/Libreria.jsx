@@ -343,7 +343,7 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
   }
 
   return (
-    <div style={{ position:'relative', overflow:'hidden', borderBottom:'1px solid #E2DDD6' }}>
+    <div style={{ position:'relative', overflow:'hidden', borderBottom:'1px solid #E2DDD6', background:'#F4F1EC' }}>
       {/* Sfondo swipe */}
       <div style={{ position:'absolute', right:0, top:0, bottom:0, width:THRESHOLD, background:tipoSolid, display:'flex', alignItems:'center', justifyContent:'center' }}>
         <div style={{ textAlign:'center' }}>
@@ -429,9 +429,9 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
   return (
     <>
       {/* Search */}
-      <div style={{ position:'sticky', top:0, background:'#F4F1EC', paddingBottom:10, paddingTop:16, zIndex:10, borderBottom:'1px solid #E2DDD6' }}>
+      <div style={{ position:'sticky', top:0, background:'#0f0b08', paddingBottom:10, paddingTop:16, zIndex:10, borderBottom:'1px solid #1e1a16' }}>
         <input value={q} onChange={e=>setQ(e.target.value)} placeholder="🔍  Cerca nome, cantina, vitigno..." style={{ ...S.inp, width:'100%' }} />
-        <div style={{ fontSize:11, color:'#B0A89E', marginTop:8, letterSpacing:0.5 }}>{totFiltered} bottigli{totFiltered===1?'a':'e'} · {filtered.length} etichett{filtered.length===1?'a':'e'}</div>
+        <div style={{ fontSize:11, color:'#8B7355', marginTop:8, letterSpacing:0.5 }}>{totFiltered} bottigli{totFiltered===1?'a':'e'} · {filtered.length} etichett{filtered.length===1?'a':'e'}</div>
       </div>
 
       {/* Alert da bere presto */}
