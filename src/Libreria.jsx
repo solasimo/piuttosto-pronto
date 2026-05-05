@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { TIPOLOGIE } from './AspiForm'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
