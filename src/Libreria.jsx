@@ -319,7 +319,7 @@ function DaBerePresto({ cantina, onDettaglio }) {
 }
 
 // ─── Riga bottiglia con swipe ─────────────────────────────────────────────────
-function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
+function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina, showHint }) {
   const m = getMaturita(b)
   const pct = m.pct !== null ? Math.min(m.pct, 100) : 0
   const tipoColor = TIPO_COLOR[b.tipologia] || '#8B7355'
@@ -328,9 +328,22 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
 
   const [swipeX, setSwipeX] = useState(0)
   const [swiping, setSwiping] = useState(false)
+  const [hinting, setHinting] = useState(false)
   const startX = useRef(0)
+  const isDragging = useRef(false)
   const THRESHOLD = 72
 
+  // Animazione hint sulla prima riga
+  useEffect(() => {
+    if (!showHint) return
+    const t = setTimeout(() => {
+      setHinting(true)
+      setTimeout(() => setHinting(false), 600)
+    }, 800)
+    return () => clearTimeout(t)
+  }, [showHint])
+
+  // Touch
   const onTouchStart = e => { startX.current = e.touches[0].clientX; setSwiping(true) }
   const onTouchMove = e => {
     const dx = startX.current - e.touches[0].clientX
@@ -342,23 +355,36 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
     else setSwipeX(0)
   }
 
+  // Mouse (desktop)
+  const onMouseDown = e => { startX.current = e.clientX; isDragging.current = true; setSwiping(true) }
+  const onMouseMove = e => {
+    if (!isDragging.current) return
+    const dx = startX.current - e.clientX
+    if (dx > 0) setSwipeX(Math.min(dx, THRESHOLD + 20))
+  }
+  const onMouseUp = () => {
+    if (!isDragging.current) return
+    isDragging.current = false; setSwiping(false)
+    if (swipeX >= THRESHOLD) { onBevuto(b); setSwipeX(0) }
+    else setSwipeX(0)
+  }
+
+  const translateX = hinting ? 22 : swipeX
+  const isAnimating = hinting || !swiping
+
   return (
     <div style={{ position:'relative', overflow:'hidden', borderBottom:'1px solid #E2DDD6', background:'#F4F1EC' }}>
-      {/* Sfondo swipe */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:THRESHOLD, background:tipoSolid, display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ textAlign:'center' }}>
-          <div style={{ fontSize:18 }}>🍷</div>
-          <div style={{ fontSize:8, color:'rgba(245,239,224,0.7)', letterSpacing:1, textTransform:'uppercase', marginTop:2 }}>Bevuto</div>
-        </div>
-      </div>
+      {/* Sfondo swipe — stesso colore del gradiente, nessun rettangolo */}
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, left:0, background:`linear-gradient(to left, ${tipoSolid} 0%, ${tipoSolid} ${THRESHOLD}px, #F4F1EC ${THRESHOLD + 40}px)` }} />
 
-      {/* Riga principale — sfondo beige chiaro */}
+      {/* Riga principale */}
       <div
         onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-        style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', background:'#F4F1EC', position:'relative', zIndex:2, transform:`translateX(-${swipeX}px)`, transition:swiping?'none':'transform 0.25s ease' }}>
+        onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
+        style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', background:'#F4F1EC', position:'relative', zIndex:2, transform:`translateX(-${translateX}px)`, transition:isAnimating?'transform 0.3s ease':'none', cursor:'grab', userSelect:'none' }}>
 
-        {/* Hint gradiente */}
-        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:48, background:`linear-gradient(to left, ${tipoSolid}99, transparent)`, pointerEvents:'none', zIndex:3 }} />
+        {/* Gradiente hint — leggero, sfuma verso il colore tipologia */}
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:36, background:`linear-gradient(to left, ${tipoSolid}55, transparent)`, pointerEvents:'none', zIndex:3 }} />
 
         {/* Left */}
         <div style={{ flex:1, minWidth:0 }}>
@@ -370,8 +396,6 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina }) {
             <button onClick={e=>{e.stopPropagation();onQty(b.id,1)}}
               style={{ width:20, height:20, borderRadius:'50%', border:'1px solid #D6D0C8', background:'none', color:'#7A6E65', fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>+</button>
             <div style={{ marginLeft:'auto', display:'flex', gap:4 }}>
-              <button onClick={e=>{e.stopPropagation();onBevuto(b)}}
-                style={{ width:22, height:22, borderRadius:'50%', border:`1px solid ${tipoColor}55`, background:tipoBg, color:tipoColor, fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }} title="Bevuto">🍷</button>
               <button onClick={e=>{e.stopPropagation();onElimina(b)}}
                 style={{ width:22, height:22, borderRadius:'50%', border:'1px solid #E2DDD6', background:'none', color:'#B0A89E', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>🗑️</button>
             </div>
@@ -450,8 +474,8 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
               <span style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:colore }}>{gruppo}</span>
               <span style={{ fontSize:11, color:'#B0A89E', marginLeft:'auto' }}>{meta.desc} · {bott.length} {bott.length===1?'etichetta':'etichette'}</span>
             </div>
-            {bott.map(b=>(
-              <BottigliaRow key={b.id} b={b} onBevuto={onBevuto} onQty={onQty} onDettaglio={onDettaglio} onElimina={setConfirmB} />
+            {bott.map((b, i)=>(
+              <BottigliaRow key={b.id} b={b} onBevuto={onBevuto} onQty={onQty} onDettaglio={onDettaglio} onElimina={setConfirmB} showHint={idx===0 && i===0} />
             ))}
           </div>
         )
