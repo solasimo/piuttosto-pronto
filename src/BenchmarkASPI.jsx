@@ -161,7 +161,7 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
   const S_inp = { width:'100%', padding:'8px 10px', border:'1.5px solid #E2DDD6', borderRadius:8, fontSize:13, background:'#fff', color:'#1C1410', WebkitAppearance:'none', appearance:'none' }
 
   return (
-    <div style={{ position:'fixed', inset:0, zIndex:300, background:'#F4F1EC', display:'flex', flexDirection:'column' }}>
+    <div style={{ position:'fixed', inset:0, zIndex:500, background:'#F4F1EC', display:'flex', flexDirection:'column' }}>
       {/* Header — dark, safe area top */}
       <div style={{ background:'#0f0b08', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0, borderBottom:'1px solid #1e1a16' }}>
         <div>

@@ -48,7 +48,7 @@ const OLFATTIVO = {
     Secondario: ['Vinoso','Da malolattica','Da lieviti'],
     Terziario: ['Speziato','Tostato','Animale','Confetture','Frutta secca','Sottobosco'],
   },
-  complessita: ['Semplice',' Media','Complesso','Ampio'],
+  complessita: ['Semplice','Media','Complesso','Ampio'],
   qualita: ['Comune','Poco fine','Piuttosto fine','Fine','Eccellente'],
 }
 
