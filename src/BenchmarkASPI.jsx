@@ -10,6 +10,7 @@ const VALORI_ASPI = {
   tonalitaBianco: ['Giallo verdolino','Giallo paglierino','Giallo oro / dorato','Giallo ambrato'],
   riflessiRosso: ['Purpureo/inchiostro','Violaceo','Granato/aranciato','Mattonato'],
   riflessiRosato: ['Rosa tenue','Ramato','Rosa vivace','Rosa violaceo'],
+  riflessiAltri: ['Verdognolo','Grigio verde','Paglia chiaro','Oro antico/ambrato','Topazio/oro verde'],
   rifleeeiBianco: ['Verdognolo','Grigio verde','Paglia chiaro','Oro antico/ambrato','Topazio/oro verde'],
   fluidita: ['Molto fluido','Scorrevole','Piuttosto consistente','Consistente','Denso'],
   archetti: ['Assenti','Stretti','Medi','Ampi'],
