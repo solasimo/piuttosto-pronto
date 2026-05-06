@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { updateScheda } from './supabase'
 
-// ─── Tutti i valori ASPI validi per il system prompt ─────────────────────────
+// ─── Valori ASPI aggiornati ───────────────────────────────────────────────────
 const VALORI_ASPI = {
   limpidezza: ['Velato','Limpido','Molto limpido','Cristallino','Brillante'],
   trasparenza: ['Molto trasparente','Poco trasparente','Profondo'],
@@ -32,7 +32,8 @@ const VALORI_ASPI = {
   tempServizio: ['6-8°C','8-10°C','10-12°C','12-14°C','14-16°C','16-18°C','18-20°C'],
 }
 
-// ─── Struttura sezioni per la vista a due colonne ─────────────────────────────
+const TIPOLOGIE_CON_TANNINI = ['Rosso','Rosato','Fortificato']
+
 const SEZIONI = [
   {
     titolo: 'Esame visivo',
@@ -60,7 +61,7 @@ const SEZIONI = [
       { key: 'alcoli', label: 'Alcoli', opts: VALORI_ASPI.alcoli },
       { key: 'polialcoli', label: 'Polialcoli', opts: VALORI_ASPI.polialcoli },
       { key: 'acidi', label: 'Acidi', opts: VALORI_ASPI.acidi },
-      { key: 'tannini', label: 'Tannini', opts: VALORI_ASPI.tannini },
+      { key: 'tannini', label: 'Tannini', opts: VALORI_ASPI.tannini, soloTipologie: TIPOLOGIE_CON_TANNINI },
       { key: 'saliMinerali', label: 'Sali minerali', opts: VALORI_ASPI.saliMinerali },
       { key: 'struttura', label: 'Struttura', opts: VALORI_ASPI.struttura },
       { key: 'equilibrio', label: 'Equilibrio', opts: VALORI_ASPI.equilibrio },
@@ -81,14 +82,12 @@ const SEZIONI = [
   },
 ]
 
-// Tonalità dipende dalla tipologia
 function getTonalitaOpts(tipologia) {
   if (['Rosso','Fortificato'].includes(tipologia)) return VALORI_ASPI.tonalitaRosso
   if (tipologia === 'Rosato') return VALORI_ASPI.tonalitaRosato
   return VALORI_ASPI.tonalitaBianco
 }
 
-// ─── Chip confronto ───────────────────────────────────────────────────────────
 function ChipValore({ value, match }) {
   if (!value) return <span style={{ fontSize:13, color:'#B0A89E', fontStyle:'italic' }}>—</span>
   const color = match === true ? '#2D6A4F' : match === false ? '#9B2335' : '#1C1410'
@@ -100,39 +99,17 @@ function ChipValore({ value, match }) {
   )
 }
 
-// ─── Generazione benchmark via AI ─────────────────────────────────────────────
 async function generaBenchmark(scheda) {
-  const SYSTEM = `Sei un esperto sommelier ASPI con conoscenza approfondita dei vini italiani e internazionali.
-Analizza il vino descritto e compila la scheda ASPI con i valori attesi per quel vino specifico.
-Usa la tua conoscenza sulla denominazione, vitigno, tipologia e annata.
-Per denominazioni DOC/DOCG famose sii molto preciso. Per vini meno noti usa la tipologia e il vitigno come riferimento.
-Rispondi SOLO con JSON valido, nessun markdown. Lascia stringa vuota "" se non hai informazioni sufficienti.
-Usa ESCLUSIVAMENTE i valori elencati per ogni campo — nessun valore inventato.
+  const SYSTEM = `Sei un esperto sommelier ASPI. Analizza il vino e compila la scheda ASPI con valori attesi.
+Rispondi SOLO con JSON valido, nessun markdown. Lascia "" se non hai info sufficienti.
+Usa ESCLUSIVAMENTE i valori elencati — nessun valore inventato.
+VALORI AMMESSI: ${JSON.stringify(VALORI_ASPI)}
+Campi: limpidezza, trasparenza, tonalita, riflessi, fluidita, archetti, intensitaOlf, complessita, qualitaOlf, zuccheri, alcoli, polialcoli, acidi, tannini, saliMinerali, struttura, equilibrio, intensitaGust, persistenzaGust, qualitaGust, armonia, statoEvolutivo, tempServizio, formaCalice, rapportoQP`
 
-VALORI AMMESSI:
-${JSON.stringify(VALORI_ASPI)}
-
-Campi da compilare:
-limpidezza, trasparenza, tonalita, riflessi, fluidita, archetti,
-intensitaOlf, complessita, qualitaOlf,
-zuccheri, alcoli, polialcoli, acidi, tannini, saliMinerali, struttura, equilibrio, intensitaGust, persistenzaGust, qualitaGust,
-armonia, statoEvolutivo, tempServizio, formaCalice, rapportoQP`
-
-  const info = [
-    scheda.nomeVino, scheda.cantina, scheda.denominazione,
-    scheda.tipologia, scheda.annata, scheda.paese, scheda.regione,
-    scheda.vitigno ? `Vitigno: ${scheda.vitigno}` : ''
-  ].filter(Boolean).join(', ')
-
+  const info = [scheda.nomeVino, scheda.cantina, scheda.denominazione, scheda.tipologia, scheda.annata, scheda.paese, scheda.regione, scheda.vitigno ? `Vitigno: ${scheda.vitigno}` : ''].filter(Boolean).join(', ')
   const res = await fetch('/api/claude', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1200,
-      system: SYSTEM,
-      messages: [{ role: 'user', content: `Vino: ${info}\nAnnata: ${scheda.annata || 'non specificata'}` }],
-    }),
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1200, system:SYSTEM, messages:[{ role:'user', content:`Vino: ${info}\nAnnata: ${scheda.annata||'non specificata'}` }] }),
   })
   const data = await res.json()
   if (data.error) throw new Error(data.error.message)
@@ -140,15 +117,12 @@ armonia, statoEvolutivo, tempServizio, formaCalice, rapportoQP`
   return JSON.parse(raw)
 }
 
-// ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────────
 export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
-  const [benchmark] = useState(scheda.benchmark_ai || null)
   const [generando, setGenerando] = useState(false)
   const [benchmarkLocale, setBenchmarkLocale] = useState(scheda.benchmark_ai || null)
   const [valoriUtente, setValoriUtente] = useState({ ...scheda })
   const [saving, setSaving] = useState(false)
   const [errore, setErrore] = useState('')
-
   const hasBenchmark = !!benchmarkLocale
 
   const handleGenera = async () => {
@@ -156,64 +130,59 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
     try {
       const result = await generaBenchmark(scheda)
       setBenchmarkLocale(result)
-      // Salva subito il benchmark nella scheda — non può essere rigenerato
       await updateScheda(scheda.id, { benchmark_ai: result })
-    } catch(e) {
-      setErrore('Errore nella generazione. Riprova.')
-      console.error(e)
-    } finally { setGenerando(false) }
+    } catch(e) { setErrore('Errore nella generazione. Riprova.'); console.error(e) }
+    finally { setGenerando(false) }
   }
 
   const handleSalva = async () => {
     setSaving(true)
     try {
       await updateScheda(scheda.id, {
-        limpidezza: valoriUtente.limpidezza, trasparenza: valoriUtente.trasparenza,
-        tonalita: valoriUtente.tonalita, riflessi: valoriUtente.riflessi,
-        fluidita: valoriUtente.fluidita, archetti: valoriUtente.archetti,
-        intensitaOlf: valoriUtente.intensitaOlf, complessita: valoriUtente.complessita,
-        qualitaOlf: valoriUtente.qualitaOlf, zuccheri: valoriUtente.zuccheri,
-        alcoli: valoriUtente.alcoli, polialcoli: valoriUtente.polialcoli,
-        acidi: valoriUtente.acidi, tannini: valoriUtente.tannini,
-        saliMinerali: valoriUtente.saliMinerali, struttura: valoriUtente.struttura,
-        equilibrio: valoriUtente.equilibrio, intensitaGust: valoriUtente.intensitaGust,
-        persistenzaGust: valoriUtente.persistenzaGust, qualitaGust: valoriUtente.qualitaGust,
-        armonia: valoriUtente.armonia, statoEvolutivo: valoriUtente.statoEvolutivo,
-        tempServizio: valoriUtente.tempServizio, formaCalice: valoriUtente.formaCalice,
-        rapportoQP: valoriUtente.rapportoQP,
+        limpidezza:valoriUtente.limpidezza, trasparenza:valoriUtente.trasparenza,
+        tonalita:valoriUtente.tonalita, riflessi:valoriUtente.riflessi,
+        fluidita:valoriUtente.fluidita, archetti:valoriUtente.archetti,
+        intensitaOlf:valoriUtente.intensitaOlf, complessita:valoriUtente.complessita,
+        qualitaOlf:valoriUtente.qualitaOlf, zuccheri:valoriUtente.zuccheri,
+        alcoli:valoriUtente.alcoli, polialcoli:valoriUtente.polialcoli,
+        acidi:valoriUtente.acidi, tannini:valoriUtente.tannini,
+        saliMinerali:valoriUtente.saliMinerali, struttura:valoriUtente.struttura,
+        equilibrio:valoriUtente.equilibrio, intensitaGust:valoriUtente.intensitaGust,
+        persistenzaGust:valoriUtente.persistenzaGust, qualitaGust:valoriUtente.qualitaGust,
+        armonia:valoriUtente.armonia, statoEvolutivo:valoriUtente.statoEvolutivo,
+        tempServizio:valoriUtente.tempServizio, formaCalice:valoriUtente.formaCalice, rapportoQP:valoriUtente.rapportoQP,
       })
       onSaved({ ...scheda, ...valoriUtente, benchmark_ai: benchmarkLocale })
       onClose()
-    } catch(e) {
-      console.error(e)
-    } finally { setSaving(false) }
+    } catch(e) { console.error(e) }
+    finally { setSaving(false) }
   }
 
   const S_inp = { width:'100%', padding:'8px 10px', border:'1.5px solid #E2DDD6', borderRadius:8, fontSize:13, background:'#fff', color:'#1C1410', WebkitAppearance:'none', appearance:'none' }
 
   return (
     <div style={{ position:'fixed', inset:0, zIndex:300, background:'#F4F1EC', display:'flex', flexDirection:'column' }}>
-      {/* Header */}
-      <div style={{ background:'#7B1E2E', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
+      {/* Header — dark, safe area top */}
+      <div style={{ background:'#0f0b08', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0, borderBottom:'1px solid #1e1a16' }}>
         <div>
-          <div style={{ fontFamily:'Playfair Display, serif', color:'#F5EFE0', fontSize:16, fontWeight:600 }}>{scheda.nomeVino}</div>
-          <div style={{ color:'rgba(245,239,224,0.7)', fontSize:12 }}>Benchmark AI · {scheda.cantina} {scheda.annata}</div>
+          <div style={{ fontFamily:'Cormorant Garamond, serif', color:'#F5EFE0', fontSize:17, fontWeight:400, fontStyle:'italic' }}>{scheda.nomeVino}</div>
+          <div style={{ color:'#8B7355', fontSize:12 }}>Benchmark AI · {scheda.cantina} {scheda.annata}</div>
         </div>
-        <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.2)', color:'#F5EFE0', fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+        <button onClick={onClose} style={{ width:34, height:34, borderRadius:'50%', border:'1px solid #2a2318', background:'#1a1611', color:'#F5EFE0', fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>✕</button>
       </div>
 
-      {/* Stato: nessun benchmark ancora */}
+      {/* Stato: nessun benchmark */}
       {!hasBenchmark && (
         <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:24 }}>
           <div style={{ fontSize:40, marginBottom:16 }}>🎓</div>
-          <div style={{ fontFamily:'Playfair Display, serif', fontSize:18, fontWeight:600, color:'#1C1410', marginBottom:8, textAlign:'center' }}>Benchmark ASPI</div>
+          <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:22, fontWeight:400, fontStyle:'italic', color:'#1C1410', marginBottom:8, textAlign:'center' }}>Benchmark ASPI</div>
           <div style={{ fontSize:14, color:'#7A6E65', marginBottom:24, textAlign:'center', lineHeight:1.6, maxWidth:280 }}>
-            Genera il benchmark AI per confrontare la tua degustazione con i valori attesi per questo vino. Il benchmark viene generato una sola volta.
+            Genera il benchmark AI per confrontare la tua degustazione. Viene generato una sola volta.
           </div>
           {errore && <div style={{ fontSize:13, color:'#9B2335', marginBottom:16, textAlign:'center' }}>{errore}</div>}
           <button onClick={handleGenera} disabled={generando}
-            style={{ padding:'14px 32px', background:generando?'#F4F1EC':'#1C1410', color:generando?'#7A6E65':'#fff', border:'none', borderRadius:14, fontSize:15, fontWeight:600, cursor:generando?'default':'pointer' }}>
-            {generando ? '⏳ Generando il benchmark…' : '✨ Genera benchmark'}
+            style={{ padding:'14px 32px', background:generando?'#F4F1EC':'#0f0b08', color:generando?'#7A6E65':'#F5EFE0', border:'none', borderRadius:14, fontSize:15, fontWeight:600, cursor:generando?'default':'pointer' }}>
+            {generando ? '⏳ Generando…' : '✨ Genera benchmark'}
           </button>
         </div>
       )}
@@ -221,34 +190,28 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
       {/* Vista a due colonne */}
       {hasBenchmark && (
         <>
-          {/* Intestazioni colonne */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:0, background:'#1C1410', padding:'10px 16px', flexShrink:0 }}>
-            <div style={{ fontSize:12, fontWeight:700, color:'#F5EFE0', textTransform:'uppercase', letterSpacing:1 }}>La tua scheda</div>
-            <div style={{ fontSize:12, fontWeight:700, color:'rgba(245,239,224,0.6)', textTransform:'uppercase', letterSpacing:1, display:'flex', alignItems:'center', gap:6 }}>
-              <span>✨</span> Benchmark AI
-            </div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', background:'#1C1410', padding:'10px 16px', flexShrink:0 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'#F5EFE0', textTransform:'uppercase', letterSpacing:1 }}>La tua scheda</div>
+            <div style={{ fontSize:11, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1 }}>✨ Benchmark AI</div>
           </div>
-
-          {/* Legenda match */}
           <div style={{ display:'flex', gap:12, padding:'8px 16px', background:'#F9F7F4', borderBottom:'1px solid #E2DDD6', flexShrink:0 }}>
             <span style={{ fontSize:11, color:'#2D6A4F' }}>✓ Concordante</span>
             <span style={{ fontSize:11, color:'#9B2335' }}>✗ Divergente</span>
             <span style={{ fontSize:11, color:'#B0A89E' }}>— Non valorizzato</span>
           </div>
-
-          {/* Contenuto scrollabile */}
-          <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', padding:'12px 16px 100px' }}>
+          <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', padding:'12px 16px', paddingBottom:'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
             {SEZIONI.map(sez => (
               <div key={sez.titolo} style={{ marginBottom:20 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:'#7B1E2E', textTransform:'uppercase', letterSpacing:1.2, marginBottom:10, paddingBottom:6, borderBottom:'1px solid #E2DDD6' }}>{sez.titolo}</div>
                 {sez.campi.map(campo => {
+                  // Nasconde tannini per tipologie senza tannini
+                  if (campo.soloTipologie && !campo.soloTipologie.includes(scheda.tipologia)) return null
                   const opts = campo.optsKey === 'tonalita' ? getTonalitaOpts(scheda.tipologia) : campo.opts
                   const valU = valoriUtente[campo.key] || ''
                   const valAI = benchmarkLocale?.[campo.key] || ''
                   const match = valU && valAI ? valU === valAI : undefined
                   return (
                     <div key={campo.key} style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10, alignItems:'start' }}>
-                      {/* Colonna sinistra: label + select utente */}
                       <div>
                         <div style={{ fontSize:11, color:'#7A6E65', marginBottom:4, fontWeight:500 }}>{campo.label}</div>
                         <select style={{ ...S_inp, borderColor: match === false ? '#9B2335' : match === true ? '#2D6A4F' : undefined }}
@@ -257,7 +220,6 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
                           {opts.map(o => <option key={o} value={o}>{o}</option>)}
                         </select>
                       </div>
-                      {/* Colonna destra: valore AI (non modificabile) */}
                       <div style={{ paddingTop:22 }}>
                         <ChipValore value={valAI} match={match} />
                       </div>
@@ -267,11 +229,9 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
               </div>
             ))}
           </div>
-
-          {/* Footer salva */}
           <div style={{ padding:'12px 16px', paddingBottom:'calc(12px + env(safe-area-inset-bottom, 0px))', background:'#fff', borderTop:'1px solid #E2DDD6', flexShrink:0 }}>
             <button onClick={handleSalva} disabled={saving}
-              style={{ width:'100%', padding:14, background:'#7B1E2E', color:'#fff', border:'none', borderRadius:12, fontSize:15, fontWeight:600, cursor:'pointer', opacity:saving?0.7:1 }}>
+              style={{ width:'100%', padding:14, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:12, fontSize:15, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
               {saving ? 'Salvataggio…' : 'Salva modifiche'}
             </button>
           </div>

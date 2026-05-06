@@ -100,12 +100,11 @@ export default function ImageUpload({ value, onChange, label = 'Foto', folder = 
         </button>
       )}
 
-      {/* Input file nascosto — accept include camera su mobile */}
+      {/* Input file nascosto — senza capture per permettere scelta da libreria o fotocamera */}
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         onChange={handleFile}
         style={{ display: 'none' }}
       />
