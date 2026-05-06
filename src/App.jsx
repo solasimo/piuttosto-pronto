@@ -9,7 +9,7 @@ import AIChef from './AIChef'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
 import Auth from './Auth'
-import Admin from './Admin'
+import BenchmarkASPI from './BenchmarkASPI'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const stars = n => '⭐️'.repeat(n || 0)
@@ -612,6 +612,7 @@ export default function App() {
   const [showUtente, setShowUtente] = useState(false)
   const [showFab, setShowFab] = useState(false)
   const [modalitaSommelier, setModalitaSommelier] = useState(true)
+  const [benchmarkScheda, setBenchmarkScheda] = useState(null)
   const [tab, setTab] = useState('libreria')
   const [cantina, setCantina] = useState([])
   const [archivio, setArchivio] = useState([])
@@ -790,7 +791,7 @@ export default function App() {
           }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
           {tab==='statistiche' && <div style={{padding:'0 14px'}}><Statistiche cantina={cantina} onBottigliaClick={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
           {tab==='abbinamento' && <div style={{padding:'0 14px'}}><AIChef cantina={cantina} /></div>}
-          {tab==='schede' && <div style={{padding:'0 14px'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} /></div>}
+          {tab==='schede' && <div style={{padding:'0 14px'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} onBenchmark={setBenchmarkScheda} /></div>}
         </>}
       </div>
 
@@ -888,6 +889,17 @@ export default function App() {
       {showGruppo && (
         <GruppoPanel profilo={profilo} gruppo={gruppo} onClose={()=>setShowGruppo(false)}
           onGruppoAggiornato={(g)=>{setGruppo(g);setCantina([]);setArchivio([])}} showToast={showToast} />
+      )}
+
+      {benchmarkScheda && (
+        <BenchmarkASPI
+          scheda={benchmarkScheda}
+          onClose={() => setBenchmarkScheda(null)}
+          onSaved={updated => {
+            setBenchmarkScheda(null)
+            setArchivio(prev => prev.map(s => s.id === updated.id ? updated : s))
+          }}
+        />
       )}
 
       <Toast msg={toast} />

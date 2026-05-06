@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import BenchmarkASPI from './BenchmarkASPI'
 
 // ─── Opzioni filtri ───────────────────────────────────────────────────────────
 const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
@@ -241,12 +240,11 @@ function SchedaCard({ a, onOpen, onElimina, onBenchmark }) {
 // ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────────
 const FILTRI_VUOTI = { tipologie: [], bouquetTipologie: [], bouquetCategorie: [], annate: [] }
 
-export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpdateScheda }) {
+export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpdateScheda, onBenchmark }) {
   const [filtriAperti, setFiltriAperti] = useState(false)
   const [filtri, setFiltri] = useState(FILTRI_VUOTI)
   const [confermaElimina, setConfermaElimina] = useState(null)
   const [cerca, setCerca] = useState('')
-  const [benchmarkScheda, setBenchmarkScheda] = useState(null)
 
   const attiviFiltri = [
     ...(filtri.tipologie || []),
@@ -343,7 +341,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpd
               {labelVoto[k]} <span style={{ color: '#B0A89E', fontWeight: 400 }}>({gruppi[k].length})</span>
             </div>
             {gruppi[k].map(a => (
-              <SchedaCard key={a.id} a={a} onOpen={onOpen} onElimina={setConfermaElimina} onBenchmark={setBenchmarkScheda} />
+              <SchedaCard key={a.id} a={a} onOpen={onOpen} onElimina={setConfermaElimina} onBenchmark={onBenchmark} />
             ))}
           </div>
         ))
@@ -355,18 +353,6 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpd
         onConferma={handleConfermaElimina}
         onAnnulla={() => setConfermaElimina(null)}
       />
-
-      {/* Benchmark AI — fullscreen */}
-      {benchmarkScheda && (
-        <BenchmarkASPI
-          scheda={benchmarkScheda}
-          onClose={() => setBenchmarkScheda(null)}
-          onSaved={(updated) => {
-            setBenchmarkScheda(null)
-            if (onUpdateScheda) onUpdateScheda(updated)
-          }}
-        />
-      )}
     </div>
   )
 }
