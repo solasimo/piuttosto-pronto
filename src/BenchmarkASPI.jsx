@@ -32,7 +32,7 @@ const VALORI_ASPI = {
   tempServizio: ['6-8°C','8-10°C','10-12°C','12-14°C','14-16°C','16-18°C','18-20°C'],
 }
 
-const TIPOLOGIE_CON_TANNINI = ['Rosso','Rosato','Fortificato']
+const TIPOLOGIE_CON_TANNINI = ['Rosso','Rosato','Orange','Dolce','Fortificato']
 
 const SEZIONI = [
   {
