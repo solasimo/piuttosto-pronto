@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaGruppo, creaInvitoGruppo, uniscitiGruppo } from './supabase'
+import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaGruppo, creaInvitoGruppo, uniscitiGruppo, aggiornaLingua } from './supabase'
+import { t, setLingua, getLingua, LINGUE } from './i18n'
+import { useT } from './useT'
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
 import SchedeASPI from './SchedeASPI'
@@ -91,7 +93,7 @@ function Spinner() {
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'80px 20px', gap:16 }}>
       <div style={{ width:32, height:32, border:'2px solid #2a2318', borderTopColor:'#C8992A', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:16, color:'#5a4f3f', fontStyle:'italic' }}>Caricamento cantina…</div>
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:16, color:'#5a4f3f', fontStyle:'italic' }}>{t('gen.caricamento')}</div>
     </div>
   )
 }
@@ -357,7 +359,8 @@ const NAV = [
 ]
 
 // ─── Menu utente ─────────────────────────────────────────────────────────────
-function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, onLogout, showToast, modalitaSommelier, onToggleSommelier, onAvatarUpdate }) {
+function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, onLogout, showToast, modalitaSommelier, onToggleSommelier, onAvatarUpdate, onCambiaLingua }) {
+  const T = useT()
   const [showCambioPassword, setShowCambioPassword] = useState(false)
   const [nuovaPassword, setNuovaPassword] = useState('')
   const [confermaPassword, setConfermaPassword] = useState('')
@@ -472,6 +475,20 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
               <div style={{ width:20, height:20, borderRadius:'50%', background:'#F5EFE0', position:'absolute', top:2, left:modalitaSommelier?22:2, transition:'left 0.2s' }} />
             </div>
           </button>
+
+          {/* Lingua */}
+          <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:10 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{T('utente.lingua')}</div>
+            <div style={{ display:'flex', gap:8 }}>
+              {LINGUE.map(l => (
+                <button key={l.code} onClick={() => onCambiaLingua(l.code)}
+                  style={{ flex:1, padding:'10px 8px', border:`1px solid ${getLingua()===l.code?'#C8992A':'#1e1a16'}`, borderRadius:10, background:getLingua()===l.code?'#C8992A22':'none', cursor:'pointer', textAlign:'center' }}>
+                  <div style={{ fontSize:20, marginBottom:3 }}>{l.flag}</div>
+                  <div style={{ fontSize:11, color:getLingua()===l.code?'#C8992A':'#5a4f3f', fontWeight:getLingua()===l.code?700:400 }}>{l.label}</div>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Logout */}
           <button onClick={onLogout} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#1a0a0a', border:'1px solid #2a1010', borderRadius:14, padding:16, cursor:'pointer', textAlign:'left' }}>
@@ -604,6 +621,7 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
 // ─── APP ROOT ─────────────────────────────────────────────────────────────────
 // ─── APP ROOT ─────────────────────────────────────────────────────────────────
 export default function App() {
+  const T = useT()
   const [session, setSession] = useState(undefined)
   const [profilo, setProfilo] = useState(null)
   const [gruppo, setGruppo] = useState(null)
@@ -643,9 +661,10 @@ export default function App() {
       try {
         const [c, a, p, g] = await Promise.all([getBottiglie(), getSchede(), getProfilo(), getGruppo()])
         setCantina(c); setArchivio(a); setProfilo(p); setGruppo(g.gruppo)
+        if (p?.lingua) setLingua(p.lingua)
         if (!loading) aggiornaLastSeen()
       } catch (e) {
-        showToast('⚠️ Errore connessione database')
+        showToast(t('gen.errore_connessione'))
         console.error(e)
       } finally { setLoading(false) }
     })()
@@ -758,10 +777,10 @@ export default function App() {
         <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', padding:'0 16px' }}>
           <div>
             <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:10, fontWeight:300, letterSpacing:3, textTransform:'uppercase', color:'#8B7355', marginBottom:3 }}>
-              {gruppo?.nome || `Cantina di ${profilo?.nome || '...'}`}
+              {gruppo?.nome || `${T('app.cantina_di')} ${profilo?.nome || '...'}`}
             </div>
             <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:26, fontWeight:300, color:'#F5EFE0', fontStyle:'italic', lineHeight:1 }}>
-              Piuttosto Pronto
+              {T('app.nome')}
             </div>
           </div>
           <button onClick={() => setShowUtente(true)}
@@ -773,7 +792,7 @@ export default function App() {
           </button>
         </div>
         <div style={{ display:'flex', borderTop:'1px solid #1e1a16', marginTop:10 }}>
-          {[['Bottiglie',totBottiglie],['Etichette',totEtichette],['Valore',fmtEur(valoreEur)]].map(([lbl,val])=>(
+          {[[T('kpi.bottiglie'),totBottiglie],[T('kpi.etichette'),totEtichette],[T('kpi.valore'),fmtEur(valoreEur)]].map(([lbl,val])=>(
             <div key={lbl} style={{ flex:1, padding:'8px 12px', borderRight:'1px solid #1e1a16', textAlign:'center' }}>
               <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:300, color:'#F5EFE0', lineHeight:1 }}>{val}</div>
               <div style={{ fontSize:9, letterSpacing:1.5, textTransform:'uppercase', color:'#5a4f3f', marginTop:2 }}>{lbl}</div>
@@ -797,7 +816,7 @@ export default function App() {
 
       {/* Bottom Nav */}
       <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#0a0806', borderTop:'1px solid #1e1a16', display:'flex', zIndex:50 }}>
-        {[['libreria','🍾','Cantina'],['statistiche','📊','Stats'],['abbinamento','✦','AI Chef'],...(modalitaSommelier?[['schede','📓','Schede']]:[])]
+        {[['libreria','🍾',T('nav.cantina')],['statistiche','📊',T('nav.stats')],['abbinamento','✦',T('nav.ai_chef')],...(modalitaSommelier?[['schede','📓',T('nav.schede')]]:[])]
           .map(([id,icon,label])=>{
             const active = tab===id
             return (
@@ -824,13 +843,13 @@ export default function App() {
             {modalitaSommelier && (
               <button onClick={()=>{setShowFab(false);setAspiBottiglia(null);setAspiLibera(true)}}
                 style={{ display:'flex', alignItems:'center', gap:12, background:'#1a1611', border:'1px solid #2a2318', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
-                <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>Nuova scheda ASPI</span>
+                <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>{T('fab.nuova_scheda')}</span>
                 <span style={{ fontSize:20 }}>📓</span>
               </button>
             )}
             <button onClick={()=>{setShowFab(false);setTab('aggiungi-bottiglia')}}
               style={{ display:'flex', alignItems:'center', gap:12, background:'#1a1611', border:'1px solid #2a2318', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
-              <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>Nuova bottiglia</span>
+              <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>{T('fab.nuova_bottiglia')}</span>
               <span style={{ fontSize:20 }}>🍾</span>
             </button>
           </div>
@@ -881,6 +900,7 @@ export default function App() {
           modalitaSommelier={modalitaSommelier}
           onToggleSommelier={()=>setModalitaSommelier(v=>!v)}
           onAvatarUpdate={url=>setProfilo(p=>({...p,avatar_url:url}))}
+          onCambiaLingua={async (l) => { setLingua(l); await aggiornaLingua(l) }}
         />
       )}
 

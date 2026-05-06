@@ -152,3 +152,9 @@ export const creaGruppo = () => gruppiCall('crea_gruppo')
 export const creaInvitoGruppo = () => gruppiCall('crea_invito_gruppo')
 export const uniscitiGruppo = (codice) => gruppiCall('unisciti', { codice })
 export const lasciаGruppo = () => gruppiCall('lascia_gruppo')
+
+// ─── LINGUA ───────────────────────────────────────────────────────────────────
+export async function aggiornaLingua(lingua) {
+  const user_id = await getUserId()
+  await supabase.from('profili').update({ lingua }).eq('id', user_id)
+}
