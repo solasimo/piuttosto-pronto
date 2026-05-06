@@ -1,7 +1,9 @@
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { TIPOLOGIE } from './AspiForm'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
+import { useT } from './useT'
+import { t } from './i18n'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -35,13 +37,14 @@ const TIPO_SOLID = {
 const stars = n => '⭐️'.repeat(n || 0)
 const money = n => '💶'.repeat(n || 0)
 
-const GRUPPI_ORDINE = ['Oltre il picco','Al picco','In evoluzione','Da definire']
-const GRUPPI_META = {
-  'Oltre il picco': { emoji:'🔴', desc:'Da bere subito',      cls:'red'   },
-  'Al picco':       { emoji:'🟡', desc:'Momento ideale',      cls:'amber' },
-  'In evoluzione':  { emoji:'🟢', desc:'In affinamento',      cls:'green' },
-  'Da definire':    { emoji:'🔵', desc:'Potenziale mancante', cls:'blue'  },
-}
+const getGruppiMeta = () => ({
+  'Oltre il picco': { emoji:'🔴', desc: t('lib.da_bere_subito'),      cls:'red'   },
+  'Al picco':       { emoji:'🟡', desc: t('lib.momento_ideale'),      cls:'amber' },
+  'In evoluzione':  { emoji:'🟢', desc: t('lib.in_affinamento'),      cls:'green' },
+  'Da definire':    { emoji:'🔵', desc: t('lib.potenziale_mancante'), cls:'blue'  },
+})
+
+export const GRUPPI_ORDINE = ['Oltre il picco','Al picco','In evoluzione','Da definire']
 
 const S = {
   inp: { width:'100%', padding:'11px 14px', border:'1.5px solid #E2DDD6', borderRadius:10, fontSize:15, background:'#fff', color:'#1C1410', WebkitAppearance:'none', appearance:'none' },
@@ -49,17 +52,18 @@ const S = {
 
 // ─── Confirm dialog ───────────────────────────────────────────────────────────
 function ConfirmDialog({ open, nome, onConfirm, onCancel }) {
+  const T = useT()
   if (!open) return null
   return (
     <div style={{ position:'fixed', inset:0, zIndex:400, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
       <div onClick={onCancel} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(4px)' }} />
       <div style={{ position:'relative', background:'#141009', borderRadius:16, padding:24, width:'100%', maxWidth:340, textAlign:'center', border:'1px solid #2a2318' }}>
         <div style={{ fontSize:32, marginBottom:12 }}>🗑️</div>
-        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:400, color:'#F5EFE0', marginBottom:8 }}>Elimina bottiglia</div>
-        <div style={{ fontSize:13, color:'#8B7355', marginBottom:24, lineHeight:1.6 }}>Vuoi eliminare <em>"{nome}"</em> dalla cantina?</div>
+        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:400, color:'#F5EFE0', marginBottom:8 }}>{T('lib.elimina_titolo')}</div>
+        <div style={{ fontSize:13, color:'#8B7355', marginBottom:24, lineHeight:1.6 }}>{T('lib.elimina_testo').replace('questa bottiglia', `"${nome}"`)}</div>
         <div style={{ display:'flex', gap:10 }}>
-          <button onClick={onCancel} style={{ flex:1, padding:12, background:'#1a1611', color:'#8B7355', border:'1px solid #2a2318', borderRadius:10, fontSize:14, cursor:'pointer' }}>Annulla</button>
-          <button onClick={onConfirm} style={{ flex:1, padding:12, background:'#9B2335', color:'#F5EFE0', border:'none', borderRadius:10, fontSize:14, fontWeight:600, cursor:'pointer' }}>Elimina</button>
+          <button onClick={onCancel} style={{ flex:1, padding:12, background:'#1a1611', color:'#8B7355', border:'1px solid #2a2318', borderRadius:10, fontSize:14, cursor:'pointer' }}>{T('lib.annulla')}</button>
+          <button onClick={onConfirm} style={{ flex:1, padding:12, background:'#9B2335', color:'#F5EFE0', border:'none', borderRadius:10, fontSize:14, fontWeight:600, cursor:'pointer' }}>{T('lib.elimina')}</button>
         </div>
       </div>
     </div>
@@ -424,6 +428,7 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina, showHint }) 
 
 // ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────────
 export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate, onDettaglio }) {
+  const T = useT()
   const [q, setQ] = useState('')
   const [confirmB, setConfirmB] = useState(null)
 
@@ -432,7 +437,6 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
     [cantina,q]
   )
 
-  // Conteggio bottiglie totali (unità fisiche) per la barra di ricerca
   const totFiltered = filtered.reduce((s,b)=>s+(b.quantita||0), 0)
 
   const gruppi = useMemo(() => {
@@ -452,27 +456,26 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
 
   return (
     <>
-      {/* Search */}
       <div style={{ position:'sticky', top:0, background:'#0f0b08', paddingBottom:10, paddingTop:16, zIndex:10, borderBottom:'1px solid #1e1a16' }}>
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="🔍  Cerca nome, cantina, vitigno..." style={{ ...S.inp, width:'100%' }} />
-        <div style={{ fontSize:11, color:'#8B7355', marginTop:8, letterSpacing:0.5 }}>{totFiltered} bottigli{totFiltered===1?'a':'e'} · {filtered.length} etichett{filtered.length===1?'a':'e'}</div>
+        <input value={q} onChange={e=>setQ(e.target.value)} placeholder={`🔍  ${T('lib.cerca')}`} style={{ ...S.inp, width:'100%' }} />
+        <div style={{ fontSize:11, color:'#8B7355', marginTop:8, letterSpacing:0.5 }}>
+          {totFiltered} {totFiltered===1?T('lib.bottiglia'):T('lib.bottiglie')} · {filtered.length} {filtered.length===1?T('lib.etichetta'):T('lib.etichette')}
+        </div>
       </div>
 
-      {/* Alert da bere presto */}
       <DaBerePresto cantina={cantina} onDettaglio={onDettaglio} />
 
-      {/* Gruppi */}
       {GRUPPI_ORDINE.map((gruppo, idx)=>{
         const bott=gruppi[gruppo]
         if(bott.length===0)return null
-        const meta=GRUPPI_META[gruppo]
+        const meta=getGruppiMeta()[gruppo]
         const colore=matColor(meta.cls)
         return (
           <div key={gruppo}>
             <div style={{ background:`${colore}10`, borderTop:`2px solid ${colore}55`, borderBottom:`1px solid ${colore}22`, padding:'10px 14px', display:'flex', alignItems:'center', gap:8 }}>
               <div style={{ width:8, height:8, borderRadius:'50%', background:colore, flexShrink:0 }} />
               <span style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:colore }}>{gruppo}</span>
-              <span style={{ fontSize:11, color:'#B0A89E', marginLeft:'auto' }}>{meta.desc} · {bott.length} {bott.length===1?'etichetta':'etichette'}</span>
+              <span style={{ fontSize:11, color:'#B0A89E', marginLeft:'auto' }}>{meta.desc} · {bott.length} {bott.length===1?T('lib.etichetta'):T('lib.etichette')}</span>
             </div>
             {bott.map((b, i)=>(
               <BottigliaRow key={b.id} b={b} onBevuto={onBevuto} onQty={onQty} onDettaglio={onDettaglio} onElimina={setConfirmB} showHint={idx===0 && i===0} />
@@ -484,7 +487,7 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
       {filtered.length===0&&(
         <div style={{ textAlign:'center', padding:'64px 20px', color:'#5a4f3f' }}>
           <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:40, marginBottom:12, fontStyle:'italic' }}>🍾</div>
-          <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:300, fontStyle:'italic' }}>Nessuna bottiglia trovata</div>
+          <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:300, fontStyle:'italic' }}>{T('lib.nessuna')}</div>
         </div>
       )}
 
