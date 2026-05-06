@@ -8,7 +8,9 @@ const VALORI_ASPI = {
   tonalitaRosso: ['Rosso porpora','Rosso rubino','Rosso granato','Rosso aranciato'],
   tonalitaRosato: ['Rosa salmone','Rosa buccia di cipolla','Rosa cerasuolo','Rosa chiaretto'],
   tonalitaBianco: ['Giallo verdolino','Giallo paglierino','Giallo oro / dorato','Giallo ambrato'],
-  riflessi: ['Purpureo/inchiostro','Violaceo','Granato/aranciato','Mattonato','Rosa tenue','Ramato','Verdognolo','Oro antico/ambrato'],
+  riflessiRosso: ['Purpureo/inchiostro','Violaceo','Granato/aranciato','Mattonato'],
+  riflessiRosato: ['Rosa tenue','Ramato','Rosa vivace','Rosa violaceo'],
+  rifleeeiBianco: ['Verdognolo','Grigio verde','Paglia chiaro','Oro antico/ambrato','Topazio/oro verde'],
   fluidita: ['Molto fluido','Scorrevole','Piuttosto consistente','Consistente','Denso'],
   archetti: ['Assenti','Stretti','Medi','Ampi'],
   intensitaOlf: ['Sfuggente','Poco intenso','Piuttosto intenso','Intenso','Penetrante'],
@@ -41,7 +43,7 @@ const SEZIONI = [
       { key: 'limpidezza', label: 'Limpidezza', opts: VALORI_ASPI.limpidezza },
       { key: 'trasparenza', label: 'Trasparenza', opts: VALORI_ASPI.trasparenza },
       { key: 'tonalita', label: 'Tonalità', optsKey: 'tonalita' },
-      { key: 'riflessi', label: 'Riflessi', opts: VALORI_ASPI.riflessi },
+      { key: 'riflessi', label: 'Riflessi', optsKey: 'riflessi' },
       { key: 'fluidita', label: 'Fluidità', opts: VALORI_ASPI.fluidita },
       { key: 'archetti', label: 'Archetti', opts: VALORI_ASPI.archetti },
     ]
@@ -86,6 +88,12 @@ function getTonalitaOpts(tipologia) {
   if (['Rosso','Fortificato'].includes(tipologia)) return VALORI_ASPI.tonalitaRosso
   if (tipologia === 'Rosato') return VALORI_ASPI.tonalitaRosato
   return VALORI_ASPI.tonalitaBianco
+}
+
+function getRiflessiOpts(tipologia) {
+  if (['Rosso','Fortificato'].includes(tipologia)) return VALORI_ASPI.riflessiRosso
+  if (tipologia === 'Rosato') return VALORI_ASPI.riflessiRosato
+  return VALORI_ASPI.riflessiAltri
 }
 
 function ChipValore({ value, match }) {
@@ -206,7 +214,9 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
                 {sez.campi.map(campo => {
                   // Nasconde tannini per tipologie senza tannini
                   if (campo.soloTipologie && !campo.soloTipologie.includes(scheda.tipologia)) return null
-                  const opts = campo.optsKey === 'tonalita' ? getTonalitaOpts(scheda.tipologia) : campo.opts
+                  const opts = campo.optsKey === 'tonalita' ? getTonalitaOpts(scheda.tipologia)
+                    : campo.optsKey === 'riflessi' ? getRiflessiOpts(scheda.tipologia)
+                    : campo.opts
                   const valU = valoriUtente[campo.key] || ''
                   const valAI = benchmarkLocale?.[campo.key] || ''
                   const match = valU && valAI ? valU === valAI : undefined
