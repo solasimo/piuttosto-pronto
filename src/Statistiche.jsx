@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { getMaturita, matColor, DettaglioBottiglia } from './Libreria'
 import { PAESI_REGIONI } from './dati'
 import AnalisiAI from './AnalisiAI'
+import { useT } from './useT'
 
 const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
 
@@ -243,6 +244,7 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
 
 // --- COMPONENTE PRINCIPALE ---
 export default function Statistiche({ cantina }) {
+  const T = useT()
   const [vista, setVista] = useState('paesi')
   const [bottSelected, setBottSelected] = useState(null)
   const totBottiglie = cantina.reduce((s, b) => s + (b.quantita || 0), 0)
@@ -262,7 +264,7 @@ export default function Statistiche({ cantina }) {
     <div>
       {/* KPI: solo paesi e tipologie — bottiglie/etichette/valore sono in topbar */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20, marginTop: 16 }}>
-        {[['🌍','Paesi coperti',paesiCoperti+'/'+totPaesi],['🎨','Tipologie',tipologieCoperte+'/7']].map(([ico,l,v]) => (
+        {[['🌍',T('stats.paesi'),paesiCoperti+'/'+totPaesi],['🎨',T('stats.tipologie'),tipologieCoperte+'/7']].map(([ico,l,v]) => (
           <div key={l} style={{ ...S.card, textAlign: 'center', padding: '14px 10px' }}>
             <div style={{ fontSize: 20, marginBottom: 3 }}>{ico}</div>
             <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'Playfair Display, serif', color: '#1C1410' }}>{v}</div>

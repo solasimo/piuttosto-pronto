@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { getMaturita } from './Libreria'
 import { getAnalisiCantina, saveAnalisiCantina, deleteAnalisiCantina } from './supabase'
+import { getLingua } from './i18n'
 
 // Hash semplice della cantina per rilevare cambiamenti
 function hashCantina(cantina) {
@@ -30,7 +31,8 @@ function buildAnalisiPayload(cantina) {
   return { byPaese, byTipo, byStato, totEtichette: cantina.length, totBottiglie: cantina.reduce((s,b) => s+(b.quantita||0),0), valTotale }
 }
 
-const SYSTEM_ANALISI = `Sei un consulente enologo. Analizza la cantina e rispondi SOLO con JSON valido senza markdown:
+const SYSTEM_ANALISI = `Sei un consulente enologo. Analizza la cantina e rispondi SOLO con JSON valido senza markdown.
+Rispondi SEMPRE nella lingua indicata nel messaggio dell'utente.
 {
   "punti_forza": ["stringa1", "stringa2", "stringa3"],
   "lacune": [{"tipo": "stringa", "descrizione": "stringa", "priorita": "alta|media"}],
@@ -48,7 +50,7 @@ async function callClaude(payload) {
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1500,
       system: SYSTEM_ANALISI,
-      messages: [{ role: 'user', content: `CANTINA:\n${JSON.stringify(payload)}` }],
+      messages: [{ role: 'user', content: `LINGUA RISPOSTA: ${getLingua()}\nCANTINA:\n${JSON.stringify(payload)}` }],
     }),
   })
   const data = await res.json()

@@ -176,17 +176,18 @@ async function callAI(payload) {
 }
 
 function AggiungiForm({ onAdd, showToast }) {
+  const T = useT()
   const [f, setF] = useState(FORM0)
   const [saving, setSaving] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
-  const [aiFields, setAiFields] = useState(new Set()) // campi compilati da AI
+  const [aiFields, setAiFields] = useState(new Set())
   const set = k => v => {
-    setAiFields(prev => { const n = new Set(prev); n.delete(k); return n }) // rimuove badge AI se utente modifica
+    setAiFields(prev => { const n = new Set(prev); n.delete(k); return n })
     setF(p => ({ ...p, [k]: v }))
   }
 
   const regioniOptions = f.paese && PAESI_REGIONI[f.paese]
-    ? [['', '— seleziona —'], ...PAESI_REGIONI[f.paese].map(r => [r, r])]
+    ? [['', T('form.seleziona')], ...PAESI_REGIONI[f.paese].map(r => [r, r])]
     : null
 
   // Unica chiamata AI che compila tutto
@@ -374,7 +375,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
     setSalvandoPwd(true)
     const { error } = await supabase.auth.updateUser({ password: nuovaPassword })
     if (error) showToast('⚠️ Errore: ' + error.message)
-    else { showToast('✓ Password aggiornata!'); setShowCambioPassword(false); setNuovaPassword(''); setConfermaPassword('') }
+    else { showToast(T('utente.pwd_aggiornata')); setShowCambioPassword(false); setNuovaPassword(''); setConfermaPassword('') }
     setSalvandoPwd(false)
   }
 
@@ -384,7 +385,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
       await supabase.from('profili').update({ avatar_url: url }).eq('id', profilo.id)
       setAvatarUrl(url)
       onAvatarUpdate(url)
-      showToast('✓ Foto profilo aggiornata!')
+      showToast(T('utente.foto_aggiornata'))
     } catch(e) { showToast('⚠️ Errore salvataggio') }
     setSalvandoAvatar(false)
   }
@@ -503,6 +504,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
 
 // ─── Pannello condivisione cantina ───────────────────────────────────────────
 function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }) {
+  const T = useT()
   const [codiceInput, setCodiceInput] = useState('')
   const [codiceGenerato, setCodiceGenerato] = useState('')
   const [loading, setLoading] = useState(false)
@@ -511,7 +513,7 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
     setLoading(true)
     try {
       const { gruppo: g } = await creaGruppo()
-      showToast('✓ Cantina condivisa creata')
+      showToast('✓ ' + T('gruppo.creata'))
       onGruppoAggiornato(g)
     } catch(e) { showToast('Errore: ' + e.message) }
     setLoading(false)
@@ -531,7 +533,7 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
     setLoading(true)
     try {
       const { gruppo_id } = await uniscitiGruppo(codiceInput.trim())
-      showToast('✓ Ti sei unito al gruppo!')
+      showToast('✓ ' + T('gruppo.creata'))
       onGruppoAggiornato({ id: gruppo_id })
       onClose()
     } catch(e) { showToast('Errore: ' + e.message) }
@@ -548,67 +550,59 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
           <div style={{ width: 36, height: 4, borderRadius: 2, background: '#D6D0C8' }} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 20px 16px' }}>
-          <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, fontWeight: 600, color: '#1C1410' }}>Condivisione cantina</div>
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 18, fontWeight: 400, fontStyle: 'italic', color: '#1C1410' }}>{T('gruppo.titolo')}</div>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#E2DDD6', cursor: 'pointer', fontSize: 14, color: '#7A6E65' }}>✕</button>
         </div>
         <div style={{ overflowY: 'auto', padding: '0 20px 32px', flex: 1 }}>
-
-          {/* Stato attuale */}
           <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 14, padding: 16, marginBottom: 20 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>La tua cantina</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{T('gruppo.la_tua')}</div>
             {gruppo ? (
               <>
                 <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>{gruppo.nome}</div>
-                <div style={{ fontSize: 13, color: '#7A6E65' }}>Cantina condivisa attiva</div>
+                <div style={{ fontSize: 13, color: '#7A6E65' }}>{T('gruppo.condivisa')}</div>
               </>
             ) : (
               <>
-                <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>Cantina di {profilo?.nome}</div>
-                <div style={{ fontSize: 13, color: '#7A6E65' }}>Solo tu hai accesso a questa cantina</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>{T('app.cantina_di')} {profilo?.nome}</div>
+                <div style={{ fontSize: 13, color: '#7A6E65' }}>{T('gruppo.solo_tu')}</div>
               </>
             )}
           </div>
 
-          {/* Invita qualcuno */}
           <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 14, padding: 16, marginBottom: 16 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Invita qualcuno</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{T('gruppo.invita')}</div>
             <div style={{ fontSize: 13, color: '#7A6E65', marginBottom: 14, lineHeight: 1.5 }}>
-              {gruppo
-                ? 'Genera un codice e condividilo con chi vuoi aggiungere. Il codice è valido 7 giorni e può essere usato una sola volta.'
-                : 'Prima devi creare una cantina condivisa, poi potrai invitare qualcuno.'}
+              {gruppo ? T('gruppo.invita_desc') : T('gruppo.prima_crea')}
             </div>
             {!gruppo ? (
               <button onClick={handleCreaGruppo} disabled={loading}
                 style={{ width: '100%', padding: 13, background: '#1C1410', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
-                {loading ? 'Creazione…' : '🔗 Crea cantina condivisa'}
+                {loading ? T('gruppo.creando') : T('gruppo.crea')}
               </button>
             ) : codiceGenerato ? (
               <div style={{ background: '#F5EFE0', border: '1px solid #C8992A', borderRadius: 10, padding: 14, textAlign: 'center' }}>
-                <div style={{ fontSize: 11, color: '#854F0B', marginBottom: 6 }}>Codice invito generato</div>
+                <div style={{ fontSize: 11, color: '#854F0B', marginBottom: 6 }}>{T('gruppo.codice_generato')}</div>
                 <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 4, color: '#1C1410', fontFamily: 'monospace' }}>{codiceGenerato}</div>
-                <div style={{ fontSize: 12, color: '#7A6E65', marginTop: 6 }}>Condividilo con il tuo famigliare</div>
+                <div style={{ fontSize: 12, color: '#7A6E65', marginTop: 6 }}>{T('gruppo.condividi_con')}</div>
               </div>
             ) : (
               <button onClick={handleCreaInvito} disabled={loading}
                 style={{ width: '100%', padding: 13, background: '#1C1410', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
-                {loading ? 'Generando…' : '+ Genera codice invito'}
+                {loading ? T('gruppo.generando') : T('gruppo.genera')}
               </button>
             )}
           </div>
 
-          {/* Unisciti a una cantina */}
           {!gruppo && (
             <div style={{ background: '#fff', border: '1px solid #E2DDD6', borderRadius: 14, padding: 16 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Unisciti a una cantina</div>
-              <div style={{ fontSize: 13, color: '#7A6E65', marginBottom: 14, lineHeight: 1.5 }}>
-                Hai ricevuto un codice? Inseriscilo qui per unire la tua cantina a quella di un famigliare.
-              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#7B1E2E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{T('gruppo.unisciti')}</div>
+              <div style={{ fontSize: 13, color: '#7A6E65', marginBottom: 14, lineHeight: 1.5 }}>{T('gruppo.unisciti_desc')}</div>
               <input value={codiceInput} onChange={e => setCodiceInput(e.target.value.toUpperCase())}
-                placeholder="Inserisci codice (es. G1234567)"
+                placeholder={T('gruppo.placeholder')}
                 style={{ ...S_inp, marginBottom: 10, letterSpacing: 2, fontFamily: 'monospace' }} />
               <button onClick={handleUnisciti} disabled={loading || !codiceInput.trim()}
                 style={{ width: '100%', padding: 13, background: '#7B1E2E', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: (loading || !codiceInput.trim()) ? 0.6 : 1 }}>
-                {loading ? 'Connessione…' : 'Unisciti alla cantina'}
+                {loading ? T('gruppo.connessione') : T('gruppo.unisciti_btn')}
               </button>
             </div>
           )}
@@ -705,7 +699,7 @@ export default function App() {
     setCantina(prev => prev.map(x => x.id === id ? updated : x))
     setDettaglioBottiglia(updated)
     setModalitaBottiglia('detail')
-    showToast('✓ Bottiglia aggiornata!')
+    showToast(t('gen.bottiglia_aggiornata'))
   }, [])
 
   const handleSaveASPI = useCallback(async (formData) => {
@@ -720,7 +714,7 @@ export default function App() {
     const saved = await addScheda(record)
     setArchivio(prev => [saved, ...prev].sort((a, b) => (b.voto || 0) - (a.voto || 0)))
     setAspiBottiglia(null); setAspiLibera(false)
-    showToast('📓 Scheda ASPI salvata!')
+    showToast(t('gen.scheda_salvata'))
     setTab('schede')
   }, [aspiBottiglia])
 
@@ -742,7 +736,7 @@ export default function App() {
     const updated = await updateScheda(editScheda.id, { ...formData, data: editScheda.data })
     setArchivio(prev => prev.map(s => s.id === editScheda.id ? updated : s).sort((a, b) => (b.voto || 0) - (a.voto || 0)))
     setEditScheda(null)
-    showToast('✓ Scheda aggiornata!')
+    showToast(t('gen.scheda_aggiornata'))
     setTab('schede')
   }, [editScheda])
 
@@ -857,7 +851,7 @@ export default function App() {
       )}
 
       {/* Sheet aggiungi bottiglia */}
-      <Sheet open={tab==='aggiungi-bottiglia'} onClose={()=>setTab('libreria')} title="Aggiungi bottiglia">
+      <Sheet open={tab==='aggiungi-bottiglia'} onClose={()=>setTab('libreria')} title={t('fab.nuova_bottiglia')}>
         <AggiungiForm onAdd={handleAdd} showToast={showToast} />
       </Sheet>
 

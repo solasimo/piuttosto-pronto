@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
+import { useT } from './useT'
 
 async function adminCall(action, payload = {}) {
   const { data: { session } } = await supabase.auth.getSession()
@@ -14,6 +15,7 @@ async function adminCall(action, payload = {}) {
 }
 
 export default function Admin({ onClose }) {
+  const T = useT()
   const [tab, setTab] = useState('utenti')
   const [utenti, setUtenti] = useState([])
   const [inviti, setInviti] = useState([])
@@ -29,9 +31,7 @@ export default function Admin({ onClose }) {
     setLoading(true)
     try {
       const [{ data: u }, { data: i }, { data: g }] = await Promise.all([
-        adminCall('get_utenti'),
-        adminCall('get_inviti'),
-        adminCall('get_gruppi'),
+        adminCall('get_utenti'), adminCall('get_inviti'), adminCall('get_gruppi'),
       ])
       setUtenti(u || []); setInviti(i || []); setGruppi(g || [])
     } catch(e) { showToast('Errore: ' + e.message) }
@@ -39,31 +39,31 @@ export default function Admin({ onClose }) {
   }
 
   const creaInvito = async () => {
-    try { await adminCall('crea_invito'); showToast('✓ Invito creato'); carica() }
+    try { await adminCall('crea_invito'); showToast('✓ ' + T('admin.genera_invito')); carica() }
     catch(e) { showToast('Errore: ' + e.message) }
   }
 
   const revocaInvito = async (id) => {
-    try { await adminCall('revoca_invito', { id }); showToast('Invito revocato'); carica() }
+    try { await adminCall('revoca_invito', { id }); showToast(T('admin.revoca')); carica() }
     catch(e) { showToast('Errore: ' + e.message) }
   }
 
   const toggleAttivo = async (utente) => {
     try {
       await adminCall('toggle_attivo', { id: utente.id, is_active: !utente.is_active })
-      showToast(utente.is_active ? 'Utente sospeso' : 'Utente riattivato'); carica()
+      showToast(utente.is_active ? T('admin.sospendi') : T('admin.riattiva')); carica()
     } catch(e) { showToast('Errore: ' + e.message) }
   }
 
   const eliminaUtente = async (utente) => {
-    if (!confirm(`Eliminare ${utente.email}?`)) return
-    try { await adminCall('elimina_utente', { id: utente.id }); showToast('Utente eliminato'); carica() }
+    if (!confirm(`${T('admin.elimina')} ${utente.email}?`)) return
+    try { await adminCall('elimina_utente', { id: utente.id }); showToast(T('admin.elimina')); carica() }
     catch(e) { showToast('Errore: ' + e.message) }
   }
 
   const revocaGruppo = async (gruppo_id, nome) => {
-    if (!confirm(`Revocare la condivisione del gruppo "${nome}"? I dati rimarranno ma la condivisione verrà rimossa.`)) return
-    try { await adminCall('revoca_gruppo', { gruppo_id }); showToast('✓ Condivisione revocata'); carica() }
+    if (!confirm(`${T('admin.revoca')} "${nome}"?`)) return
+    try { await adminCall('revoca_gruppo', { gruppo_id }); showToast('✓ ' + T('admin.revoca')); carica() }
     catch(e) { showToast('Errore: ' + e.message) }
   }
 
@@ -74,14 +74,14 @@ export default function Admin({ onClose }) {
     <div style={{ position:'fixed', inset:0, zIndex:500, background:'#F4F1EC', display:'flex', flexDirection:'column' }}>
       <div style={{ background:'#1C1410', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
         <div>
-          <div style={{ fontFamily:'Playfair Display, serif', color:'#F5EFE0', fontSize:17, fontWeight:600 }}>Dashboard Admin</div>
+          <div style={{ fontFamily:'Cormorant Garamond, serif', color:'#F5EFE0', fontSize:17, fontWeight:400, fontStyle:'italic' }}>{T('admin.titolo')}</div>
           <div style={{ color:'rgba(245,239,224,0.5)', fontSize:12 }}>Piuttosto Pronto</div>
         </div>
         <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#F5EFE0', fontSize:16, cursor:'pointer' }}>✕</button>
       </div>
 
       <div style={{ display:'flex', background:'#fff', borderBottom:'1px solid #E2DDD6', flexShrink:0 }}>
-        {[['utenti','👥 Utenti'],['inviti','✉️ Inviti'],['gruppi','🔗 Gruppi']].map(([k,l]) => (
+        {[['utenti',T('admin.utenti')],['inviti',T('admin.inviti')],['gruppi',T('admin.gruppi')]].map(([k,l]) => (
           <button key={k} onClick={() => setTab(k)}
             style={{ flex:1, padding:'12px 0', border:'none', borderBottom:tab===k?'2px solid #7B1E2E':'2px solid transparent', background:'none', fontSize:12, fontWeight:600, color:tab===k?'#7B1E2E':'#7A6E65', cursor:'pointer' }}>{l}</button>
         ))}
@@ -89,10 +89,10 @@ export default function Admin({ onClose }) {
 
       <div style={{ flex:1, overflowY:'auto', padding:16, WebkitOverflowScrolling:'touch' }}>
         {loading ? (
-          <div style={{ textAlign:'center', padding:40, color:'#B0A89E' }}>Caricamento…</div>
+          <div style={{ textAlign:'center', padding:40, color:'#B0A89E' }}>{T('admin.caricamento')}</div>
         ) : tab === 'utenti' ? (
           <>
-            <div style={{ fontSize:12, color:'#7A6E65', marginBottom:12 }}>{utenti.length} utenti registrati</div>
+            <div style={{ fontSize:12, color:'#7A6E65', marginBottom:12 }}>{utenti.length} {T('admin.utenti_reg')}</div>
             {utenti.map(u => (
               <div key={u.id} style={{ background:'#fff', border:'1px solid #E2DDD6', borderRadius:12, padding:14, marginBottom:10 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10 }}>
@@ -100,21 +100,19 @@ export default function Admin({ onClose }) {
                     <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2, flexWrap:'wrap' }}>
                       <span style={{ fontSize:14, fontWeight:600, color:'#1C1410' }}>{u.nome} {u.cognome}</span>
                       {u.is_admin && <span style={{ fontSize:10, background:'#F5EFE0', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>ADMIN</span>}
-                      {!u.is_active && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>SOSPESO</span>}
+                      {!u.is_active && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.sospeso')}</span>}
                     </div>
                     <div style={{ fontSize:12, color:'#7A6E65', marginBottom:2 }}>{u.email}</div>
-                    <div style={{ fontSize:11, color:'#B0A89E' }}>Iscritto: {fmtData(u.created_at)}</div>
-                    {u.last_seen && <div style={{ fontSize:11, color:'#B0A89E' }}>Ultimo accesso: {fmtData(u.last_seen)}</div>}
+                    <div style={{ fontSize:11, color:'#B0A89E' }}>{T('admin.iscritto')} {fmtData(u.created_at)}</div>
+                    {u.last_seen && <div style={{ fontSize:11, color:'#B0A89E' }}>{T('admin.ultimo_accesso')} {fmtData(u.last_seen)}</div>}
                   </div>
                   {!u.is_admin && (
                     <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-                      <button onClick={() => toggleAttivo(u)}
-                        style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #E2DDD6', background:'#fff', color:'#7A6E65', cursor:'pointer' }}>
-                        {u.is_active ? 'Sospendi' : 'Riattiva'}
+                      <button onClick={() => toggleAttivo(u)} style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #E2DDD6', background:'#fff', color:'#7A6E65', cursor:'pointer' }}>
+                        {u.is_active ? T('admin.sospendi') : T('admin.riattiva')}
                       </button>
-                      <button onClick={() => eliminaUtente(u)}
-                        style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #FAECE7', background:'#FAECE7', color:'#993C1D', cursor:'pointer' }}>
-                        Elimina
+                      <button onClick={() => eliminaUtente(u)} style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #FAECE7', background:'#FAECE7', color:'#993C1D', cursor:'pointer' }}>
+                        {T('admin.elimina')}
                       </button>
                     </div>
                   )}
@@ -124,11 +122,10 @@ export default function Admin({ onClose }) {
           </>
         ) : tab === 'inviti' ? (
           <>
-            <button onClick={creaInvito}
-              style={{ width:'100%', padding:13, background:'#1C1410', color:'#fff', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', marginBottom:16 }}>
-              + Genera nuovo invito
+            <button onClick={creaInvito} style={{ width:'100%', padding:13, background:'#1C1410', color:'#fff', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', marginBottom:16 }}>
+              {T('admin.genera_invito')}
             </button>
-            <div style={{ fontSize:12, color:'#7A6E65', marginBottom:12 }}>{inviti.length} inviti totali</div>
+            <div style={{ fontSize:12, color:'#7A6E65', marginBottom:12 }}>{inviti.length} {T('admin.inviti_tot')}</div>
             {inviti.map(inv => {
               const usato = !!inv.usato_da
               const scaduto = isScaduto(inv.scade_at) && !usato
@@ -139,18 +136,17 @@ export default function Admin({ onClose }) {
                     <div>
                       <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
                         <span style={{ fontSize:16, fontWeight:700, letterSpacing:2, color:'#1C1410', fontFamily:'monospace' }}>{inv.codice}</span>
-                        {isGruppo && <span style={{ fontSize:10, background:'#E6F1FB', color:'#185FA5', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>GRUPPO</span>}
-                        {usato && <span style={{ fontSize:10, background:'#F0F7F3', color:'#2D6A4F', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>USATO</span>}
-                        {scaduto && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>SCADUTO</span>}
-                        {!usato && !scaduto && <span style={{ fontSize:10, background:'#F5EFE0', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>ATTIVO</span>}
+                        {isGruppo && <span style={{ fontSize:10, background:'#E6F1FB', color:'#185FA5', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.gruppo')}</span>}
+                        {usato && <span style={{ fontSize:10, background:'#F0F7F3', color:'#2D6A4F', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.usato')}</span>}
+                        {scaduto && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.scaduto')}</span>}
+                        {!usato && !scaduto && <span style={{ fontSize:10, background:'#F5EFE0', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.attivo')}</span>}
                       </div>
-                      <div style={{ fontSize:12, color:'#B0A89E' }}>Scade: {fmtData(inv.scade_at)}</div>
-                      {usato && <div style={{ fontSize:12, color:'#B0A89E' }}>Usato: {fmtData(inv.usato_at)}</div>}
+                      <div style={{ fontSize:12, color:'#B0A89E' }}>{T('admin.scade')} {fmtData(inv.scade_at)}</div>
+                      {usato && <div style={{ fontSize:12, color:'#B0A89E' }}>{T('admin.usato_il')} {fmtData(inv.usato_at)}</div>}
                     </div>
                     {!usato && !scaduto && (
-                      <button onClick={() => revocaInvito(inv.id)}
-                        style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #FAECE7', background:'#FAECE7', color:'#993C1D', cursor:'pointer' }}>
-                        Revoca
+                      <button onClick={() => revocaInvito(inv.id)} style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #FAECE7', background:'#FAECE7', color:'#993C1D', cursor:'pointer' }}>
+                        {T('admin.revoca')}
                       </button>
                     )}
                   </div>
@@ -160,11 +156,11 @@ export default function Admin({ onClose }) {
           </>
         ) : (
           <>
-            <div style={{ fontSize:12, color:'#7A6E65', marginBottom:12 }}>{gruppi.length} gruppi attivi</div>
+            <div style={{ fontSize:12, color:'#7A6E65', marginBottom:12 }}>{gruppi.length} {T('admin.gruppi_attivi')}</div>
             {gruppi.length === 0 && (
               <div style={{ textAlign:'center', padding:'32px 20px', color:'#B0A89E' }}>
                 <div style={{ fontSize:32, marginBottom:8 }}>🔗</div>
-                <div style={{ fontSize:14 }}>Nessun gruppo di condivisione attivo</div>
+                <div style={{ fontSize:14 }}>{T('admin.nessun_gruppo')}</div>
               </div>
             )}
             {gruppi.map(g => (
@@ -172,14 +168,13 @@ export default function Admin({ onClose }) {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:14, fontWeight:600, color:'#1C1410', marginBottom:6 }}>{g.nome}</div>
-                    <div style={{ fontSize:12, color:'#B0A89E', marginBottom:6 }}>Creato: {fmtData(g.created_at)}</div>
+                    <div style={{ fontSize:12, color:'#B0A89E', marginBottom:6 }}>{T('admin.creato')} {fmtData(g.created_at)}</div>
                     <div style={{ fontSize:12, color:'#7A6E65' }}>
-                      Membri: {(g.gruppi_membri || []).map(m => m.profili?.nome || m.user_id?.slice(0,8)).join(', ')}
+                      {T('admin.membri')} {(g.gruppi_membri || []).map(m => m.profili?.nome || m.user_id?.slice(0,8)).join(', ')}
                     </div>
                   </div>
-                  <button onClick={() => revocaGruppo(g.id, g.nome)}
-                    style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #FAECE7', background:'#FAECE7', color:'#993C1D', cursor:'pointer', flexShrink:0 }}>
-                    Revoca
+                  <button onClick={() => revocaGruppo(g.id, g.nome)} style={{ fontSize:11, padding:'5px 10px', borderRadius:8, border:'1px solid #FAECE7', background:'#FAECE7', color:'#993C1D', cursor:'pointer', flexShrink:0 }}>
+                    {T('admin.revoca')}
                   </button>
                 </div>
               </div>

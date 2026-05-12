@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react'
 import { getMaturita } from './Libreria'
+import { useT } from './useT'
+import { getLingua } from './i18n'
 
 const WINE_EMOJI = { Rosso:'🍷', Bianco:'🥂', Bollicine:'🍾', Rosato:'🌸', Orange:'🍊', Dolce:'🍯', Fortificato:'🫙' }
 
@@ -48,6 +50,7 @@ async function callClaude(systemPrompt, userMessage) {
 }
 
 const SYSTEM_ABBINAMENTO = `Sei un sommelier ASPI esperto. L'utente ha una cantina personale e vuole abbinare un piatto a un vino.
+Rispondi SEMPRE nella lingua indicata nel messaggio dell'utente.
 
 REGOLE DI PRIORITÀ (rispettale sempre):
 1. Suggerisci prima vini "Oltre il picco" (da consumare subito)
@@ -79,6 +82,7 @@ Se la richiesta non riguarda abbinamento cibo-vino, rispondi con:
 {"valido": false, "messaggio": "<invita a inserire un piatto>"}`
 
 const SYSTEM_INVERSO = `Sei un sommelier ASPI esperto. L'utente ha un vino specifico e vuole sapere cosa cucinare.
+Rispondi SEMPRE nella lingua indicata nel messaggio dell'utente.
 
 FORMATO RISPOSTA — rispondi SOLO con JSON valido:
 {
@@ -156,6 +160,7 @@ function RisultatoInverso({ piatto, rank }) {
 
 // ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────────
 export default function AIChef({ cantina }) {
+  const T = useT()
   const [modo, setModo] = useState('abbinamento') // 'abbinamento' | 'inverso'
   const [input, setInput] = useState('')
   const [vinoSelezionato, setVinoSelezionato] = useState('')
@@ -175,15 +180,16 @@ export default function AIChef({ cantina }) {
 
     try {
       const summary = buildCantinaSummary(cantina)
+      const lingua = getLingua()
 
       let rawText
       if (modo === 'abbinamento') {
-        const userMsg = `CANTINA (${summary.length} vini disponibili):\n${JSON.stringify(summary)}\n\nPIATTO: ${input}`
+        const userMsg = `LINGUA RISPOSTA: ${lingua}\nCANTINA (${summary.length} vini disponibili):\n${JSON.stringify(summary)}\n\nPIATTO: ${input}`
         rawText = await callClaude(SYSTEM_ABBINAMENTO, userMsg)
       } else {
         const vino = cantina.find(b => String(b.id) === vinoSelezionato)
         const vinoInfo = { nome: vino.nome, cantina: vino.cantina, tipologia: vino.tipologia, vitigno: vino.vitigno, regione: vino.regione, anno: vino.anno, note: vino.note }
-        rawText = await callClaude(SYSTEM_INVERSO, `VINO: ${JSON.stringify(vinoInfo)}`)
+        rawText = await callClaude(SYSTEM_INVERSO, `LINGUA RISPOSTA: ${lingua}\nVINO: ${JSON.stringify(vinoInfo)}`)
       }
 
       const parsed = JSON.parse(rawText)
@@ -208,7 +214,7 @@ export default function AIChef({ cantina }) {
     <div>
       {/* Toggle modo */}
       <div style={{ display:'flex', gap:0, marginBottom:20, marginTop:16, background:'#E2DDD6', borderRadius:12, padding:3 }}>
-        {[['abbinamento','🍽️ Ho un piatto'],['inverso','🍷 Ho un vino']].map(([k,l]) => (
+        {[['abbinamento',`🍽️ ${T('chef.piatto_vino')}`],['inverso',`🍷 ${T('chef.vino_piatto')}`]].map(([k,l]) => (
           <button key={k} onClick={() => { setModo(k); setRisultato(null); setErrore('') }}
             style={{ flex:1, padding:'9px 0', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', background: modo===k ? '#fff' : 'transparent', color: modo===k ? '#1C1410' : '#7A6E65', transition:'background 0.15s' }}>{l}</button>
         ))}
@@ -218,7 +224,7 @@ export default function AIChef({ cantina }) {
       {modo === 'abbinamento' ? (
         <div style={{ display:'flex', gap:10, marginBottom:20 }}>
           <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key==='Enter' && cerca()}
-            placeholder="es. risotto al tartufo, branzino al sale..." style={inpStyle} />
+            placeholder={T('chef.inserisci_piatto')} style={inpStyle} />
           <button onClick={cerca} disabled={loading} style={{ padding:'11px 18px', background:'#7B1E2E', color:'#fff', border:'none', borderRadius:12, fontSize:18, fontWeight:700, cursor:'pointer', opacity: loading ? 0.6 : 1, flexShrink:0 }}>
             {loading ? '…' : '→'}
           </button>
@@ -227,7 +233,7 @@ export default function AIChef({ cantina }) {
         <div style={{ marginBottom:20 }}>
           <select value={vinoSelezionato} onChange={e => { setVinoSelezionato(e.target.value); setRisultato(null) }}
             style={{ ...inpStyle, flex:'none', width:'100%', marginBottom:12 }}>
-            <option value="">— Seleziona un vino dalla cantina —</option>
+            <option value="">— {T('chef.inserisci_vino')} —</option>
             {bottDisponibili.map(b => (
               <option key={b.id} value={String(b.id)}>
                 {WINE_EMOJI[b.tipologia] || '🍷'} {b.nome} {b.anno ? `(${b.anno})` : ''} — {getMaturita(b).label}
@@ -236,7 +242,7 @@ export default function AIChef({ cantina }) {
           </select>
           <button onClick={cerca} disabled={loading || !vinoSelezionato}
             style={{ width:'100%', padding:13, background:'#7B1E2E', color:'#fff', border:'none', borderRadius:12, fontSize:15, fontWeight:600, cursor:'pointer', opacity: (loading || !vinoSelezionato) ? 0.6 : 1 }}>
-            {loading ? 'Sto pensando…' : 'Cosa cucino stasera? →'}
+            {loading ? T('chef.abbinando') : `${T('chef.abbina')} →`}
           </button>
         </div>
       )}
