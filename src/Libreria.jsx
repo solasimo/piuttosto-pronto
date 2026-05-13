@@ -75,6 +75,7 @@ function ConfirmDialog({ open, nome, onConfirm, onCancel }) {
 
 // ─── DettaglioBottiglia ───────────────────────────────────────────────────────
 export function DettaglioBottiglia({ b }) {
+  const T = useT()
   const m = getMaturita(b)
   const pct = m.pct !== null ? m.pct : null
 
@@ -190,6 +191,7 @@ async function callAIModifica(payload) {
 }
 
 export function ModificaBottiglia({ b, onSave, saving }) {
+  const T = useT()
   const [f, setF] = useState({
     nome:b.nome||'', cantina:b.cantina||'', tipologia:b.tipologia||'',
     anno:b.anno?String(b.anno):'', quantita:b.quantita?String(b.quantita):'1',
@@ -309,6 +311,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
 
 // ─── Alert Da bere presto ─────────────────────────────────────────────────────
 function DaBerePresto({ cantina, onDettaglio }) {
+  const T = useT()
   const urgenti = cantina.filter(b=>{const m=getMaturita(b);return m.pct!==null&&m.pct>=108&&m.pct<110})
   if (urgenti.length===0) return null
   return (
@@ -481,7 +484,7 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
           <div key={gruppo}>
             <div style={{ background:`${colore}10`, borderTop:`2px solid ${colore}55`, borderBottom:`1px solid ${colore}22`, padding:'10px 14px', display:'flex', alignItems:'center', gap:8 }}>
               <div style={{ width:8, height:8, borderRadius:'50%', background:colore, flexShrink:0 }} />
-              <span style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:colore }}>{gruppo}</span>
+              <span style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:colore }}>{T(`lib.${meta.cls === 'red' ? 'oltre_picco' : meta.cls === 'amber' ? 'al_picco' : meta.cls === 'green' ? 'in_evoluzione' : 'da_definire'}`)}</span>
               <span style={{ fontSize:11, color:'#B0A89E', marginLeft:'auto' }}>{meta.desc} · {bott.length} {bott.length===1?T('lib.etichetta'):T('lib.etichette')}</span>
             </div>
             {bott.map((b, i)=>(

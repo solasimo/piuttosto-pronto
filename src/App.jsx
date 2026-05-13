@@ -428,7 +428,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
 
             {!showCambioPassword ? (
               <button onClick={()=>setShowCambioPassword(true)} style={{ fontSize:12, color:'#C8992A', background:'none', border:'1px solid #C8992A44', borderRadius:8, padding:'6px 12px', cursor:'pointer' }}>
-                Cambia password
+                {T('utente.cambia_pwd')}
               </button>
             ) : (
               <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:8 }}>
@@ -458,7 +458,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
               <span style={{ fontSize:24 }}>⚙️</span>
               <div>
                 <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>{T('utente.admin')}</div>
-                <div style={{ fontSize:12, color:'#5a4f3f' }}>T('utente.admin_sub')</div>
+                <div style={{ fontSize:12, color:'#5a4f3f' }}>{T('utente.admin_sub')}</div>
               </div>
               <span style={{ marginLeft:'auto', color:'#5a4f3f', fontSize:16 }}>›</span>
             </button>

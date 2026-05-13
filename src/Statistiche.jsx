@@ -44,6 +44,7 @@ function BottigliaSheet({ b, onClose }) {
 
 // ─── Mini card bottiglia ──────────────────────────────────────────────────────
 function MiniCard({ b, onClick }) {
+  const T = useT()
   const m = getMaturita(b)
   const tc = TIPO_COLORS[b.tipologia] || '#7B1E2E'
   const tbg = TIPO_BG[b.tipologia] || '#F1EFE8'
@@ -65,6 +66,7 @@ function MiniCard({ b, onClick }) {
 
 // ─── RegioneRow ───────────────────────────────────────────────────────────────
 function RegioneRow({ regione, bottiglie, onBottigliaClick }) {
+  const T = useT()
   const [open, setOpen] = useState(false)
   const tot = bottiglie.reduce((s, b) => s + (b.quantita || 0), 0)
   const valore = bottiglie.reduce((s, b) => s + (b.prezzo_acquisto || 0) * (b.quantita || 0), 0)
@@ -116,6 +118,7 @@ function RegioneRow({ regione, bottiglie, onBottigliaClick }) {
 
 // ─── VistaTipologie ───────────────────────────────────────────────────────────
 function VistaTipologie({ cantina }) {
+  const T = useT()
   const byTipo = {}
   TIPOLOGIE.forEach(t => byTipo[t] = { etichette: 0, bottiglie: 0, valore: 0 })
   cantina.forEach(b => {

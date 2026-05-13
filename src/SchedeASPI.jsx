@@ -124,6 +124,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
 
 // Input annata con aggiunta manuale
 function AnnataInput({ valori, onChange }) {
+  const T = useT()
   const [input, setInput] = useState('')
   const aggiungi = () => {
     const v = input.trim()
@@ -186,6 +187,7 @@ function ConfermaElimina({ scheda, onConferma, onAnnulla }) {
 
 // ─── Card singola scheda ──────────────────────────────────────────────────────
 function SchedaCard({ a, onOpen, onElimina, onBenchmark }) {
+  const T = useT()
   const votoLabel = ['',T('schede.ordinario'),T('schede.discreto'),T('schede.buono'),T('schede.ottimo'),T('schede.eccellente')][a.voto] || ''
   const bs = {
     Rosso:{ bg:'#FAECE7',color:'#993C1D' }, Bianco:{ bg:'#FAEEDA',color:'#854F0B' },
