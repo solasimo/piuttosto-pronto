@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useT } from './useT'
 
 // ─── Opzioni filtri ───────────────────────────────────────────────────────────
 const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
@@ -185,7 +186,7 @@ function ConfermaElimina({ scheda, onConferma, onAnnulla }) {
 
 // ─── Card singola scheda ──────────────────────────────────────────────────────
 function SchedaCard({ a, onOpen, onElimina, onBenchmark }) {
-  const votoLabel = ['','Ordinario','Discreto','Buono','Ottimo','Eccellente'][a.voto] || ''
+  const votoLabel = ['',T('schede.ordinario'),T('schede.discreto'),T('schede.buono'),T('schede.ottimo'),T('schede.eccellente')][a.voto] || ''
   const bs = {
     Rosso:{ bg:'#FAECE7',color:'#993C1D' }, Bianco:{ bg:'#FAEEDA',color:'#854F0B' },
     Rosato:{ bg:'#FBEAF0',color:'#993556' }, Orange:{ bg:'#FDE8D0',color:'#9A4E0A' },
@@ -224,13 +225,13 @@ function SchedaCard({ a, onOpen, onElimina, onBenchmark }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
           <button onClick={() => onBenchmark(a)}
             style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #E6F1FB', background: '#E6F1FB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}
-            title="Benchmark AI">✨</button>
+            title={T('schede.benchmark')}>✨</button>
           <button onClick={() => onOpen(a)}
             style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #E2DDD6', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}
-            title="Modifica">✏️</button>
+            title={T('schede.modifica')}>✏️</button>
           <button onClick={() => onElimina(a)}
             style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #FAECE7', background: '#FAECE7', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}
-            title="Elimina">🗑️</button>
+            title={T('lib.elimina')}>🗑️</button>
         </div>
       </div>
     </div>
@@ -241,6 +242,7 @@ function SchedaCard({ a, onOpen, onElimina, onBenchmark }) {
 const FILTRI_VUOTI = { tipologie: [], bouquetTipologie: [], bouquetCategorie: [], annate: [] }
 
 export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpdateScheda, onBenchmark }) {
+  const T = useT()
   const [filtriAperti, setFiltriAperti] = useState(false)
   const [filtri, setFiltri] = useState(FILTRI_VUOTI)
   const [confermaElimina, setConfermaElimina] = useState(null)
@@ -279,7 +281,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpd
     gruppi[k].push(a)
   })
   const ordine = ['5','4','3','2','1','0']
-  const labelVoto = { '5':'⭐️⭐️⭐️⭐️⭐️ Eccellenti','4':'⭐️⭐️⭐️⭐️ Ottimi','3':'⭐️⭐️⭐️ Buoni','2':'⭐️⭐️ Discreti','1':'⭐️ Ordinari','0':'Non valutati' }
+  const labelVoto = { '5':`⭐️⭐️⭐️⭐️⭐️ ${T('schede.eccellente')}`,'4':`⭐️⭐️⭐️⭐️ ${T('schede.ottimo')}`,'3':`⭐️⭐️⭐️ ${T('schede.buono')}`,'2':`⭐️⭐️ ${T('schede.discreto')}`,'1':`⭐️ ${T('schede.ordinario')}`,'0':T('schede.non_valutati') }
 
   const handleConfermaElimina = (scheda) => {
     setConfermaElimina(null)

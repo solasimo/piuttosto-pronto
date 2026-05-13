@@ -276,7 +276,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
   return (
     <div>
       {/* SEZIONE 0 — Foto */}
-      <SecBox title="Foto etichetta">
+      <SecBox title={T('form.foto')}>
         <div style={{ gridColumn: '1/-1' }}>
           <ImageUpload value={f.foto_url} onChange={set('foto_url')} label="" folder="vini" />
         </div>
@@ -292,7 +292,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
       </SecBox>
 
       {/* SEZIONE 1 — Dati del vino */}
-      <SecBox title="Dati del vino">
+      <SecBox title={T('form.dati_vino')}>
         <FormInput label="Nome vino *" value={f.nome} onChange={set('nome')} placeholder="es. Barolo Cannubi" full aiField={ai('nome')} />
         <FormInput label="Cantina / Produttore" value={f.cantina} onChange={set('cantina')} placeholder="es. Ceretto" aiField={ai('cantina')} />
         <FormSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} aiField={ai('tipologia')} />
@@ -303,7 +303,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
             {ai('paese') && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
           </div>
           <select style={{ ...S.inp, borderColor: ai('paese') ? '#185FA5' : undefined }} value={f.paese} onChange={e => setF(p => ({ ...p, paese: e.target.value, regione: '' }))}>
-            {PAESI_OPTIONS.map(p => <option key={p} value={p}>{p || '— seleziona —'}</option>)}
+            {PAESI_OPTIONS.map(p => <option key={p} value={p}>{p || T('form.seleziona')}</option>)}
           </select>
         </div>
         {f.paese && f.paese !== 'Altro' && regioniOptions && (
@@ -324,7 +324,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
       </SecBox>
 
       {/* SEZIONE 2 — Dati di acquisto */}
-      <SecBox title="Dati di acquisto">
+      <SecBox title={T('form.acquisto')}>
         <FormInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
         <FormInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
         <FormSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
@@ -332,7 +332,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
       </SecBox>
 
       {/* SEZIONE 3 — Arricchimento */}
-      <SecBox title="Arricchimento">
+      <SecBox title={T('form.arricchimento')}>
         <FormInput label="Denominazione" value={f.denominazione} onChange={set('denominazione')} placeholder="es. Barolo DOCG" full aiField={ai('denominazione')} />
         <FormInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" aiField={ai('vitigno')} />
         <FormSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} aiField={ai('valutazione')} />
@@ -344,7 +344,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
       </SecBox>
 
       <button onClick={handleAdd} disabled={saving} style={{ ...S.btn, opacity: saving ? 0.7 : 1, marginBottom: 8 }}>
-        {saving ? 'Salvataggio...' : '+ Aggiungi alla cantina'}
+        {saving ? T('form.salvataggio') : T('form.aggiungi')}
       </button>
     </div>
   )
@@ -404,7 +404,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
         <div style={{ overflowY:'auto', padding:'8px 20px 32px', flex:1 }}>
           {/* Info utente */}
           <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:16 }}>
-            <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Informazioni utente</div>
+            <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{T('utente.titolo')}</div>
 
             {/* Foto profilo */}
             <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:14 }}>
@@ -422,7 +422,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
 
             {/* Upload foto */}
             <div style={{ marginBottom:12 }}>
-              <div style={{ fontSize:11, color:'#8B7355', marginBottom:6 }}>Foto profilo</div>
+              <div style={{ fontSize:11, color:'#8B7355', marginBottom:6 }}>{T('utente.foto')}</div>
               <ImageUpload value={avatarUrl} onChange={handleSalvaAvatar} label="" folder="avatars" />
             </div>
 
@@ -432,11 +432,11 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
               </button>
             ) : (
               <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:8 }}>
-                <input type="password" value={nuovaPassword} onChange={e=>setNuovaPassword(e.target.value)} placeholder="Nuova password (min. 8)" style={S_inp} />
-                <input type="password" value={confermaPassword} onChange={e=>setConfermaPassword(e.target.value)} placeholder="Conferma password" style={S_inp} onKeyDown={e=>e.key==='Enter'&&handleCambioPassword()} />
+                <input type="password" value={nuovaPassword} onChange={e=>setNuovaPassword(e.target.value)} placeholder={T('utente.nuova_pwd')} style={S_inp} />
+                <input type="password" value={confermaPassword} onChange={e=>setConfermaPassword(e.target.value)} placeholder={T('utente.conferma_pwd')} style={S_inp} onKeyDown={e=>e.key==='Enter'&&handleCambioPassword()} />
                 <div style={{ display:'flex', gap:8 }}>
-                  <button onClick={()=>setShowCambioPassword(false)} style={{ flex:1, padding:10, background:'none', border:'1px solid #2a2318', borderRadius:10, color:'#5a4f3f', fontSize:13, cursor:'pointer' }}>Annulla</button>
-                  <button onClick={handleCambioPassword} disabled={salvandoPwd} style={{ flex:1, padding:10, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', opacity:salvandoPwd?0.7:1 }}>{salvandoPwd?'Salvataggio…':'Salva'}</button>
+                  <button onClick={()=>setShowCambioPassword(false)} style={{ flex:1, padding:10, background:'none', border:'1px solid #2a2318', borderRadius:10, color:'#5a4f3f', fontSize:13, cursor:'pointer' }}>{T('utente.annulla')}</button>
+                  <button onClick={handleCambioPassword} disabled={salvandoPwd} style={{ flex:1, padding:10, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', opacity:salvandoPwd?0.7:1 }}>{salvandoPwd?T('form.salvataggio'):T('utente.salva')}</button>
                 </div>
               </div>
             )}
@@ -446,8 +446,8 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
           <button onClick={onCondividi} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
             <span style={{ fontSize:24 }}>👥</span>
             <div>
-              <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>Condividi cantina</div>
-              <div style={{ fontSize:12, color:'#5a4f3f' }}>{gruppo ? `Condivisa — ${gruppo.nome}` : 'Invita qualcuno a condividere'}</div>
+              <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>{T('utente.condividi')}</div>
+              <div style={{ fontSize:12, color:'#5a4f3f' }}>{gruppo ? `${T('utente.condividi_attiva')} — ${gruppo.nome}` : T('utente.condividi_sub')}</div>
             </div>
             <span style={{ marginLeft:'auto', color:'#5a4f3f', fontSize:16 }}>›</span>
           </button>
@@ -457,8 +457,8 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
             <button onClick={onAdmin} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
               <span style={{ fontSize:24 }}>⚙️</span>
               <div>
-                <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>Dashboard Admin</div>
-                <div style={{ fontSize:12, color:'#5a4f3f' }}>Gestisci utenti, inviti e gruppi</div>
+                <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>{T('utente.admin')}</div>
+                <div style={{ fontSize:12, color:'#5a4f3f' }}>T('utente.admin_sub')</div>
               </div>
               <span style={{ marginLeft:'auto', color:'#5a4f3f', fontSize:16 }}>›</span>
             </button>
@@ -468,8 +468,8 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
           <button onClick={onToggleSommelier} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
             <span style={{ fontSize:24 }}>🎓</span>
             <div style={{ flex:1 }}>
-              <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>Modalità sommelier</div>
-              <div style={{ fontSize:12, color:'#5a4f3f' }}>{modalitaSommelier ? 'Attiva — schede ASPI e degustazione' : 'Disattiva — solo gestione cantina'}</div>
+              <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>{T('utente.sommelier')}</div>
+              <div style={{ fontSize:12, color:'#5a4f3f' }}>{modalitaSommelier ? T('utente.sommelier_on') : T('utente.sommelier_off')}</div>
             </div>
             {/* Toggle switch */}
             <div style={{ width:44, height:24, borderRadius:12, background:modalitaSommelier?'#C8992A':'#2a2318', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
@@ -494,7 +494,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
           {/* Logout */}
           <button onClick={onLogout} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#1a0a0a', border:'1px solid #2a1010', borderRadius:14, padding:16, cursor:'pointer', textAlign:'left' }}>
             <span style={{ fontSize:24 }}>↩</span>
-            <div style={{ fontSize:14, fontWeight:600, color:'#9B2335' }}>Esci dall'app</div>
+            <div style={{ fontSize:14, fontWeight:600, color:'#9B2335' }}>{T('utente.logout')}</div>
           </button>
         </div>
       </div>

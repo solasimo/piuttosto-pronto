@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useT } from './useT'
 import { getMaturita } from './Libreria'
 import { getAnalisiCantina, saveAnalisiCantina, deleteAnalisiCantina } from './supabase'
 import { getLingua } from './i18n'
@@ -61,6 +62,7 @@ async function callClaude(payload) {
 
 // ─── COMPONENTE ───────────────────────────────────────────────────────────────
 export default function AnalisiAI({ cantina }) {
+  const T = useT()
   const [analisi, setAnalisi] = useState(null)      // analisi salvata
   const [hashSalvato, setHashSalvato] = useState(null)
   const [loading, setLoading] = useState(false)

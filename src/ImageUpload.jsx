@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { t } from './i18n'
 import { supabase } from './supabase'
 
 // Compressione immagine via Canvas — target ~250KB, qualità WhatsApp
@@ -38,7 +39,7 @@ export async function uploadImage(file, folder = 'vini') {
 }
 
 // Componente bottone upload con preview
-export default function ImageUpload({ value, onChange, label = 'Foto', folder = 'vini' }) {
+export default function ImageUpload({ value, onChange, label, folder = 'vini' }) {
   const [uploading, setUploading] = useState(false)
   const inputRef = useRef(null)
 

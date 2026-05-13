@@ -57,7 +57,7 @@ function MiniCard({ b, onClick }) {
       <div style={{ fontSize: 11, color: '#7A6E65', marginBottom: 4 }}>{b.cantina}</div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#1C1410' }}>{b.anno}</span>
-        <span style={{ fontSize: 11, color: '#B0A89E' }}>{b.quantita} bott.</span>
+        <span style={{ fontSize: 11, color: '#B0A89E' }}>{b.quantita} {t('lib.bott')}</span>
       </div>
     </div>
   )
@@ -84,11 +84,11 @@ function RegioneRow({ regione, bottiglie, onBottigliaClick }) {
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#1C1410' }}>{bottiglie.length}</div>
-          <div style={{ fontSize: 10, color: '#B0A89E' }}>etich.</div>
+          <div style={{ fontSize: 10, color: '#B0A89E' }}>{t('kpi.etichette').toLowerCase().slice(0,5)}.</div>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#1C1410' }}>{tot}</div>
-          <div style={{ fontSize: 10, color: '#B0A89E' }}>bott.</div>
+          <div style={{ fontSize: 10, color: '#B0A89E' }}>{t('lib.bott')}</div>
         </div>
         {valore > 0 && (
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -143,9 +143,9 @@ function VistaTipologie({ cantina }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: TIPO_COLORS[t] }}>{t}</span>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <span style={{ fontSize: 12, color: '#7A6E65' }}>{v.etichette} etich.</span>
+                <span style={{ fontSize: 12, color: '#7A6E65' }}>{v.etichette} {t('lib.etichetta')}.</span>
                 <span style={{ fontSize: 12, color: '#B0A89E' }}>·</span>
-                <span style={{ fontSize: 12, color: '#7A6E65' }}>{v.bottiglie} bott.</span>
+                <span style={{ fontSize: 12, color: '#7A6E65' }}>{v.bottiglie} {t('lib.bott')}</span>
                 {v.valore > 0 && <>
                   <span style={{ fontSize: 12, color: '#B0A89E' }}>·</span>
                   <span style={{ fontSize: 12, fontWeight: 600, color: '#2D6A4F' }}>€{v.valore.toFixed(0)}</span>
@@ -192,11 +192,11 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
         </div>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
           <div style={{ fontSize: 17, fontWeight: 700, color: '#1C1410' }}>{totEtichette}</div>
-          <div style={{ fontSize: 10, color: '#B0A89E' }}>etich.</div>
+          <div style={{ fontSize: 10, color: '#B0A89E' }}>{t('kpi.etichette').toLowerCase().slice(0,5)}.</div>
         </div>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
           <div style={{ fontSize: 17, fontWeight: 700, color: '#1C1410' }}>{totBottiglie}</div>
-          <div style={{ fontSize: 10, color: '#B0A89E' }}>bott.</div>
+          <div style={{ fontSize: 10, color: '#B0A89E' }}>{t('lib.bott')}</div>
         </div>
         {valoreEur > 0 && (
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -228,7 +228,7 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
           )}
           {bottigliePaese.filter(b => !b.regione || !regioni.includes(b.regione)).length > 0 && (
             <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#7A6E65', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Regione non specificata</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#7A6E65', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{t('det.regione')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
                 {bottigliePaese.filter(b => !b.regione || !regioni.includes(b.regione)).map(b => (
                   <MiniCard key={b.id} b={b} onClick={() => onBottigliaClick(b)} />
@@ -273,7 +273,7 @@ export default function Statistiche({ cantina }) {
         ))}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        {[['paesi','🌍 Per paese'],['tipologie','🎨 Per tipologia']].map(([k,l]) => (
+        {[ ['paesi', `🌍 ${t('stats.per_paese')}`], ['tipologie', `🎨 ${t('stats.per_tipologia')}`] ].map(([k,l]) => (
           <button key={k} onClick={() => setVista(k)} style={{ flex: 1, padding: '9px 0', borderRadius: 100, border: '1.5px solid', borderColor: vista === k ? '#7B1E2E' : '#E2DDD6', background: vista === k ? '#7B1E2E' : '#fff', color: vista === k ? '#fff' : '#7A6E65', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
         ))}
       </div>

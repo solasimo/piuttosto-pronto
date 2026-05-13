@@ -8,15 +8,15 @@ import { t } from './i18n'
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getMaturita(b) {
-  if (b.invecchiamento === null || b.invecchiamento === undefined) return { label: 'Da definire', cls: 'blue', pct: null }
-  if (!b.anno) return { label: 'Da definire', cls: 'blue', pct: null }
+  if (b.invecchiamento === null || b.invecchiamento === undefined) return { label: t('lib.da_definire'), cls: 'blue', pct: null }
+  if (!b.anno) return { label: t('lib.da_definire'), cls: 'blue', pct: null }
   const eta = new Date().getFullYear() - b.anno
-  if (eta < 0) return { label: 'Da definire', cls: 'blue', pct: null }
+  if (eta < 0) return { label: t('lib.da_definire'), cls: 'blue', pct: null }
   const r = eta / b.invecchiamento
   const pct = Math.round(r * 100)
-  if (r > 1.1)  return { label: 'Oltre il picco', cls: 'red',   pct }
-  if (r >= 0.9) return { label: 'Al picco',        cls: 'amber', pct }
-  return              { label: 'In evoluzione',    cls: 'green', pct }
+  if (r > 1.1)  return { label: t('lib.oltre_picco'), cls: 'red',   pct }
+  if (r >= 0.9) return { label: t('lib.al_picco'),    cls: 'amber', pct }
+  return { label: t('lib.in_evoluzione'), cls: 'green', pct }
 }
 
 export const matColor = cls => ({ green:'#2D6A4F', amber:'#C8992A', red:'#9B2335', blue:'#1A5FA8' })[cls] || '#5a4f3f'
@@ -110,24 +110,24 @@ export function DettaglioBottiglia({ b }) {
           <div style={{ height:'100%', width:`${Math.min(pct,100)}%`, background:matColor(m.cls), borderRadius:3 }} />
         </div>
       )}
-      <SecBox title="Dati del vino">
-        <Row label="Nome" value={b.nome} />
-        <Row label="Cantina" value={b.cantina} />
-        <Row label="Anno" value={b.anno} />
-        <Row label="Paese" value={b.paese} />
-        <Row label="Regione" value={b.regione} />
-        <Row label="Vitigno" value={b.vitigno} />
-        {b.info_cantina && <Row label="Info cantina" value={b.info_cantina} />}
-        {b.caratteristiche_bottiglia && <Row label="Caratteristiche" value={b.caratteristiche_bottiglia} />}
-        {b.caratteristiche_annata && <Row label="Annata" value={b.caratteristiche_annata} />}
+      <SecBox title={T('form.dati_vino')}>
+        <Row label={T('det.nome')} value={b.nome} />
+        <Row label={T('det.cantina')} value={b.cantina} />
+        <Row label={T('form.anno')} value={b.anno} />
+        <Row label={T('form.paese')} value={b.paese} />
+        <Row label={T('form.regione')} value={b.regione} />
+        <Row label={T('form.vitigno')} value={b.vitigno} />
+        {b.info_cantina && <Row label={T('det.info_cantina')} value={b.info_cantina} />}
+        {b.caratteristiche_bottiglia && <Row label={T('det.caratteristiche')} value={b.caratteristiche_bottiglia} />}
+        {b.caratteristiche_annata && <Row label={T('det.annata')} value={b.caratteristiche_annata} />}
       </SecBox>
       <SecBox title="Consumo">
-        <Row label="Valutazione annata" value={b.valutazione ? stars(b.valutazione) : null} />
-        <Row label="Fascia prezzo" value={b.prezzo ? money(b.prezzo) : null} />
+        <Row label={T('form.valutazione')} value={b.valutazione ? stars(b.valutazione) : null} />
+        <Row label={T('form.fascia_prezzo')} value={b.prezzo ? money(b.prezzo) : null} />
         <Row label="Prezzo acquisto" value={b.prezzo_acquisto ? `€ ${Number(b.prezzo_acquisto).toFixed(2)} / bott.` : null} />
         <Row label="Temperatura servizio" value={b.temp} />
-        <Row label="Invecchiamento" value={b.invecchiamento ? `${b.invecchiamento} anni` : null} />
-        <Row label="Note" value={b.note} />
+        <Row label={T('form.invecchiamento')} value={b.invecchiamento ? `${b.invecchiamento} anni` : null} />
+        <Row label={T('form.note')} value={b.note} />
       </SecBox>
     </div>
   )
@@ -245,7 +245,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
 
   return (
     <div>
-      <EditSecBox title="Foto etichetta">
+      <EditSecBox title={T('form.foto')}>
         <div style={{gridColumn:'1/-1'}}><ImageUpload value={f.foto_url} onChange={set('foto_url')} label="" folder="vini" /></div>
         <div style={{gridColumn:'1/-1'}}>
           <button onClick={handleAI} disabled={aiLoading} style={{width:'100%',padding:12,background:aiLoading?'#1a1611':'#C8992A22',color:aiLoading?'#5a4f3f':'#C8992A',border:'1px solid #C8992A44',borderRadius:12,fontSize:14,fontWeight:600,cursor:aiLoading?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
@@ -253,11 +253,11 @@ export function ModificaBottiglia({ b, onSave, saving }) {
           </button>
         </div>
       </EditSecBox>
-      <EditSecBox title="Dati del vino">
-        <EditInput label="Nome vino *" value={f.nome} onChange={set('nome')} placeholder="es. Barolo Cannubi" full aiField={ai('nome')} />
-        <EditInput label="Cantina / Produttore" value={f.cantina} onChange={set('cantina')} placeholder="es. Ceretto" aiField={ai('cantina')} />
-        <EditSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} aiField={ai('tipologia')} />
-        <EditInput label="Anno" value={f.anno} onChange={set('anno')} placeholder="2019" type="number" aiField={ai('anno')} />
+      <EditSecBox title={T('form.dati_vino')}>
+        <EditInput label={T('form.nome_vino')} value={f.nome} onChange={set('nome')} placeholder={T('form.placeholder.nome')} full aiField={ai('nome')} />
+        <EditInput label={T('form.cantina')} value={f.cantina} onChange={set('cantina')} placeholder={T('form.placeholder.cantina')} aiField={ai('cantina')} />
+        <EditSelect label={T('form.tipologia')} value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} aiField={ai('tipologia')} />
+        <EditInput label={T('form.anno')} value={f.anno} onChange={set('anno')} placeholder="2019" type="number" aiField={ai('anno')} />
         <div style={{gridColumn:'1/-1'}}>
           <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5}}>
             <span style={{fontSize:12,fontWeight:500,color:'#8B7355'}}>Paese</span>
@@ -278,27 +278,27 @@ export function ModificaBottiglia({ b, onSave, saving }) {
             </select>
           </div>
         )}
-        {f.paese==='Altro'&&<EditInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Borgogna" full aiField={ai('regione')}/>}
-        <EditTextarea label="Note" value={f.note} onChange={set('note')} placeholder="Appunti liberi..." aiField={ai('note')} />
+        {f.paese==='Altro'&&<EditInput label={T('form.regione')} value={f.regione} onChange={set('regione')} placeholder={T('form.placeholder.regione')} full aiField={ai('regione')}/>}
+        <EditTextarea label={T('form.note')} value={f.note} onChange={set('note')} placeholder={T('form.placeholder.note')} aiField={ai('note')} />
       </EditSecBox>
-      <EditSecBox title="Dati di acquisto">
-        <EditInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
-        <EditInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
-        <EditSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
-        <EditInput label="Quantità (min. 1)" value={f.quantita} onChange={v=>set('quantita')(String(Math.max(1,parseInt(v)||1)))} type="number" />
+      <EditSecBox title={T('form.acquisto')}>
+        <EditInput label={T('form.canale')} value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder={T('form.placeholder.canale')} />
+        <EditInput label={T('form.prezzo_acquisto')} value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
+        <EditSelect label={T('form.fascia_prezzo')} value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
+        <EditInput label={T('form.quantita')} value={f.quantita} onChange={v=>set('quantita')(String(Math.max(1,parseInt(v)||1)))} type="number" />
       </EditSecBox>
-      <EditSecBox title="Arricchimento">
-        <EditInput label="Denominazione" value={f.denominazione} onChange={set('denominazione')} placeholder="es. Barolo DOCG" full aiField={ai('denominazione')} />
-        <EditInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" aiField={ai('vitigno')} />
-        <EditSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} aiField={ai('valutazione')} />
-        <EditInput label="Temperatura di servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" aiField={ai('temp')} />
-        <EditSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ann${i+1===1?'o':'i'}`])]} full aiField={ai('invecchiamento')} />
-        <EditTextarea label="Informazioni sulla cantina" value={f.info_cantina} onChange={set('info_cantina')} placeholder="Storia, filosofia, territorio..." aiField={ai('info_cantina')} />
-        <EditTextarea label="Caratteristiche della bottiglia" value={f.caratteristiche_bottiglia} onChange={set('caratteristiche_bottiglia')} placeholder="Profilo organolettico, stile..." aiField={ai('caratteristiche_bottiglia')} />
-        <EditTextarea label="Caratteristiche dell'annata" value={f.caratteristiche_annata} onChange={set('caratteristiche_annata')} placeholder="Clima, resa, particolarità..." aiField={ai('caratteristiche_annata')} />
+      <EditSecBox title={T('form.arricchimento')}>
+        <EditInput label={T('form.denominazione')} value={f.denominazione} onChange={set('denominazione')} placeholder={T('form.placeholder.denominazione')} full aiField={ai('denominazione')} />
+        <EditInput label={T('form.vitigno')} value={f.vitigno} onChange={set('vitigno')} placeholder={T('form.placeholder.vitigno')} aiField={ai('vitigno')} />
+        <EditSelect label={T('form.valutazione')} value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} aiField={ai('valutazione')} />
+        <EditInput label={T('form.temp')} value={f.temp} onChange={set('temp')} placeholder={T('form.placeholder.temp')} aiField={ai('temp')} />
+        <EditSelect label={T('form.invecchiamento')} value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so',T('form.non_so')],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ${i+1===1?T('form.anno_sing'):T('form.anni')}`])]} full aiField={ai('invecchiamento')} />
+        <EditTextarea label={T('form.info_cantina')} value={f.info_cantina} onChange={set('info_cantina')} placeholder={T('form.placeholder.info_cantina')} aiField={ai('info_cantina')} />
+        <EditTextarea label={T('form.car_bottiglia')} value={f.caratteristiche_bottiglia} onChange={set('caratteristiche_bottiglia')} placeholder={T('form.placeholder.car_bottiglia')} aiField={ai('caratteristiche_bottiglia')} />
+        <EditTextarea label="Caratteristiche dell'annata" value={f.caratteristiche_annata} onChange={set('caratteristiche_annata')} placeholder={T('form.placeholder.car_annata')} aiField={ai('caratteristiche_annata')} />
       </EditSecBox>
       <button onClick={handleSave} disabled={saving} style={{width:'100%',padding:14,background:'#C8992A',color:'#0f0b08',border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',opacity:saving?0.7:1,marginBottom:8,fontFamily:'DM Sans, sans-serif'}}>
-        {saving?'Salvataggio...':'Salva modifiche'}
+        {saving?T('form.salvataggio'):T('form.salva')}
       </button>
     </div>
   )
@@ -314,7 +314,7 @@ function DaBerePresto({ cantina, onDettaglio }) {
       <div style={{flex:1}}>
         {urgenti.map(b=>(
           <div key={b.id} onClick={()=>onDettaglio(b)} style={{cursor:'pointer',fontSize:12,color:'#C8992A',lineHeight:1.5}}>
-            {b.nome} {b.anno} — da bere presto
+            {b.nome} {b.anno} — {t('lib.da_bere_presto')}
           </div>
         ))}
       </div>
