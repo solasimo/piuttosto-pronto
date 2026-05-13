@@ -19,6 +19,9 @@ export function getMaturita(b) {
   return { label: t('lib.in_evoluzione'), cls: 'green', pct }
 }
 
+// Mappa cls -> chiave italiana fissa (per raggruppamento stabile)
+const CLS_TO_KEY = { red: 'Oltre il picco', amber: 'Al picco', green: 'In evoluzione', blue: 'Da definire' }
+
 export const matColor = cls => ({ green:'#2D6A4F', amber:'#C8992A', red:'#9B2335', blue:'#1A5FA8' })[cls] || '#5a4f3f'
 
 const TIPO_COLOR = {
@@ -441,7 +444,11 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
 
   const gruppi = useMemo(() => {
     const g={'Oltre il picco':[],'Al picco':[],'In evoluzione':[],'Da definire':[]}
-    filtered.forEach(b=>{const m=getMaturita(b);g[m.label].push({...b,_pct:m.pct})})
+    filtered.forEach(b=>{
+      const m=getMaturita(b)
+      const key=CLS_TO_KEY[m.cls]||'Da definire'
+      g[key].push({...b,_pct:m.pct})
+    })
     Object.keys(g).forEach(k=>{
       g[k].sort((a,b)=>{
         if(a._pct===null&&b._pct===null)return 0
