@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
-import { t, getLingua, onLinguaChange } from './i18n'
+import { t, getLingua } from './i18n'
 
-// Hook che forza re-render al cambio lingua
 export function useT() {
-  const [, forceUpdate] = useState(0)
+  const [lingua, setLingua] = useState(getLingua())
+
   useEffect(() => {
-    return onLinguaChange(() => forceUpdate(n => n + 1))
+    const handler = () => setLingua(getLingua())
+    window.addEventListener('lingua-changed', handler)
+    return () => window.removeEventListener('lingua-changed', handler)
   }, [])
-  return t
+
+  // Ritorna una funzione t che usa la lingua corrente
+  return (key) => t(key, lingua)
 }

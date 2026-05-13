@@ -1,27 +1,18 @@
 // ─── Traduzioni ───────────────────────────────────────────────────────────────
 const T = {
   it: {
-    // App / Topbar
     'app.nome': 'Piuttosto Pronto',
     'app.cantina_di': 'Cantina di',
     'app.la_mia_cantina': 'La mia cantina',
-
-    // KPI
     'kpi.bottiglie': 'Bottiglie',
     'kpi.etichette': 'Etichette',
     'kpi.valore': 'Valore',
-
-    // Bottom nav
     'nav.cantina': 'Cantina',
     'nav.stats': 'Stats',
     'nav.ai_chef': 'AI Chef',
     'nav.schede': 'Schede',
-
-    // FAB
     'fab.nuova_bottiglia': 'Nuova bottiglia',
     'fab.nuova_scheda': 'Nuova scheda ASPI',
-
-    // Libreria
     'lib.cerca': 'Cerca nome, cantina, vitigno...',
     'lib.bottiglie': 'bottiglie',
     'lib.bottiglia': 'bottiglia',
@@ -43,8 +34,6 @@ const T = {
     'lib.annulla': 'Annulla',
     'lib.elimina': 'Elimina',
     'lib.bevuto': 'Bevuto',
-
-    // Dettaglio bottiglia
     'det.dati_vino': 'Dati del vino',
     'det.consumo': 'Consumo',
     'det.nome': 'Nome',
@@ -64,8 +53,6 @@ const T = {
     'det.note': 'Note',
     'det.dettaglio': 'Dettaglio',
     'det.modifica': 'Modifica',
-
-    // Form bottiglia
     'form.foto': 'Foto etichetta',
     'form.compila_ai': 'Compila con AI',
     'form.aggiorna_ai': 'Aggiorna con AI',
@@ -100,7 +87,6 @@ const T = {
     'form.non_so': 'Non so',
     'form.anni': 'anni',
     'form.anno_sing': 'anno',
-    'form.campi_ai': 'AI · Compila solo i campi certi · Badge blu = compilato da AI',
     'form.placeholder.nome': 'es. Barolo Cannubi',
     'form.placeholder.cantina': 'es. Ceretto',
     'form.placeholder.anno': '2019',
@@ -109,13 +95,11 @@ const T = {
     'form.placeholder.temp': '16-18°C',
     'form.placeholder.canale': 'es. Enoteca Bianchi',
     'form.placeholder.prezzo': 'es. 24.50',
-    'form.placeholder.note': 'Appunti liberi sul vino...',
+    'form.placeholder.note': 'Appunti liberi...',
     'form.placeholder.info_cantina': 'Storia, filosofia, territorio...',
     'form.placeholder.car_bottiglia': 'Profilo organolettico, stile...',
     'form.placeholder.car_annata': 'Clima, resa, particolarità...',
     'form.placeholder.regione': 'es. Borgogna',
-
-    // Menu utente
     'utente.titolo': 'Informazioni utente',
     'utente.foto': 'Foto profilo',
     'utente.cambia_pwd': 'Cambia password',
@@ -137,8 +121,6 @@ const T = {
     'utente.pwd_no_match': '⚠️ Le password non coincidono',
     'utente.foto_aggiornata': '✓ Foto profilo aggiornata!',
     'utente.lingua': 'Lingua',
-
-    // Condivisione
     'gruppo.titolo': 'Condivisione cantina',
     'gruppo.la_tua': 'La tua cantina',
     'gruppo.solo_tu': 'Solo tu hai accesso a questa cantina',
@@ -157,9 +139,7 @@ const T = {
     'gruppo.placeholder': 'Inserisci codice (es. G1234567)',
     'gruppo.unisciti_btn': 'Unisciti alla cantina',
     'gruppo.connessione': 'Connessione…',
-    'gruppo.creata': '✓ Cantina condivisa creata',
-
-    // Auth
+    'gruppo.creata': 'Cantina condivisa creata',
     'auth.accedi': 'Accedi',
     'auth.registrati': 'Registrati',
     'auth.club': 'Club privato',
@@ -187,8 +167,6 @@ const T = {
     'auth.errore_reg': 'Errore durante la registrazione',
     'auth.registrazione_ok': "Registrazione completata! Controlla la tua email per confermare l'account.",
     'auth.reset_ok': 'Email di reset inviata! Controlla la tua casella.',
-
-    // Admin
     'admin.titolo': 'Dashboard Admin',
     'admin.utenti': '👥 Utenti',
     'admin.inviti': '✉️ Inviti',
@@ -214,21 +192,15 @@ const T = {
     'admin.nessun_gruppo': 'Nessun gruppo di condivisione attivo',
     'admin.caricamento': 'Caricamento…',
     'admin.sospeso': 'SOSPESO',
-
-    // Statistiche
     'stats.paesi': 'Paesi coperti',
     'stats.tipologie': 'Tipologie',
-
-    // AI Chef
     'chef.piatto_vino': 'Piatto → Vino',
     'chef.vino_piatto': 'Vino → Piatto',
-    'chef.inserisci_piatto': 'Inserisci un piatto...',
-    'chef.inserisci_vino': 'Inserisci un vino...',
+    'chef.inserisci_piatto': 'es. risotto al tartufo, branzino al sale...',
+    'chef.inserisci_vino': 'Seleziona un vino dalla cantina',
     'chef.abbina': 'Abbina',
     'chef.abbinando': 'Abbinando…',
     'chef.cantina_vuota': 'La cantina è vuota',
-
-    // Benchmark ASPI
     'bench.titolo': 'Benchmark ASPI',
     'bench.desc': 'Genera il benchmark AI per confrontare la tua degustazione. Viene generato una sola volta.',
     'bench.genera': '✨ Genera benchmark',
@@ -241,15 +213,11 @@ const T = {
     'bench.salva': 'Salva modifiche',
     'bench.salvataggio': 'Salvataggio…',
     'bench.errore': 'Errore nella generazione. Riprova.',
-
-    // Schede ASPI
     'schede.nuova': '+ Nuova scheda',
     'schede.nessuna': 'Nessuna scheda trovata',
     'schede.cerca': 'Cerca vino...',
     'schede.elimina_titolo': 'Elimina scheda',
     'schede.elimina_testo': 'Vuoi eliminare questa scheda di degustazione?',
-
-    // Generale
     'gen.errore_connessione': '⚠️ Errore connessione database',
     'gen.caricamento': 'Caricamento cantina…',
     'gen.bottiglia_aggiornata': '✓ Bottiglia aggiornata!',
@@ -257,24 +225,19 @@ const T = {
     'gen.scheda_salvata': '📓 Scheda ASPI salvata!',
     'gen.errore_ai': '⚠️ Errore AI. Riprova.',
   },
-
   en: {
     'app.nome': 'Piuttosto Pronto',
     'app.cantina_di': 'Cellar of',
     'app.la_mia_cantina': 'My wine cellar',
-
     'kpi.bottiglie': 'Bottles',
     'kpi.etichette': 'Labels',
     'kpi.valore': 'Value',
-
     'nav.cantina': 'Cellar',
     'nav.stats': 'Stats',
     'nav.ai_chef': 'AI Chef',
     'nav.schede': 'Tastings',
-
     'fab.nuova_bottiglia': 'New bottle',
     'fab.nuova_scheda': 'New tasting note',
-
     'lib.cerca': 'Search name, winery, grape...',
     'lib.bottiglie': 'bottles',
     'lib.bottiglia': 'bottle',
@@ -296,7 +259,6 @@ const T = {
     'lib.annulla': 'Cancel',
     'lib.elimina': 'Delete',
     'lib.bevuto': 'Drunk',
-
     'det.dati_vino': 'Wine details',
     'det.consumo': 'Consumption',
     'det.nome': 'Name',
@@ -316,7 +278,6 @@ const T = {
     'det.note': 'Notes',
     'det.dettaglio': 'Details',
     'det.modifica': 'Edit',
-
     'form.foto': 'Label photo',
     'form.compila_ai': 'Fill with AI',
     'form.aggiorna_ai': 'Update with AI',
@@ -351,7 +312,6 @@ const T = {
     'form.non_so': "Don't know",
     'form.anni': 'years',
     'form.anno_sing': 'year',
-    'form.campi_ai': 'AI · Only fills certain fields · Blue badge = filled by AI',
     'form.placeholder.nome': 'e.g. Barolo Cannubi',
     'form.placeholder.cantina': 'e.g. Ceretto',
     'form.placeholder.anno': '2019',
@@ -360,12 +320,11 @@ const T = {
     'form.placeholder.temp': '61-64°F',
     'form.placeholder.canale': 'e.g. Wine shop',
     'form.placeholder.prezzo': 'e.g. 24.50',
-    'form.placeholder.note': 'Free notes about the wine...',
+    'form.placeholder.note': 'Free notes...',
     'form.placeholder.info_cantina': 'History, philosophy, terroir...',
     'form.placeholder.car_bottiglia': 'Organoleptic profile, style...',
     'form.placeholder.car_annata': 'Climate, yield, peculiarities...',
     'form.placeholder.regione': 'e.g. Burgundy',
-
     'utente.titolo': 'User information',
     'utente.foto': 'Profile photo',
     'utente.cambia_pwd': 'Change password',
@@ -387,7 +346,6 @@ const T = {
     'utente.pwd_no_match': '⚠️ Passwords do not match',
     'utente.foto_aggiornata': '✓ Profile photo updated!',
     'utente.lingua': 'Language',
-
     'gruppo.titolo': 'Share cellar',
     'gruppo.la_tua': 'Your cellar',
     'gruppo.solo_tu': 'Only you have access to this cellar',
@@ -406,8 +364,7 @@ const T = {
     'gruppo.placeholder': 'Enter code (e.g. G1234567)',
     'gruppo.unisciti_btn': 'Join cellar',
     'gruppo.connessione': 'Connecting…',
-    'gruppo.creata': '✓ Shared cellar created',
-
+    'gruppo.creata': 'Shared cellar created',
     'auth.accedi': 'Sign in',
     'auth.registrati': 'Register',
     'auth.club': 'Private club',
@@ -435,7 +392,6 @@ const T = {
     'auth.errore_reg': 'Registration error',
     'auth.registrazione_ok': 'Registration complete! Check your email to confirm your account.',
     'auth.reset_ok': 'Reset email sent! Check your inbox.',
-
     'admin.titolo': 'Admin Dashboard',
     'admin.utenti': '👥 Users',
     'admin.inviti': '✉️ Invites',
@@ -461,18 +417,15 @@ const T = {
     'admin.nessun_gruppo': 'No active sharing groups',
     'admin.caricamento': 'Loading…',
     'admin.sospeso': 'SUSPENDED',
-
     'stats.paesi': 'Countries covered',
     'stats.tipologie': 'Wine types',
-
     'chef.piatto_vino': 'Dish → Wine',
     'chef.vino_piatto': 'Wine → Dish',
-    'chef.inserisci_piatto': 'Enter a dish...',
-    'chef.inserisci_vino': 'Enter a wine...',
+    'chef.inserisci_piatto': 'e.g. truffle risotto, sea bass...',
+    'chef.inserisci_vino': 'Select a wine from your cellar',
     'chef.abbina': 'Pair',
     'chef.abbinando': 'Pairing…',
     'chef.cantina_vuota': 'The cellar is empty',
-
     'bench.titolo': 'ASPI Benchmark',
     'bench.desc': 'Generate the AI benchmark to compare your tasting. Generated only once.',
     'bench.genera': '✨ Generate benchmark',
@@ -485,13 +438,11 @@ const T = {
     'bench.salva': 'Save changes',
     'bench.salvataggio': 'Saving…',
     'bench.errore': 'Generation error. Please retry.',
-
     'schede.nuova': '+ New tasting',
     'schede.nessuna': 'No tasting notes found',
     'schede.cerca': 'Search wine...',
     'schede.elimina_titolo': 'Delete tasting note',
     'schede.elimina_testo': 'Do you want to delete this tasting note?',
-
     'gen.errore_connessione': '⚠️ Database connection error',
     'gen.caricamento': 'Loading cellar…',
     'gen.bottiglia_aggiornata': '✓ Bottle updated!',
@@ -499,24 +450,19 @@ const T = {
     'gen.scheda_salvata': '📓 Tasting note saved!',
     'gen.errore_ai': '⚠️ AI error. Please retry.',
   },
-
   fr: {
     'app.nome': 'Piuttosto Pronto',
     'app.cantina_di': 'Cave de',
     'app.la_mia_cantina': 'Ma cave',
-
     'kpi.bottiglie': 'Bouteilles',
     'kpi.etichette': 'Étiquettes',
     'kpi.valore': 'Valeur',
-
     'nav.cantina': 'Cave',
     'nav.stats': 'Stats',
     'nav.ai_chef': 'AI Chef',
     'nav.schede': 'Dégust.',
-
     'fab.nuova_bottiglia': 'Nouvelle bouteille',
     'fab.nuova_scheda': 'Nouvelle fiche',
-
     'lib.cerca': 'Chercher nom, domaine, cépage...',
     'lib.bottiglie': 'bouteilles',
     'lib.bottiglia': 'bouteille',
@@ -538,7 +484,6 @@ const T = {
     'lib.annulla': 'Annuler',
     'lib.elimina': 'Supprimer',
     'lib.bevuto': 'Bu',
-
     'det.dati_vino': 'Détails du vin',
     'det.consumo': 'Consommation',
     'det.nome': 'Nom',
@@ -558,7 +503,6 @@ const T = {
     'det.note': 'Notes',
     'det.dettaglio': 'Détails',
     'det.modifica': 'Modifier',
-
     'form.foto': "Photo de l'étiquette",
     'form.compila_ai': "Remplir avec l'IA",
     'form.aggiorna_ai': "Mettre à jour avec l'IA",
@@ -593,21 +537,19 @@ const T = {
     'form.non_so': 'Je ne sais pas',
     'form.anni': 'ans',
     'form.anno_sing': 'an',
-    'form.campi_ai': "IA · Remplit uniquement les champs certains · Badge bleu = rempli par l'IA",
     'form.placeholder.nome': 'ex. Barolo Cannubi',
     'form.placeholder.cantina': 'ex. Ceretto',
     'form.placeholder.anno': '2019',
     'form.placeholder.denominazione': 'ex. Barolo DOCG',
     'form.placeholder.vitigno': 'ex. Nebbiolo',
     'form.placeholder.temp': '16-18°C',
-    'form.placeholder.canale': "ex. Cave à vins",
+    'form.placeholder.canale': 'ex. Cave à vins',
     'form.placeholder.prezzo': 'ex. 24.50',
-    'form.placeholder.note': 'Notes libres sur le vin...',
+    'form.placeholder.note': 'Notes libres...',
     'form.placeholder.info_cantina': 'Histoire, philosophie, terroir...',
     'form.placeholder.car_bottiglia': 'Profil organoleptique, style...',
     'form.placeholder.car_annata': 'Climat, rendement, particularités...',
     'form.placeholder.regione': 'ex. Bourgogne',
-
     'utente.titolo': 'Informations utilisateur',
     'utente.foto': 'Photo de profil',
     'utente.cambia_pwd': 'Changer le mot de passe',
@@ -616,11 +558,11 @@ const T = {
     'utente.salva': 'Enregistrer',
     'utente.annulla': 'Annuler',
     'utente.condividi': 'Partager la cave',
-    'utente.condividi_sub': 'Inviter quelqu\'un à partager',
+    'utente.condividi_sub': "Inviter quelqu'un à partager",
     'utente.condividi_attiva': 'Partagée',
     'utente.admin': 'Tableau de bord Admin',
     'utente.admin_sub': 'Gérer utilisateurs, invitations et groupes',
-    'utente.logout': "Se déconnecter",
+    'utente.logout': 'Se déconnecter',
     'utente.sommelier': 'Mode sommelier',
     'utente.sommelier_on': 'Actif — fiches de dégustation & ASPI',
     'utente.sommelier_off': 'Inactif — gestion de cave uniquement',
@@ -629,27 +571,25 @@ const T = {
     'utente.pwd_no_match': '⚠️ Les mots de passe ne correspondent pas',
     'utente.foto_aggiornata': '✓ Photo de profil mise à jour!',
     'utente.lingua': 'Langue',
-
     'gruppo.titolo': 'Partager la cave',
     'gruppo.la_tua': 'Votre cave',
     'gruppo.solo_tu': 'Vous seul avez accès à cette cave',
     'gruppo.condivisa': 'Cave partagée active',
-    'gruppo.invita': 'Inviter quelqu\'un',
+    'gruppo.invita': "Inviter quelqu'un",
     'gruppo.invita_desc': 'Générez un code et partagez-le. Valable 7 jours, usage unique.',
-    'gruppo.prima_crea': 'Vous devez d\'abord créer une cave partagée.',
+    'gruppo.prima_crea': "Vous devez d'abord créer une cave partagée.",
     'gruppo.crea': '🔗 Créer une cave partagée',
     'gruppo.creando': 'Création…',
-    'gruppo.genera': '+ Générer un code d\'invitation',
+    'gruppo.genera': "Générer un code d'invitation",
     'gruppo.generando': 'Génération…',
-    'gruppo.codice_generato': 'Code d\'invitation généré',
+    'gruppo.codice_generato': "Code d'invitation généré",
     'gruppo.condividi_con': 'Partagez-le avec votre proche',
     'gruppo.unisciti': 'Rejoindre une cave',
     'gruppo.unisciti_desc': 'Reçu un code? Entrez-le ici.',
     'gruppo.placeholder': 'Entrer le code (ex. G1234567)',
     'gruppo.unisciti_btn': 'Rejoindre la cave',
     'gruppo.connessione': 'Connexion…',
-    'gruppo.creata': '✓ Cave partagée créée',
-
+    'gruppo.creata': 'Cave partagée créée',
     'auth.accedi': 'Se connecter',
     'auth.registrati': "S'inscrire",
     'auth.club': 'Club privé',
@@ -677,7 +617,6 @@ const T = {
     'auth.errore_reg': "Erreur d'inscription",
     'auth.registrazione_ok': "Inscription terminée! Vérifiez votre email pour confirmer votre compte.",
     'auth.reset_ok': 'Email de réinitialisation envoyé! Vérifiez votre boîte.',
-
     'admin.titolo': 'Tableau de bord Admin',
     'admin.utenti': '👥 Utilisateurs',
     'admin.inviti': '✉️ Invitations',
@@ -703,18 +642,15 @@ const T = {
     'admin.nessun_gruppo': 'Aucun groupe de partage actif',
     'admin.caricamento': 'Chargement…',
     'admin.sospeso': 'SUSPENDU',
-
     'stats.paesi': 'Pays couverts',
     'stats.tipologie': 'Types de vin',
-
     'chef.piatto_vino': 'Plat → Vin',
     'chef.vino_piatto': 'Vin → Plat',
-    'chef.inserisci_piatto': 'Entrez un plat...',
-    'chef.inserisci_vino': 'Entrez un vin...',
+    'chef.inserisci_piatto': 'ex. risotto aux truffes, bar au sel...',
+    'chef.inserisci_vino': 'Sélectionnez un vin de votre cave',
     'chef.abbina': 'Accorder',
     'chef.abbinando': 'Accord en cours…',
     'chef.cantina_vuota': 'La cave est vide',
-
     'bench.titolo': 'Benchmark ASPI',
     'bench.desc': 'Générez le benchmark IA pour comparer votre dégustation. Généré une seule fois.',
     'bench.genera': '✨ Générer le benchmark',
@@ -727,13 +663,11 @@ const T = {
     'bench.salva': 'Enregistrer',
     'bench.salvataggio': 'Enregistrement…',
     'bench.errore': 'Erreur de génération. Veuillez réessayer.',
-
     'schede.nuova': '+ Nouvelle dégustation',
     'schede.nessuna': 'Aucune fiche trouvée',
     'schede.cerca': 'Chercher vin...',
     'schede.elimina_titolo': 'Supprimer fiche',
     'schede.elimina_testo': 'Voulez-vous supprimer cette fiche de dégustation?',
-
     'gen.errore_connessione': '⚠️ Erreur de connexion à la base de données',
     'gen.caricamento': 'Chargement de la cave…',
     'gen.bottiglia_aggiornata': '✓ Bouteille mise à jour!',
@@ -743,24 +677,20 @@ const T = {
   }
 }
 
-// ─── Hook principale ──────────────────────────────────────────────────────────
-let _lingua = 'it'
-let _listeners = []
+// ─── Stato lingua globale ─────────────────────────────────────────────────────
+let _lingua = localStorage.getItem('lingua') || 'it'
 
 export function getLingua() { return _lingua }
 
 export function setLingua(l) {
   _lingua = l
-  _listeners.forEach(fn => fn(l))
+  localStorage.setItem('lingua', l)
+  window.dispatchEvent(new CustomEvent('lingua-changed', { detail: l }))
 }
 
-export function onLinguaChange(fn) {
-  _listeners.push(fn)
-  return () => { _listeners = _listeners.filter(f => f !== fn) }
-}
-
-export function t(key) {
-  return T[_lingua]?.[key] ?? T['it'][key] ?? key
+export function t(key, lingua) {
+  const lng = lingua || _lingua
+  return T[lng]?.[key] ?? T['it'][key] ?? key
 }
 
 export const LINGUE = [
