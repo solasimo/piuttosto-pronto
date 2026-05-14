@@ -74,7 +74,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
         </span>
         {attivi > 0 && (
           <button onClick={onReset} style={{ fontSize: 12, color: '#7B1E2E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
-            Azzera filtri
+            {T('schede.reset')}
           </button>
         )}
       </div>

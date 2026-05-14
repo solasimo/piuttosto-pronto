@@ -81,8 +81,8 @@ function RegioneRow({ regione, bottiglie, onBottigliaClick }) {
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#1C1410', marginBottom: 4 }}>{regione}</div>
           <div style={{ height: 6, borderRadius: 3, background: '#F0ECE5', overflow: 'hidden', display: 'flex' }}>
-            {TIPOLOGIE.filter(t => byTipo[t]).map(t => (
-              <div key={t} style={{ height: '100%', width: Math.round((byTipo[t] / totTipo) * 100) + '%', background: TIPO_COLORS[t] }} />
+            {TIPOLOGIE.filter(tipo => byTipo[tipo]).map(tipo => (
+              <div key={tipo} style={{ height: '100%', width: Math.round((byTipo[tipo] / totTipo) * 100) + '%', background: TIPO_COLORS[tipo] }} />
             ))}
           </div>
         </div>
@@ -105,8 +105,8 @@ function RegioneRow({ regione, bottiglie, onBottigliaClick }) {
       {open && (
         <div style={{ background: '#F9F7F4', border: '1px solid #E2DDD6', borderTop: 'none', borderRadius: '0 0 12px 12px', padding: 12 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-            {TIPOLOGIE.filter(t => byTipo[t]).map(t => (
-              <span key={t} style={{ fontSize: 11, padding: '3px 10px', borderRadius: 100, background: TIPO_BG[t], color: TIPO_COLORS[t], fontWeight: 600 }}>{t}: {byTipo[t]}</span>
+            {TIPOLOGIE.filter(tipo => byTipo[tipo]).map(tipo => (
+              <span key={tipo} style={{ fontSize: 11, padding: '3px 10px', borderRadius: 100, background: TIPO_BG[tipo], color: TIPO_COLORS[tipo], fontWeight: 600 }}>{T(`tipo.${tipo}`)}: {byTipo[tipo]}</span>
             ))}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
@@ -132,12 +132,12 @@ function VistaTipologie({ cantina }) {
   const maxE = Math.max(...Object.values(byTipo).map(v => v.etichette), 1)
   return (
     <div style={S.card}>
-      {TIPOLOGIE.map(t => {
+      {TIPOLOGIE.map(tipo => {
         const v = byTipo[tipo]
         if (v.etichette === 0) return (
           <div key={tipo} style={{ marginBottom: 14, opacity: 0.4 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-              <span style={{ fontSize: 13, color: '#B0A89E' }}>{t}</span>
+              <span style={{ fontSize: 13, color: '#B0A89E' }}>{T(`tipo.${tipo}`)}</span>
               <span style={{ fontSize: 12, color: '#B0A89E' }}>—</span>
             </div>
             <div style={{ height: 8, borderRadius: 4, background: '#F0ECE5' }} />
@@ -146,7 +146,7 @@ function VistaTipologie({ cantina }) {
         return (
           <div key={tipo} style={{ marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: TIPO_COLORS[tipo] }}>{t}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: TIPO_COLORS[tipo] }}>{T(`tipo.${tipo}`)}</span>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: '#7A6E65' }}>{v.etichette} {t('lib.etichetta')}.</span>
                 <span style={{ fontSize: 12, color: '#B0A89E' }}>·</span>
@@ -279,7 +279,7 @@ export default function Statistiche({ cantina }) {
         ))}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        {[ ['paesi', `🌍 ${t('stats.per_paese')}`], ['tipologie', `🎨 ${t('stats.per_tipologia')}`] ].map(([k,l]) => (
+        {[ ['paesi', `🌍 ${T('stats.per_paese')}`], ['tipologie', `🎨 ${T('stats.per_tipologia')}`] ].map(([k,l]) => (
           <button key={k} onClick={() => setVista(k)} style={{ flex: 1, padding: '9px 0', borderRadius: 100, border: '1.5px solid', borderColor: vista === k ? '#7B1E2E' : '#E2DDD6', background: vista === k ? '#7B1E2E' : '#fff', color: vista === k ? '#fff' : '#7A6E65', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
         ))}
       </div>
