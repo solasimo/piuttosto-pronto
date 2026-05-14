@@ -223,6 +223,10 @@ const T = {
     'gen.bottiglia_aggiornata': '✓ Bottiglia aggiornata!',
     'gen.scheda_aggiornata': '✓ Scheda aggiornata!',
     'gen.scheda_salvata': '📓 Scheda ASPI salvata!',
+
+    'stats.regioni_presenti': 'REGIONI PRESENTI',
+    'schede.bouquet': 'Bouquet',
+    'schede.aromi': 'Aromi',
     'gen.errore_ai': '⚠️ Errore AI. Riprova.',
     // Tipologie vino
     'tipo.Rosso': 'Rosso', 'tipo.Bianco': 'Bianco', 'tipo.Rosato': 'Rosato',
@@ -452,6 +456,10 @@ const T = {
     'gen.bottiglia_aggiornata': '✓ Bottle updated!',
     'gen.scheda_aggiornata': '✓ Tasting note updated!',
     'gen.scheda_salvata': '📓 Tasting note saved!',
+
+    'stats.regioni_presenti': 'REGIONS PRESENT',
+    'schede.bouquet': 'Bouquet',
+    'schede.aromi': 'Aromas',
     'gen.errore_ai': '⚠️ AI error. Please retry.',
     'tipo.Rosso': 'Red', 'tipo.Bianco': 'White', 'tipo.Rosato': 'Rosé',
     'tipo.Orange': 'Orange', 'tipo.Bollicine': 'Sparkling', 'tipo.Dolce': 'Sweet', 'tipo.Fortificato': 'Fortified',
@@ -680,6 +688,10 @@ const T = {
     'gen.bottiglia_aggiornata': '✓ Bouteille mise à jour!',
     'gen.scheda_aggiornata': '✓ Fiche mise à jour!',
     'gen.scheda_salvata': '📓 Fiche de dégustation enregistrée!',
+
+    'stats.regioni_presenti': 'RÉGIONS PRÉSENTES',
+    'schede.bouquet': 'Bouquet',
+    'schede.aromi': 'Arômes',
     'gen.errore_ai': '⚠️ Erreur IA. Veuillez réessayer.',
     'tipo.Rosso': 'Rouge', 'tipo.Bianco': 'Blanc', 'tipo.Rosato': 'Rosé',
     'tipo.Orange': 'Orange', 'tipo.Bollicine': 'Pétillant', 'tipo.Dolce': 'Doux', 'tipo.Fortificato': 'Fortifié',

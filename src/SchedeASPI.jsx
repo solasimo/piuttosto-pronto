@@ -70,7 +70,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
       {/* Header pannello */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#1C1410' }}>
-          {T('schede.filtra')}: {attivi} {attivi > 0 && <span style={{ color: '#7B1E2E' }}>({filtrato}/{totale})</span>}
+          {`${T('schede.filtra')}: ${attivi}`} {attivi > 0 && <span style={{ color: '#7B1E2E' }}>({filtrato}/{totale})</span>}
         </span>
         {attivi > 0 && (
           <button onClick={onReset} style={{ fontSize: 12, color: '#7B1E2E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
@@ -91,7 +91,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
 
       {/* Bouquet — tipologia */}
       <div style={{ marginBottom: catDisponibili.length > 0 ? 12 : 0 }}>
-        <div style={S.secLabel}>Bouquet</div>
+        <div style={S.secLabel}>{T('schede.bouquet') || 'Bouquet'}</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {BOUQUET_TIPOLOGIE.map(t => (
             <button key={t} onClick={() => toggleBouquetTipo(t)} style={S.pill((filtri.bouquetTipologie || []).includes(t))}>{t}</button>
@@ -102,7 +102,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
       {/* Bouquet — categorie (condizionale) */}
       {catDisponibili.length > 0 && (
         <div style={{ marginBottom: 16, paddingLeft: 12, borderLeft: '2px solid #F0ECE5' }}>
-          <div style={{ ...S.secLabel, marginTop: 10 }}>Aromi</div>
+          <div style={{ ...S.secLabel, marginTop: 10 }}>{T('schede.aromi') || 'Aromi'}</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {catDisponibili.map(c => (
               <button key={c} onClick={() => toggle('bouquetCategorie', c)} style={S.subPill((filtri.bouquetCategorie || []).includes(c))}>{c}</button>
@@ -113,7 +113,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
 
       {/* Annata */}
       <div>
-        <div style={S.secLabel}>{T('form.anno')}</div>
+        <div style={S.secLabel}>{T('det.anno')}</div>
         <AnnataInput
           valori={filtri.annate || []}
           onChange={v => onChange({ ...filtri, annate: v })}

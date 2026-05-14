@@ -128,7 +128,7 @@ export function DettaglioBottiglia({ b }) {
       <SecBox title={T('det.consumo')}>
         <Row label={T('form.valutazione')} value={b.valutazione ? stars(b.valutazione) : null} />
         <Row label={T('form.fascia_prezzo')} value={b.prezzo ? money(b.prezzo) : null} />
-        <Row label={T('det.prezzo_acquisto')} value={b.prezzo_acquisto ? `€ ${Number(b.prezzo_acquisto).toFixed(2)} / bott.` : null} />
+        <Row label={T('det.prezzo_acquisto')} value={b.prezzo_acquisto ? `€ ${Number(b.prezzo_acquisto).toFixed(2)} / ${t('lib.bott')}` : null} />
         <Row label={T('det.temperatura')} value={b.temp} />
         <Row label={T('form.invecchiamento')} value={b.invecchiamento ? `${b.invecchiamento} ${t('form.anni')}` : null} />
         <Row label={T('form.note')} value={b.note} />
@@ -304,7 +304,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
         <EditSelect label={T('form.invecchiamento')} value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so',T('form.non_so')],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ${i+1===1?T('form.anno_sing'):T('form.anni')}`])]} full aiField={ai('invecchiamento')} />
         <EditTextarea label={T('form.info_cantina')} value={f.info_cantina} onChange={set('info_cantina')} placeholder={T('form.placeholder.info_cantina')} aiField={ai('info_cantina')} />
         <EditTextarea label={T('form.car_bottiglia')} value={f.caratteristiche_bottiglia} onChange={set('caratteristiche_bottiglia')} placeholder={T('form.placeholder.car_bottiglia')} aiField={ai('caratteristiche_bottiglia')} />
-        <EditTextarea label="Caratteristiche dell'annata" value={f.caratteristiche_annata} onChange={set('caratteristiche_annata')} placeholder={T('form.placeholder.car_annata')} aiField={ai('caratteristiche_annata')} />
+        <EditTextarea label={T('form.car_annata')} value={f.caratteristiche_annata} onChange={set('caratteristiche_annata')} placeholder={T('form.placeholder.car_annata')} aiField={ai('caratteristiche_annata')} />
       </EditSecBox>
       <button onClick={handleSave} disabled={saving} style={{width:'100%',padding:14,background:'#C8992A',color:'#0f0b08',border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',opacity:saving?0.7:1,marginBottom:8,fontFamily:'DM Sans, sans-serif'}}>
         {saving?T('form.salvataggio'):T('form.salva')}
@@ -407,7 +407,7 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina, showHint }) 
             <span style={{ fontSize:8, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', padding:'2px 8px', borderRadius:3, background:tipoBg, color:tipoColor, border:`1px solid ${tipoColor}44`, flexShrink:0 }}>{b.tipologia ? T(`tipo.${b.tipologia}`) : '—'}</span>
             <button onClick={e=>{e.stopPropagation();onQty(b.id,-1)}} disabled={b.quantita<=1}
               style={{ width:20, height:20, borderRadius:'50%', border:'1px solid #D6D0C8', background:'none', color:b.quantita<=1?'#D6D0C8':'#7A6E65', fontSize:14, cursor:b.quantita<=1?'default':'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>−</button>
-            <span style={{ fontSize:11, color:'#7A6E65', flexShrink:0 }}>{b.quantita} bott.</span>
+            <span style={{ fontSize:11, color:'#7A6E65', flexShrink:0 }}>{b.quantita} {T('lib.bott')}</span>
             <button onClick={e=>{e.stopPropagation();onQty(b.id,1)}}
               style={{ width:20, height:20, borderRadius:'50%', border:'1px solid #D6D0C8', background:'none', color:'#7A6E65', fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>+</button>
             <div style={{ marginLeft:'auto', display:'flex', gap:4 }}>

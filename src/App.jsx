@@ -11,6 +11,7 @@ import AIChef from './AIChef'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
 import Auth from './Auth'
+import Admin from './Admin'
 import BenchmarkASPI from './BenchmarkASPI'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
