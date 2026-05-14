@@ -103,6 +103,7 @@ Se la richiesta non ha senso, rispondi con:
 
 // ─── Componente risultato abbinamento ─────────────────────────────────────────
 function RisultatoAbbinamento({ vino, rank }) {
+  const T = useT()
   const medals = ['🥇','🥈','🥉']
   const statoColor = { 'Oltre il picco':'#9B2335','Al picco':'#C77B13','In evoluzione':'#2D6A4F','Da definire':'#1A5FA8' }
   return (

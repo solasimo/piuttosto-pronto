@@ -161,6 +161,7 @@ function AnnataInput({ valori, onChange }) {
 
 // ─── Modale conferma eliminazione ────────────────────────────────────────────
 function ConfermaElimina({ scheda, onConferma, onAnnulla }) {
+  const T = useT()
   if (!scheda) return null
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>

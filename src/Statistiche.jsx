@@ -23,6 +23,7 @@ const S = {
 
 // ─── Sheet bottiglia ──────────────────────────────────────────────────────────
 function BottigliaSheet({ b, onClose }) {
+  const T = useT()
   if (!b) return null
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
@@ -167,6 +168,7 @@ function VistaTipologie({ cantina }) {
 }
 
 function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
+  const T = useT()
   const [open, setOpen] = useState(false)
   const totEtichette = bottigliePaese.length
   const totBottiglie = bottigliePaese.reduce((s, b) => s + (b.quantita || 0), 0)

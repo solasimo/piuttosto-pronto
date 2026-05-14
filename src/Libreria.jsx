@@ -139,6 +139,7 @@ export function DettaglioBottiglia({ b }) {
 
 // ─── Componenti form modifica ─────────────────────────────────────────────────
 function EditInput({ label, value, onChange, placeholder, type, full, aiField }) {
+  const T = useT()
   return (
     <div style={full ? { gridColumn:'1/-1' } : {}}>
       <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
@@ -150,6 +151,7 @@ function EditInput({ label, value, onChange, placeholder, type, full, aiField })
   )
 }
 function EditSelect({ label, value, onChange, options, full, aiField }) {
+  const T = useT()
   return (
     <div style={full ? { gridColumn:'1/-1' } : {}}>
       <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
@@ -163,6 +165,7 @@ function EditSelect({ label, value, onChange, options, full, aiField }) {
   )
 }
 function EditTextarea({ label, value, onChange, placeholder, aiField }) {
+  const T = useT()
   return (
     <div style={{ gridColumn:'1/-1' }}>
       <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
@@ -174,6 +177,7 @@ function EditTextarea({ label, value, onChange, placeholder, aiField }) {
   )
 }
 function EditSecBox({ title, children }) {
+  const T = useT()
   return (
     <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:14 }}>
       <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1.2, marginBottom:14, paddingBottom:8, borderBottom:'1px solid #1e1a16' }}>{title}</div>
@@ -330,6 +334,7 @@ function DaBerePresto({ cantina, onDettaglio }) {
 
 // ─── Riga bottiglia con swipe ─────────────────────────────────────────────────
 function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina, showHint }) {
+  const T = useT()
   const m = getMaturita(b)
   const pct = m.pct !== null ? Math.min(m.pct, 100) : 0
   const tipoColor = TIPO_COLOR[b.tipologia] || '#8B7355'
