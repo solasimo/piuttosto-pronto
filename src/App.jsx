@@ -294,13 +294,13 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
 
       {/* SEZIONE 1 — Dati del vino */}
       <SecBox title={T('form.dati_vino')}>
-        <FormInput label="Nome vino *" value={f.nome} onChange={set('nome')} placeholder="es. Barolo Cannubi" full aiField={ai('nome')} />
-        <FormInput label="Cantina / Produttore" value={f.cantina} onChange={set('cantina')} placeholder="es. Ceretto" aiField={ai('cantina')} />
-        <FormSelect label="Tipologia" value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} aiField={ai('tipologia')} />
-        <FormInput label="Anno vendemmia" value={f.anno} onChange={set('anno')} placeholder="2019" type="number" aiField={ai('anno')} />
+        <FormInput label={T('form.nome_vino')} value={f.nome} onChange={set('nome')} placeholder={T('form.placeholder.nome')} full aiField={ai('nome')} />
+        <FormInput label={T('form.cantina')} value={f.cantina} onChange={set('cantina')} placeholder={T('form.placeholder.cantina')} aiField={ai('cantina')} />
+        <FormSelect label={T('form.tipologia')} value={f.tipologia} onChange={set('tipologia')} options={[['','—'],...TIPOLOGIE.map(t=>[t,t])]} aiField={ai('tipologia')} />
+        <FormInput label={T('form.anno')} value={f.anno} onChange={set('anno')} placeholder="2019" type="number" aiField={ai('anno')} />
         <div style={{ gridColumn: '1/-1' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-            <span style={S.lbl}>Paese</span>
+            <span style={S.lbl}>{T('form.paese')}</span>
             {ai('paese') && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
           </div>
           <select style={{ ...S.inp, borderColor: ai('paese') ? '#185FA5' : undefined }} value={f.paese} onChange={e => setF(p => ({ ...p, paese: e.target.value, regione: '' }))}>
@@ -310,7 +310,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
         {f.paese && f.paese !== 'Altro' && regioniOptions && (
           <div style={{ gridColumn: '1/-1' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-              <span style={S.lbl}>Regione</span>
+              <span style={S.lbl}>{T('form.regione')}</span>
               {ai('regione') && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
             </div>
             <select style={{ ...S.inp, borderColor: ai('regione') ? '#185FA5' : undefined }} value={f.regione} onChange={e => set('regione')(e.target.value)}>
@@ -319,29 +319,29 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
           </div>
         )}
         {f.paese === 'Altro' && (
-          <FormInput label="Regione" value={f.regione} onChange={set('regione')} placeholder="es. Borgogna" full aiField={ai('regione')} />
+          <FormInput label={T('form.regione')} value={f.regione} onChange={set('regione')} placeholder={T('form.placeholder.regione')} full aiField={ai('regione')} />
         )}
-        <FormTextarea label="Note" value={f.note} onChange={set('note')} placeholder="Appunti liberi sul vino..." aiField={ai('note')} />
+        <FormTextarea label={T('form.note')} value={f.note} onChange={set('note')} placeholder={T('form.placeholder.note')} aiField={ai('note')} />
       </SecBox>
 
       {/* SEZIONE 2 — Dati di acquisto */}
       <SecBox title={T('form.acquisto')}>
-        <FormInput label="Canale di acquisto" value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder="es. Enoteca Bianchi" />
-        <FormInput label="Prezzo acquisto (€ / bott.)" value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder="es. 24.50" type="number" />
-        <FormSelect label="Fascia prezzo" value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
-        <FormInput label="Quantità (bott.)" value={f.quantita} onChange={set('quantita')} type="number" min={1} />
+        <FormInput label={T('form.canale')} value={f.canale_acquisto} onChange={set('canale_acquisto')} placeholder={T('form.placeholder.canale')} />
+        <FormInput label={T('form.prezzo_acquisto')} value={f.prezzo_acquisto} onChange={set('prezzo_acquisto')} placeholder={T('form.placeholder.prezzo')} type="number" />
+        <FormSelect label={T('form.fascia_prezzo')} value={f.prezzo} onChange={set('prezzo')} options={[['','—'],['1','💶 1'],['2','💶💶 2'],['3','💶💶💶 3'],['4','💶💶💶💶 4'],['5','💶💶💶💶💶 5']]} />
+        <FormInput label={T('form.quantita')} value={f.quantita} onChange={set('quantita')} type="number" min={1} />
       </SecBox>
 
       {/* SEZIONE 3 — Arricchimento */}
       <SecBox title={T('form.arricchimento')}>
-        <FormInput label="Denominazione" value={f.denominazione} onChange={set('denominazione')} placeholder="es. Barolo DOCG" full aiField={ai('denominazione')} />
-        <FormInput label="Vitigno" value={f.vitigno} onChange={set('vitigno')} placeholder="es. Nebbiolo" aiField={ai('vitigno')} />
-        <FormSelect label="Valutazione annata" value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} aiField={ai('valutazione')} />
-        <FormInput label="Temperatura di servizio" value={f.temp} onChange={set('temp')} placeholder="16-18°C" aiField={ai('temp')} />
-        <FormSelect label="Invecchiamento" value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so','Non so'],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ann${i+1===1?'o':'i'}`])]} full aiField={ai('invecchiamento')} />
-        <FormTextarea label="Informazioni sulla cantina" value={f.info_cantina} onChange={set('info_cantina')} placeholder="Storia, filosofia, territorio..." aiField={ai('info_cantina')} />
-        <FormTextarea label="Caratteristiche della bottiglia" value={f.caratteristiche_bottiglia} onChange={set('caratteristiche_bottiglia')} placeholder="Profilo organolettico, stile..." aiField={ai('caratteristiche_bottiglia')} />
-        <FormTextarea label="Caratteristiche dell'annata" value={f.caratteristiche_annata} onChange={set('caratteristiche_annata')} placeholder="Clima, resa, particolarità..." aiField={ai('caratteristiche_annata')} />
+        <FormInput label={T('form.denominazione')} value={f.denominazione} onChange={set('denominazione')} placeholder={T('form.placeholder.denominazione')} full aiField={ai('denominazione')} />
+        <FormInput label={T('form.vitigno')} value={f.vitigno} onChange={set('vitigno')} placeholder={T('form.placeholder.vitigno')} aiField={ai('vitigno')} />
+        <FormSelect label={T('form.valutazione')} value={f.valutazione} onChange={set('valutazione')} options={[['','—'],['1','⭐️ 1'],['2','⭐️⭐️ 2'],['3','⭐️⭐️⭐️ 3'],['4','⭐️⭐️⭐️⭐️ 4'],['5','⭐️⭐️⭐️⭐️⭐️ 5']]} aiField={ai('valutazione')} />
+        <FormInput label={T('form.temp')} value={f.temp} onChange={set('temp')} placeholder={T('form.placeholder.temp')} aiField={ai('temp')} />
+        <FormSelect label={T('form.invecchiamento')} value={f.invecchiamento} onChange={set('invecchiamento')} options={[['non_so',T('form.non_so')],...Array.from({length:30},(_,i)=>[String(i+1),`${i+1} ${i+1===1?T('form.anno_sing'):T('form.anni')}`])]} full aiField={ai('invecchiamento')} />
+        <FormTextarea label={T('form.info_cantina')} value={f.info_cantina} onChange={set('info_cantina')} placeholder={T('form.placeholder.info_cantina')} aiField={ai('info_cantina')} />
+        <FormTextarea label={T('form.car_bottiglia')} value={f.caratteristiche_bottiglia} onChange={set('caratteristiche_bottiglia')} placeholder={T('form.placeholder.car_bottiglia')} aiField={ai('caratteristiche_bottiglia')} />
+        <FormTextarea label={T('form.car_annata')} value={f.caratteristiche_annata} onChange={set('caratteristiche_annata')} placeholder={T('form.placeholder.car_annata')} aiField={ai('caratteristiche_annata')} />
       </SecBox>
 
       <button onClick={handleAdd} disabled={saving} style={{ ...S.btn, opacity: saving ? 0.7 : 1, marginBottom: 8 }}>

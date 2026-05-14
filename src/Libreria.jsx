@@ -3,7 +3,7 @@ import { TIPOLOGIE } from './AspiForm'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
 import { useT } from './useT'
-import { t } from './i18n'
+import { t, tPaese } from './i18n'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -118,7 +118,7 @@ export function DettaglioBottiglia({ b }) {
         <Row label={T('det.nome')} value={b.nome} />
         <Row label={T('det.cantina')} value={b.cantina} />
         <Row label={T('form.anno')} value={b.anno} />
-        <Row label={T('form.paese')} value={b.paese} />
+        <Row label={T('form.paese')} value={tPaese(b.paese)} />
         <Row label={T('form.regione')} value={b.regione} />
         <Row label={T('form.vitigno')} value={b.vitigno} />
         {b.info_cantina && <Row label={T('det.info_cantina')} value={b.info_cantina} />}

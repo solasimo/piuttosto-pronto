@@ -3,7 +3,7 @@ import { getMaturita, matColor, DettaglioBottiglia } from './Libreria'
 import { PAESI_REGIONI } from './dati'
 import AnalisiAI from './AnalisiAI'
 import { useT } from './useT'
-import { t } from './i18n'
+import { t, tPaese } from './i18n'
 
 const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
 
@@ -189,7 +189,7 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
       <div onClick={() => setOpen(o => !o)} style={{ padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <span style={{ fontFamily: 'Playfair Display, serif', fontSize: 16, fontWeight: 600, color: '#1C1410' }}>{paese}</span>
+            <span style={{ fontFamily: 'Playfair Display, serif', fontSize: 16, fontWeight: 600, color: '#1C1410' }}>{tPaese(paese)}</span>
             <span style={{ fontSize: 11, fontWeight: 700, color: copertura_color, background: copertura_color + '18', padding: '2px 8px', borderRadius: 100 }}>{coperte}/{totRegioni} {T('stats.regioni').toLowerCase()}</span>
           </div>
           <div style={{ height: 5, borderRadius: 3, background: '#F0ECE5', overflow: 'hidden' }}>

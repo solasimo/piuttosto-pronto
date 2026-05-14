@@ -503,6 +503,19 @@ const T = {
     'schede.bouquet': 'Bouquet',
     'schede.aromi': 'Aromas',
     'gen.errore_ai': '⚠️ AI error. Please retry.',
+
+    // Paesi (traduzione display — i valori DB restano in italiano)
+    'paese.Italia': 'Italy', 'paese.Francia': 'France', 'paese.Germania': 'Germany',
+    'paese.Spagna': 'Spain', 'paese.Portogallo': 'Portugal', 'paese.Austria': 'Austria',
+    'paese.Svizzera': 'Switzerland', 'paese.Slovenia': 'Slovenia', 'paese.Croazia': 'Croatia',
+    'paese.Grecia': 'Greece', 'paese.Ungheria': 'Hungary', 'paese.Romania': 'Romania',
+    'paese.Bulgaria': 'Bulgaria', 'paese.Georgia': 'Georgia', 'paese.Libano': 'Lebanon',
+    'paese.Israele': 'Israel', 'paese.Turchia': 'Turkey', 'paese.Marocco': 'Morocco',
+    'paese.Sudafrica': 'South Africa', 'paese.Australia': 'Australia',
+    'paese.Nuova Zelanda': 'New Zealand', 'paese.Argentina': 'Argentina',
+    'paese.Cile': 'Chile', 'paese.Uruguay': 'Uruguay', 'paese.Brasile': 'Brazil',
+    'paese.USA': 'USA', 'paese.Canada': 'Canada', 'paese.Messico': 'Mexico',
+    'paese.Altro': 'Other',
     'tipo.Rosso': 'Red', 'tipo.Bianco': 'White', 'tipo.Rosato': 'Rosé',
     'tipo.Orange': 'Orange', 'tipo.Bollicine': 'Sparkling', 'tipo.Dolce': 'Sweet', 'tipo.Fortificato': 'Fortified',
 
@@ -737,6 +750,18 @@ const T = {
     'schede.bouquet': 'Bouquet',
     'schede.aromi': 'Arômes',
     'gen.errore_ai': '⚠️ Erreur IA. Veuillez réessayer.',
+
+    'paese.Italia': 'Italie', 'paese.Francia': 'France', 'paese.Germania': 'Allemagne',
+    'paese.Spagna': 'Espagne', 'paese.Portogallo': 'Portugal', 'paese.Austria': 'Autriche',
+    'paese.Svizzera': 'Suisse', 'paese.Slovenia': 'Slovénie', 'paese.Croazia': 'Croatie',
+    'paese.Grecia': 'Grèce', 'paese.Ungheria': 'Hongrie', 'paese.Romania': 'Roumanie',
+    'paese.Bulgaria': 'Bulgarie', 'paese.Georgia': 'Géorgie', 'paese.Libano': 'Liban',
+    'paese.Israele': 'Israël', 'paese.Turchia': 'Turquie', 'paese.Marocco': 'Maroc',
+    'paese.Sudafrica': 'Afrique du Sud', 'paese.Australia': 'Australie',
+    'paese.Nuova Zelanda': 'Nouvelle-Zélande', 'paese.Argentina': 'Argentine',
+    'paese.Cile': 'Chili', 'paese.Uruguay': 'Uruguay', 'paese.Brasile': 'Brésil',
+    'paese.USA': 'États-Unis', 'paese.Canada': 'Canada', 'paese.Messico': 'Mexique',
+    'paese.Altro': 'Autre',
     'tipo.Rosso': 'Rouge', 'tipo.Bianco': 'Blanc', 'tipo.Rosato': 'Rosé',
     'tipo.Orange': 'Orange', 'tipo.Bollicine': 'Pétillant', 'tipo.Dolce': 'Doux', 'tipo.Fortificato': 'Fortifié',
 
@@ -797,6 +822,14 @@ export function setLingua(l) {
 export function t(key, lingua) {
   const lng = lingua || _lingua
   return T[lng]?.[key] ?? T['it'][key] ?? key
+}
+
+// Helper per tradurre nomi di paesi (i valori DB sono in italiano)
+export function tPaese(paese, lingua) {
+  if (!paese) return paese
+  const lng = lingua || _lingua
+  if (lng === 'it') return paese  // italiano = valore originale
+  return T[lng]?.[`paese.${paese}`] || paese
 }
 
 export const LINGUE = [
