@@ -190,7 +190,7 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <span style={{ fontFamily: 'Playfair Display, serif', fontSize: 16, fontWeight: 600, color: '#1C1410' }}>{paese}</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: copertura_color, background: copertura_color + '18', padding: '2px 8px', borderRadius: 100 }}>{coperte}/{totRegioni} regioni</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: copertura_color, background: copertura_color + '18', padding: '2px 8px', borderRadius: 100 }}>{coperte}/{totRegioni} {T('stats.regioni').toLowerCase()}</span>
           </div>
           <div style={{ height: 5, borderRadius: 3, background: '#F0ECE5', overflow: 'hidden' }}>
             <div style={{ height: '100%', width: pctCopertura + '%', background: copertura_color, borderRadius: 3, transition: 'width 0.5s' }} />
@@ -216,7 +216,7 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
         <div style={{ padding: '0 12px 14px', borderTop: '1px solid #F0ECE5' }}>
           {regioni.filter(r => byRegione[r]).length > 0 && (
             <div style={{ marginTop: 12, marginBottom: 8 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#2D6A4F', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Regioni presenti ({coperte})</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#2D6A4F', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{T('stats.regioni_presenti')} ({coperte})</div>
               {regioni.filter(r => byRegione[r]).map(r => (
                 <RegioneRow key={r} regione={r} bottiglie={byRegione[r]} onBottigliaClick={onBottigliaClick} />
               ))}
@@ -224,7 +224,7 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
           )}
           {regioni.filter(r => !byRegione[r]).length > 0 && (
             <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#B0A89E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Da esplorare ({totRegioni - coperte})</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#B0A89E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{T('stats.da_esplorare')} ({totRegioni - coperte})</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {regioni.filter(r => !byRegione[r]).map(r => (
                   <span key={r} style={{ fontSize: 12, padding: '4px 10px', borderRadius: 100, background: '#F4F1EC', color: '#B0A89E', border: '1px dashed #D6D0C8' }}>{r}</span>
