@@ -70,7 +70,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
       {/* Header pannello */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#1C1410' }}>
-          T('schede.filtra') + ':' {attivi} {attivi > 0 && <span style={{ color: '#7B1E2E' }}>({filtrato} {T('schede.di') || 'di'} {totale})</span>}
+          {T('schede.filtra')}: {attivi} {attivi > 0 && <span style={{ color: '#7B1E2E' }}>({filtrato}/{totale})</span>}
         </span>
         {attivi > 0 && (
           <button onClick={onReset} style={{ fontSize: 12, color: '#7B1E2E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
@@ -140,7 +140,7 @@ function AnnataInput({ valori, onChange }) {
         <input
           value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && aggiungi()}
-          placeholder="es. 2018"
+          placeholder={T('form.placeholder.anno')}
           maxLength={4}
           style={{ width: 90, padding: '7px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 14, background: '#fff', color: '#1C1410' }}
         />
@@ -338,7 +338,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpd
         <div style={{ textAlign: 'center', padding: '32px 20px', color: '#B0A89E' }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🔍</div>
           <div style={{ fontSize: 14 }}>Nessuna scheda corrisponde ai criteri di ricerca</div>
-          <button onClick={() => { setFiltri(FILTRI_VUOTI); setCerca('') }} style={{ marginTop: 12, fontSize: 13, color: '#7B1E2E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Azzera tutto</button>
+          <button onClick={() => { setFiltri(FILTRI_VUOTI); setCerca('') }} style={{ marginTop: 12, fontSize: 13, color: '#7B1E2E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>{T('schede.reset')}</button>
         </div>
       ) : (
         ordine.filter(k => gruppi[k]?.length > 0).map(k => (

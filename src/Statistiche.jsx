@@ -97,7 +97,7 @@ function RegioneRow({ regione, bottiglie, onBottigliaClick }) {
         {valore > 0 && (
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#2D6A4F' }}>€{valore.toFixed(0)}</div>
-            <div style={{ fontSize: 10, color: '#B0A89E' }}>valore</div>
+            <div style={{ fontSize: 10, color: '#B0A89E' }}>{T('kpi.valore').toLowerCase()}</div>
           </div>
         )}
         <span style={{ fontSize: 14, color: '#B0A89E', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>›</span>
@@ -122,7 +122,7 @@ function RegioneRow({ regione, bottiglie, onBottigliaClick }) {
 function VistaTipologie({ cantina }) {
   const T = useT()
   const byTipo = {}
-  TIPOLOGIE.forEach(t => byTipo[t] = { etichette: 0, bottiglie: 0, valore: 0 })
+  TIPOLOGIE.forEach(tipo => byTipo[tipo] = { etichette: 0, bottiglie: 0, valore: 0 })
   cantina.forEach(b => {
     if (!byTipo[b.tipologia]) return
     byTipo[b.tipologia].etichette++
@@ -133,9 +133,9 @@ function VistaTipologie({ cantina }) {
   return (
     <div style={S.card}>
       {TIPOLOGIE.map(t => {
-        const v = byTipo[t]
+        const v = byTipo[tipo]
         if (v.etichette === 0) return (
-          <div key={t} style={{ marginBottom: 14, opacity: 0.4 }}>
+          <div key={tipo} style={{ marginBottom: 14, opacity: 0.4 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
               <span style={{ fontSize: 13, color: '#B0A89E' }}>{t}</span>
               <span style={{ fontSize: 12, color: '#B0A89E' }}>—</span>
@@ -144,9 +144,9 @@ function VistaTipologie({ cantina }) {
           </div>
         )
         return (
-          <div key={t} style={{ marginBottom: 14 }}>
+          <div key={tipo} style={{ marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: TIPO_COLORS[t] }}>{t}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: TIPO_COLORS[tipo] }}>{t}</span>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: '#7A6E65' }}>{v.etichette} {t('lib.etichetta')}.</span>
                 <span style={{ fontSize: 12, color: '#B0A89E' }}>·</span>
@@ -158,7 +158,7 @@ function VistaTipologie({ cantina }) {
               </div>
             </div>
             <div style={{ height: 8, borderRadius: 4, background: '#F0ECE5', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: Math.round((v.etichette / maxE) * 100) + '%', background: TIPO_COLORS[t], borderRadius: 4, transition: 'width 0.5s' }} />
+              <div style={{ height: '100%', width: Math.round((v.etichette / maxE) * 100) + '%', background: TIPO_COLORS[tipo], borderRadius: 4, transition: 'width 0.5s' }} />
             </div>
           </div>
         )
@@ -207,7 +207,7 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
         {valoreEur > 0 && (
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#2D6A4F' }}>€{valoreEur.toFixed(0)}</div>
-            <div style={{ fontSize: 10, color: '#B0A89E' }}>valore</div>
+            <div style={{ fontSize: 10, color: '#B0A89E' }}>{T('kpi.valore').toLowerCase()}</div>
           </div>
         )}
         <span style={{ fontSize: 16, color: '#B0A89E', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>›</span>
