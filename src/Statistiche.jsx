@@ -3,6 +3,7 @@ import { getMaturita, matColor, DettaglioBottiglia } from './Libreria'
 import { PAESI_REGIONI } from './dati'
 import AnalisiAI from './AnalisiAI'
 import { useT } from './useT'
+import { t } from './i18n'
 
 const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
 

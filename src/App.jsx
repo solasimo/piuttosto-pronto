@@ -423,7 +423,7 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
             {/* Upload foto */}
             <div style={{ marginBottom:12 }}>
               <div style={{ fontSize:11, color:'#8B7355', marginBottom:6 }}>{T('utente.foto')}</div>
-              <ImageUpload value={avatarUrl} onChange={handleSalvaAvatar} label="" folder="avatars" />
+              <ImageUpload value={avatarUrl} onChange={handleSalvaAvatar} label={T('utente.foto')} folder="avatars" />
             </div>
 
             {!showCambioPassword ? (
@@ -869,7 +869,7 @@ export default function App() {
       <Sheet open={!!dettaglioBottiglia} onClose={()=>setDettaglioBottiglia(null)} title={dettaglioBottiglia?.nome||''}>
         {dettaglioBottiglia && <>
           <div style={{ display:'flex', gap:0, marginBottom:16, background:'#1a1611', borderRadius:10, padding:3 }}>
-            {[['detail','Dettaglio'],['edit','Modifica']].map(([m,l])=>(
+            {[['detail',T('det.dettaglio')],['edit',T('det.modifica')]].map(([m,l])=>(
               <button key={m} onClick={()=>setModalitaBottiglia(m)} style={{ flex:1, padding:'8px 0', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', background:modalitaBottiglia===m?'#2a2318':'transparent', color:modalitaBottiglia===m?'#F5EFE0':'#5a4f3f' }}>{l}</button>
             ))}
           </div>

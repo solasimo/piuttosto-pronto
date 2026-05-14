@@ -224,6 +224,10 @@ const T = {
     'gen.scheda_aggiornata': '✓ Scheda aggiornata!',
     'gen.scheda_salvata': '📓 Scheda ASPI salvata!',
     'gen.errore_ai': '⚠️ Errore AI. Riprova.',
+    // Tipologie vino
+    'tipo.Rosso': 'Rosso', 'tipo.Bianco': 'Bianco', 'tipo.Rosato': 'Rosato',
+    'tipo.Orange': 'Orange', 'tipo.Bollicine': 'Bollicine', 'tipo.Dolce': 'Dolce', 'tipo.Fortificato': 'Fortificato',
+
   },
   en: {
     'app.nome': 'Piuttosto Pronto',
@@ -449,6 +453,9 @@ const T = {
     'gen.scheda_aggiornata': '✓ Tasting note updated!',
     'gen.scheda_salvata': '📓 Tasting note saved!',
     'gen.errore_ai': '⚠️ AI error. Please retry.',
+    'tipo.Rosso': 'Red', 'tipo.Bianco': 'White', 'tipo.Rosato': 'Rosé',
+    'tipo.Orange': 'Orange', 'tipo.Bollicine': 'Sparkling', 'tipo.Dolce': 'Sweet', 'tipo.Fortificato': 'Fortified',
+
   },
   fr: {
     'app.nome': 'Piuttosto Pronto',
@@ -674,6 +681,9 @@ const T = {
     'gen.scheda_aggiornata': '✓ Fiche mise à jour!',
     'gen.scheda_salvata': '📓 Fiche de dégustation enregistrée!',
     'gen.errore_ai': '⚠️ Erreur IA. Veuillez réessayer.',
+    'tipo.Rosso': 'Rouge', 'tipo.Bianco': 'Blanc', 'tipo.Rosato': 'Rosé',
+    'tipo.Orange': 'Orange', 'tipo.Bollicine': 'Pétillant', 'tipo.Dolce': 'Doux', 'tipo.Fortificato': 'Fortifié',
+
     'det.salva': 'Enregistrer',
     'det.salvataggio': 'Enregistrement...',
     'det.aggiorna_ai': "Mettre à jour avec l'IA",
@@ -702,6 +712,7 @@ const T = {
     'schede.modifica': 'Modifier',
     'schede.elimina_conf': 'Voulez-vous supprimer cette fiche?',
     'schede.tutti': 'Tous',
+    'schede.di': 'sur', 'schede.filtri_attivi': 'Filtres actifs', 'schede.nessuna_ancora': 'Aucune fiche pour l\'instant', 'schede.prima_scheda': 'Ajoutez votre première fiche',
     'stats.maturita': 'Maturité de la cave',
     'stats.distribuzione': 'Distribution',
     'stats.per_paese': 'Par pays',

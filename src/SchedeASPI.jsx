@@ -36,6 +36,7 @@ const S = {
 
 // ─── Pannello filtri ──────────────────────────────────────────────────────────
 function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
+  const T = useT()
   // Toggle helper
   const toggle = (key, val) => {
     const curr = filtri[key] || []
@@ -69,7 +70,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
       {/* Header pannello */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#1C1410' }}>
-          Filtri attivi: {attivi} {attivi > 0 && <span style={{ color: '#7B1E2E' }}>({filtrato} di {totale})</span>}
+          T('schede.filtra') + ':' {attivi} {attivi > 0 && <span style={{ color: '#7B1E2E' }}>({filtrato} {T('schede.di') || 'di'} {totale})</span>}
         </span>
         {attivi > 0 && (
           <button onClick={onReset} style={{ fontSize: 12, color: '#7B1E2E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
@@ -80,17 +81,17 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
 
       {/* Tipologia vino */}
       <div style={{ marginBottom: 16 }}>
-        <div style={S.secLabel}>Tipologia vino</div>
+        <div style={S.secLabel}>{T('schede.tipologia')}</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {TIPOLOGIE.map(t => (
-            <button key={t} onClick={() => toggle('tipologie', t)} style={S.pill((filtri.tipologie || []).includes(t))}>{t}</button>
+          {TIPOLOGIE.map(tipo => (
+            <button key={tipo} onClick={() => toggle('tipologie', tipo)} style={S.pill((filtri.tipologie || []).includes(tipo))}>{T(`tipo.${tipo}`)}</button>
           ))}
         </div>
       </div>
 
       {/* Bouquet — tipologia */}
       <div style={{ marginBottom: catDisponibili.length > 0 ? 12 : 0 }}>
-        <div style={S.secLabel}>Bouquet — tipologia</div>
+        <div style={S.secLabel}>Bouquet</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {BOUQUET_TIPOLOGIE.map(t => (
             <button key={t} onClick={() => toggleBouquetTipo(t)} style={S.pill((filtri.bouquetTipologie || []).includes(t))}>{t}</button>
@@ -101,7 +102,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
       {/* Bouquet — categorie (condizionale) */}
       {catDisponibili.length > 0 && (
         <div style={{ marginBottom: 16, paddingLeft: 12, borderLeft: '2px solid #F0ECE5' }}>
-          <div style={{ ...S.secLabel, marginTop: 10 }}>Aromi specifici</div>
+          <div style={{ ...S.secLabel, marginTop: 10 }}>Aromi</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {catDisponibili.map(c => (
               <button key={c} onClick={() => toggle('bouquetCategorie', c)} style={S.subPill((filtri.bouquetCategorie || []).includes(c))}>{c}</button>
@@ -112,7 +113,7 @@ function FiltriPanel({ filtri, onChange, onReset, totale, filtrato }) {
 
       {/* Annata */}
       <div>
-        <div style={S.secLabel}>Annata</div>
+        <div style={S.secLabel}>{T('form.anno')}</div>
         <AnnataInput
           valori={filtri.annate || []}
           onChange={v => onChange({ ...filtri, annate: v })}
@@ -298,7 +299,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpd
       <input
         value={cerca}
         onChange={e => setCerca(e.target.value)}
-        placeholder="🔍  Cerca per nome vino..."
+        placeholder={`🔍  ${T('schede.cerca')}`}
         style={{ ...inpStyle, marginBottom: 12 }}
       />
 
@@ -308,7 +309,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpd
           onClick={() => setFiltriAperti(v => !v)}
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 16px', borderRadius: 100, border: '1.5px solid', borderColor: attiviFiltri > 0 ? '#7B1E2E' : '#E2DDD6', background: attiviFiltri > 0 ? '#F5EFE0' : '#fff', color: attiviFiltri > 0 ? '#7B1E2E' : '#7A6E65', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           <span>⚙️</span>
-          Filtra
+          {T('schede.filtra')}
           {attiviFiltri > 0 && <span style={{ background: '#7B1E2E', color: '#fff', borderRadius: '50%', width: 18, height: 18, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{attiviFiltri}</span>}
           <span style={{ marginLeft: 2 }}>{filtriAperti ? '▲' : '▼'}</span>
         </button>
@@ -329,8 +330,8 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpd
       {archivio.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 20px', color: '#B0A89E' }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>📓</div>
-          <div style={{ fontSize: 16, fontWeight: 500, marginBottom: 6 }}>Nessuna scheda ancora</div>
-          <div style={{ fontSize: 14 }}>Compila la prima scheda con il pulsante qui sopra</div>
+          <div style={{ fontSize: 16, fontWeight: 500, marginBottom: 6 }}>{T('schede.nessuna')}</div>
+          <div style={{ fontSize: 14 }}>{T('schede.nuova').replace('+ ', '')}</div>
         </div>
       ) : filtrate.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '32px 20px', color: '#B0A89E' }}>

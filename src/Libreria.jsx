@@ -101,7 +101,7 @@ export function DettaglioBottiglia({ b }) {
       {b.foto_url && <img src={b.foto_url} alt={b.nome} style={{ width:'100%', maxHeight:260, objectFit:'cover', borderRadius:14, marginBottom:14, border:'1px solid #1e1a16' }} />}
       <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
         <span style={{ fontSize:11, fontWeight:600, letterSpacing:0.8, textTransform:'uppercase', padding:'4px 12px', borderRadius:100, background: TIPO_BG[b.tipologia]||'#1a1611', color: TIPO_COLOR[b.tipologia]||'#8B7355', border:`1px solid ${TIPO_COLOR[b.tipologia]||'#5a4f3f'}33` }}>
-          {b.tipologia || '—'}
+          {b.tipologia ? T(`tipo.${b.tipologia}`) : '—'}
         </span>
         <div style={{ display:'flex', alignItems:'center', gap:5 }}>
           <div style={{ width:8, height:8, borderRadius:'50%', background:matColor(m.cls) }} />
@@ -125,12 +125,12 @@ export function DettaglioBottiglia({ b }) {
         {b.caratteristiche_bottiglia && <Row label={T('det.caratteristiche')} value={b.caratteristiche_bottiglia} />}
         {b.caratteristiche_annata && <Row label={T('det.annata')} value={b.caratteristiche_annata} />}
       </SecBox>
-      <SecBox title="Consumo">
+      <SecBox title={T('det.consumo')}>
         <Row label={T('form.valutazione')} value={b.valutazione ? stars(b.valutazione) : null} />
         <Row label={T('form.fascia_prezzo')} value={b.prezzo ? money(b.prezzo) : null} />
-        <Row label="Prezzo acquisto" value={b.prezzo_acquisto ? `€ ${Number(b.prezzo_acquisto).toFixed(2)} / bott.` : null} />
-        <Row label="Temperatura servizio" value={b.temp} />
-        <Row label={T('form.invecchiamento')} value={b.invecchiamento ? `${b.invecchiamento} anni` : null} />
+        <Row label={T('det.prezzo_acquisto')} value={b.prezzo_acquisto ? `€ ${Number(b.prezzo_acquisto).toFixed(2)} / bott.` : null} />
+        <Row label={T('det.temperatura')} value={b.temp} />
+        <Row label={T('form.invecchiamento')} value={b.invecchiamento ? `${b.invecchiamento} ${t('form.anni')}` : null} />
         <Row label={T('form.note')} value={b.note} />
       </SecBox>
     </div>
@@ -254,7 +254,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
         <div style={{gridColumn:'1/-1'}}><ImageUpload value={f.foto_url} onChange={set('foto_url')} label="" folder="vini" /></div>
         <div style={{gridColumn:'1/-1'}}>
           <button onClick={handleAI} disabled={aiLoading} style={{width:'100%',padding:12,background:aiLoading?'#1a1611':'#C8992A22',color:aiLoading?'#5a4f3f':'#C8992A',border:'1px solid #C8992A44',borderRadius:12,fontSize:14,fontWeight:600,cursor:aiLoading?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
-            {aiLoading?<>⏳ AI sta analizzando…</>:<>✨ Aggiorna con AI</>}
+            {aiLoading?<>{T('form.ai_analizza')}</>:<>{T('form.aggiorna_ai')}</>}
           </button>
         </div>
       </EditSecBox>
@@ -399,7 +399,7 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina, showHint }) 
         {/* Left */}
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
-            <span style={{ fontSize:8, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', padding:'2px 8px', borderRadius:3, background:tipoBg, color:tipoColor, border:`1px solid ${tipoColor}44`, flexShrink:0 }}>{b.tipologia||'—'}</span>
+            <span style={{ fontSize:8, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', padding:'2px 8px', borderRadius:3, background:tipoBg, color:tipoColor, border:`1px solid ${tipoColor}44`, flexShrink:0 }}>{b.tipologia ? T(`tipo.${b.tipologia}`) : '—'}</span>
             <button onClick={e=>{e.stopPropagation();onQty(b.id,-1)}} disabled={b.quantita<=1}
               style={{ width:20, height:20, borderRadius:'50%', border:'1px solid #D6D0C8', background:'none', color:b.quantita<=1?'#D6D0C8':'#7A6E65', fontSize:14, cursor:b.quantita<=1?'default':'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1, flexShrink:0 }}>−</button>
             <span style={{ fontSize:11, color:'#7A6E65', flexShrink:0 }}>{b.quantita} bott.</span>
