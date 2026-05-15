@@ -97,7 +97,7 @@ export default function ImageUpload({ value, onChange, label, folder = 'vini' })
         <button
           onClick={() => inputRef.current?.click()}
           style={{ width: '100%', padding: '10px', border: '1px solid #E2DDD6', borderRadius: 10, background: '#fff', color: '#7A6E65', fontSize: 13, fontWeight: 500, cursor: 'pointer', marginTop: 4 }}>
-          📷 Cambia foto
+          {`📷 ${t('img.cambia_foto')}`}
         </button>
       )}
 

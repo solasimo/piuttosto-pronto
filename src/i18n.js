@@ -835,6 +835,7 @@ const T = {
     'stats.generando': 'Analyse en cours…',
     'stats.nessuna_analisi': 'Aucune analyse disponible',
     'img.foto': 'Photo',
+    'img.cambia_foto': 'Changer la photo',
     'img.rimuovi': 'Supprimer',
     'img.caricamento': 'Chargement…',
   }

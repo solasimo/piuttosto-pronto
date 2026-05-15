@@ -75,7 +75,7 @@ export default function Admin({ onClose }) {
       <div style={{ background:'#FBF7F0', padding:'14px 16px', borderBottom:'1px solid #E0D8CC', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
         <div>
           <div style={{ fontFamily:'Cormorant Garamond, serif', color:'#2C1A0E', fontSize:17, fontWeight:400, fontStyle:'italic' }}>{T('admin.titolo')}</div>
-          <div style={{ color:'#9A8070', fontSize:12 }}>Piuttosto Pronto</div>
+          <div style={{ fontFamily:'"DM Sans",sans-serif', fontSize:12, color:'#9A8070' }}>Cabi<span style={{ color:'#C4614A' }}>N</span>et</div>
         </div>
         <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#2C1A0E', fontSize:16, cursor:'pointer' }}>✕</button>
       </div>
