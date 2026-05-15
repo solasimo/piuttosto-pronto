@@ -47,7 +47,7 @@ export default function Auth() {
       if (!verificaRes.ok) { setErrore(verificaData.error || T('auth.codice_non_valido')); setLoading(false); return }
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(), password,
-        options: { emailRedirectTo: 'https://piuttosto-pronto.vercel.app' }
+        options: { emailRedirectTo: 'https://cabinet-sommelier.vercel.app' }
       })
       if (error) { setErrore(error.message); setLoading(false); return }
       if (!data.user) { setErrore(T('auth.errore_reg')); setLoading(false); return }
@@ -65,7 +65,7 @@ export default function Auth() {
     if (!email) { setErrore(T('auth.compila_campi')); return }
     setLoading(true); reset()
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: 'https://piuttosto-pronto.vercel.app'
+      redirectTo: 'https://cabinet-sommelier.vercel.app'
     })
     if (error) setErrore(error.message)
     else setMessaggio(T('auth.reset_ok'))
