@@ -279,7 +279,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
         {f.paese&&f.paese!=='Altro'&&regioniOptions&&(
           <div style={{gridColumn:'1/-1'}}>
             <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5}}>
-              <span style={{fontSize:12,fontWeight:500,color:'#B8956A'}}>Regione</span>
+              <span style={{fontSize:12,fontWeight:500,color:'#B8956A'}}>{T('form.regione')}</span>
               {ai('regione')&&<span style={{fontSize:10,background:'#1A5FA822',color:'#185FA5',padding:'1px 6px',borderRadius:100,fontWeight:600,border:'1px solid #185FA533'}}>AI</span>}
             </div>
             <select style={{...S.inp,borderColor:ai('regione')?'#185FA5':undefined}} value={f.regione} onChange={e=>set('regione')(e.target.value)}>
@@ -471,7 +471,7 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
 
   return (
     <>
-      <div style={{ position:'sticky', top:0, background:'#FBF7F0', paddingBottom:10, paddingTop:16, zIndex:10, borderBottom:'1px solid #E0D8CC' }}>
+      <div style={{ position:'sticky', top:0, background:'#FBF7F0', paddingBottom:10, paddingTop:0, zIndex:10, borderBottom:'1px solid #E0D8CC' }}>
         <input value={q} onChange={e=>setQ(e.target.value)} placeholder={`🔍  ${T('lib.cerca')}`} style={{ ...S.inp, width:'100%' }} />
         <div style={{ fontSize:11, color:'#B8956A', marginTop:8, letterSpacing:0.5 }}>
           {totFiltered} {totFiltered===1?T('lib.bottiglia'):T('lib.bottiglie')} · {filtered.length} {filtered.length===1?T('lib.etichetta'):T('lib.etichette')}

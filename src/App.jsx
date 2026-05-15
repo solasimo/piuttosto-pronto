@@ -423,7 +423,6 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
 
             {/* Upload foto */}
             <div style={{ marginBottom:12 }}>
-              <div style={{ fontSize:11, color:'#B8956A', marginBottom:6 }}>{T('utente.foto')}</div>
               <ImageUpload value={avatarUrl} onChange={handleSalvaAvatar} label={T('utente.foto')} folder="avatars" />
             </div>
 

@@ -33,7 +33,9 @@ function buildAnalisiPayload(cantina) {
 }
 
 const SYSTEM_ANALISI = `Sei un consulente enologo. Analizza la cantina e rispondi SOLO con JSON valido senza markdown.
-Rispondi SEMPRE nella lingua indicata nel messaggio dell'utente.
+IMPORTANTE: Rispondi ESCLUSIVAMENTE nella lingua specificata in LINGUA RISPOSTA nel messaggio dell'utente.
+Tutti i testi (punti_forza, aree_miglioramento, acquisti_consigliati, equilibrio, consiglio) devono essere nella lingua richiesta.
+NON usare mai l'italiano se la lingua richiesta è diversa dall'italiano.
 {
   "punti_forza": ["stringa1", "stringa2", "stringa3"],
   "lacune": [{"tipo": "stringa", "descrizione": "stringa", "priorita": "alta|media"}],
@@ -105,7 +107,7 @@ export default function AnalisiAI({ cantina }) {
     setHashSalvato(null)
   }
 
-  const urgColor = { subito:'#9B2335', 'prossimi mesi':'#C77B13', 'quando capita':'#2D6A4F' }
+  const urgColor = { subito:'#9B2335', 'prossimi mesi':'#C77B13', 'quando capita':'#2D6A4F', now:'#9B2335', 'next months':'#C77B13', 'when possible':'#2D6A4F', maintenant:'#9B2335', 'prochains mois':'#C77B13', 'quand possible':'#2D6A4F' }
   const priColor = { alta:'#9B2335', media:'#C77B13' }
 
   if (loadingInit) return null
@@ -116,7 +118,6 @@ export default function AnalisiAI({ cantina }) {
         <span style={{ fontSize:20 }}>💡</span>
         <div style={{ flex:1 }}>
           <div style={{ fontSize:13, fontWeight:700, color:'#1C1410' }}>Analisi AI della cantina</div>
-          <div style={{ fontSize:12, color:'#7A6E65' }}>Powered by Claude Haiku</div>
         </div>
         {analisi && !cantinaModificata && (
           <button onClick={cancella} style={{ fontSize:12, color:'#B0A89E', background:'none', border:'none', cursor:'pointer' }}>Cancella</button>
@@ -148,7 +149,7 @@ export default function AnalisiAI({ cantina }) {
         <div>
           {/* Punti di forza */}
           <div style={{ background:'#F0F7F3', border:'1px solid #2D6A4F33', borderRadius:14, padding:16, marginBottom:12 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'#2D6A4F', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>✅ Punti di forza</div>
+            <div style={{ fontSize:11, fontWeight:700, color:'#2D6A4F', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>{T('analisi.punti_forza')}</div>
             {analisi.punti_forza?.map((p, i) => (
               <div key={i} style={{ display:'flex', gap:8, marginBottom:6 }}>
                 <span style={{ color:'#2D6A4F', fontWeight:700, flexShrink:0 }}>·</span>
@@ -160,7 +161,7 @@ export default function AnalisiAI({ cantina }) {
           {/* Lacune */}
           {analisi.lacune?.length > 0 && (
             <div style={{ background:'#FFF8F0', border:'1px solid #C77B1333', borderRadius:14, padding:16, marginBottom:12 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'#C77B13', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>🔍 Aree da sviluppare</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#C77B13', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>{T('analisi.aree')}</div>
               {analisi.lacune.map((l, i) => (
                 <div key={i} style={{ display:'flex', gap:10, marginBottom:8, alignItems:'flex-start' }}>
                   <span style={{ fontSize:10, fontWeight:700, color: priColor[l.priorita] || '#7A6E65', background: (priColor[l.priorita] || '#7A6E65') + '20', padding:'2px 7px', borderRadius:100, flexShrink:0, marginTop:1 }}>{l.priorita}</span>
@@ -173,7 +174,7 @@ export default function AnalisiAI({ cantina }) {
           {/* Acquisti consigliati */}
           {analisi.acquisti_consigliati?.length > 0 && (
             <div style={{ background:'#F5EFE0', border:'1px solid #C8992A33', borderRadius:14, padding:16, marginBottom:12 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'#854F0B', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>🛒 Acquisti consigliati</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#854F0B', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>{T('analisi.acquisti')}</div>
               {analisi.acquisti_consigliati.map((a, i) => (
                 <div key={i} style={{ background:'#fff', borderRadius:10, padding:'10px 12px', marginBottom:8 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
@@ -189,7 +190,7 @@ export default function AnalisiAI({ cantina }) {
           {/* Equilibrio evolutivo */}
           {analisi.equilibrio_evolutivo && (
             <div style={{ background:'#F4F1EC', borderRadius:14, padding:16, marginBottom:12 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'#7A6E65', textTransform:'uppercase', letterSpacing:1, marginBottom:8 }}>⏳ Equilibrio evolutivo</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#7A6E65', textTransform:'uppercase', letterSpacing:1, marginBottom:8 }}>{T('analisi.equilibrio')}</div>
               <p style={{ fontSize:13, color:'#1C1410', lineHeight:1.6, margin:0 }}>{analisi.equilibrio_evolutivo}</p>
             </div>
           )}
@@ -197,7 +198,7 @@ export default function AnalisiAI({ cantina }) {
           {/* Consiglio strategico */}
           {analisi.consiglio_strategico && (
             <div style={{ background:'#7B1E2E', borderRadius:14, padding:16 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'rgba(245,239,224,0.7)', textTransform:'uppercase', letterSpacing:1, marginBottom:8 }}>🎯 Consiglio strategico</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'rgba(245,239,224,0.7)', textTransform:'uppercase', letterSpacing:1, marginBottom:8 }}>{T('analisi.consiglio')}</div>
               <p style={{ fontSize:14, color:'#F5EFE0', lineHeight:1.6, margin:0, fontStyle:'italic' }}>{analisi.consiglio_strategico}</p>
             </div>
           )}

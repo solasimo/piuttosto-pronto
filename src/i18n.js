@@ -250,6 +250,16 @@ const T = {
     'stats.regioni_presenti': 'REGIONI PRESENTI',
     'schede.bouquet': 'Bouquet',
     'schede.aromi': 'Aromi',
+    
+    // AnalisiAI UI labels
+    'analisi.punti_forza': '✅ Punti di forza',
+    'analisi.aree': '🔍 Aree da sviluppare',
+    'analisi.acquisti': '🛒 Acquisti consigliati',
+    'analisi.equilibrio': '⏳ Equilibrio evolutivo',
+    'analisi.consiglio': '🎯 Consiglio strategico',
+    'analisi.urgenza_subito': 'subito',
+    'analisi.urgenza_mesi': 'prossimi mesi',
+    'analisi.urgenza_quando': 'quando capita',
     'gen.errore_ai': '⚠️ Errore AI. Riprova.',
     // Tipologie vino
     'tipo.Rosso': 'Rosso', 'tipo.Bianco': 'Bianco', 'tipo.Rosato': 'Rosato',
@@ -506,6 +516,15 @@ const T = {
     'stats.regioni_presenti': 'REGIONS PRESENT',
     'schede.bouquet': 'Bouquet',
     'schede.aromi': 'Aromas',
+    
+    'analisi.punti_forza': '✅ Strengths',
+    'analisi.aree': '🔍 Areas to improve',
+    'analisi.acquisti': '🛒 Recommended purchases',
+    'analisi.equilibrio': '⏳ Evolution balance',
+    'analisi.consiglio': '🎯 Strategic advice',
+    'analisi.urgenza_subito': 'now',
+    'analisi.urgenza_mesi': 'next months',
+    'analisi.urgenza_quando': 'when possible',
     'gen.errore_ai': '⚠️ AI error. Please retry.',
 
     // Paesi (traduzione display — i valori DB restano in italiano)
@@ -753,6 +772,15 @@ const T = {
     'stats.regioni_presenti': 'RÉGIONS PRÉSENTES',
     'schede.bouquet': 'Bouquet',
     'schede.aromi': 'Arômes',
+    
+    'analisi.punti_forza': '✅ Points forts',
+    'analisi.aree': '🔍 Axes d\'amélioration',
+    'analisi.acquisti': '🛒 Achats recommandés',
+    'analisi.equilibrio': '⏳ Équilibre évolutif',
+    'analisi.consiglio': '🎯 Conseil stratégique',
+    'analisi.urgenza_subito': 'maintenant',
+    'analisi.urgenza_mesi': 'prochains mois',
+    'analisi.urgenza_quando': 'quand possible',
     'gen.errore_ai': '⚠️ Erreur IA. Veuillez réessayer.',
 
     'paese.Italia': 'Italie', 'paese.Francia': 'France', 'paese.Germania': 'Allemagne',
