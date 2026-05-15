@@ -114,10 +114,10 @@ function RisultatoAbbinamento({ vino, rank }) {
           <div style={{ fontFamily:'Playfair Display, serif', fontSize:16, fontWeight:600, color:'#1C1410', marginBottom:2 }}>{vino.nome}</div>
           <div style={{ fontSize:12, color:'#7A6E65', marginBottom:8 }}>{vino.cantina} · {vino.anno}</div>
           <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:10 }}>
-            <span style={{ fontSize:11, background:'#F5EFE0', color:'#7B1E2E', padding:'3px 9px', borderRadius:100, fontWeight:600 }}>
+            <span style={{ fontSize:11, background:'#2C1A0E', color:'#7B1E2E', padding:'3px 9px', borderRadius:100, fontWeight:600 }}>
               Match {vino.match}/10
             </span>
-            <span style={{ fontSize:11, background:'#F4F1EC', color:'#7A6E65', padding:'3px 9px', borderRadius:100 }}>
+            <span style={{ fontSize:11, background:'#FAF6EF', color:'#7A6E65', padding:'3px 9px', borderRadius:100 }}>
               {vino.tipo_abbinamento}
             </span>
             <span style={{ fontSize:11, color: statoColor[vino.stato] || '#7A6E65', background: (statoColor[vino.stato] || '#7A6E65') + '15', padding:'3px 9px', borderRadius:100, fontWeight:600 }}>
@@ -149,7 +149,7 @@ function RisultatoInverso({ piatto, rank }) {
             <span style={{ fontSize:16 }}>{catIcons[piatto.categoria] || '🍽️'}</span>
             <div style={{ fontFamily:'Playfair Display, serif', fontSize:16, fontWeight:600, color:'#1C1410' }}>{piatto.nome}</div>
           </div>
-          <span style={{ fontSize:11, background:'#F4F1EC', color:'#7A6E65', padding:'3px 9px', borderRadius:100, marginBottom:10, display:'inline-block' }}>
+          <span style={{ fontSize:11, background:'#FAF6EF', color:'#7A6E65', padding:'3px 9px', borderRadius:100, marginBottom:10, display:'inline-block' }}>
             {piatto.tipo_abbinamento}
           </span>
           <p style={{ fontSize:13, color:'#3D3530', lineHeight:1.6, margin:'8px 0 0' }}>{piatto.spiegazione}</p>
@@ -260,13 +260,13 @@ export default function AIChef({ cantina }) {
       {risultato && modo === 'abbinamento' && (
         <>
           {risultato.nota_generale && (
-            <div style={{ background:'#F5EFE0', borderRadius:12, padding:'12px 16px', marginBottom:16, fontSize:13, color:'#7B1E2E', fontStyle:'italic' }}>
+            <div style={{ background:'#2C1A0E', borderRadius:12, padding:'12px 16px', marginBottom:16, fontSize:13, color:'#7B1E2E', fontStyle:'italic' }}>
               💡 {risultato.nota_generale}
             </div>
           )}
           {risultato.vini?.slice(0,3).map((v, i) => <RisultatoAbbinamento key={i} vino={v} rank={i} />)}
           {risultato.acquisto && (
-            <div style={{ background:'#F4F1EC', border:'1px dashed #B0A89E', borderRadius:14, padding:16, marginTop:8 }}>
+            <div style={{ background:'#FAF6EF', border:'1px dashed #B0A89E', borderRadius:14, padding:16, marginTop:8 }}>
               <div style={{ fontSize:12, fontWeight:700, color:'#7A6E65', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>💡 Considera di acquistare</div>
               <p style={{ fontSize:14, color:'#1C1410', margin:0, lineHeight:1.6 }}>{risultato.acquisto}</p>
             </div>
@@ -279,7 +279,7 @@ export default function AIChef({ cantina }) {
         <>
           {risultato.piatti?.slice(0,3).map((p, i) => <RisultatoInverso key={i} piatto={p} rank={i} />)}
           {risultato.consiglio_chef && (
-            <div style={{ background:'#F5EFE0', borderRadius:12, padding:'12px 16px', marginTop:4, fontSize:13, color:'#7B1E2E', fontStyle:'italic' }}>
+            <div style={{ background:'#2C1A0E', borderRadius:12, padding:'12px 16px', marginTop:4, fontSize:13, color:'#7B1E2E', fontStyle:'italic' }}>
               👨‍🍳 {risultato.consiglio_chef}
             </div>
           )}

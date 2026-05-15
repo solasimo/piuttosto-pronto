@@ -64,7 +64,7 @@ const S = {
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function Toast({ msg }) {
   if (!msg) return null
-  return <div style={{ position: 'fixed', bottom: 'calc(64px + env(safe-area-inset-bottom, 16px) + 12px)', left: '50%', transform: 'translateX(-50%)', background: '#1C1410', color: '#F5EFE0', padding: '12px 24px', borderRadius: 100, fontSize: 14, fontWeight: 500, zIndex: 999, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}>{msg}</div>
+  return <div style={{ position: 'fixed', bottom: 'calc(64px + env(safe-area-inset-bottom, 16px) + 12px)', left: '50%', transform: 'translateX(-50%)', background: '#1C1410', color: '#2C1A0E', padding: '12px 24px', borderRadius: 100, fontSize: 14, fontWeight: 500, zIndex: 999, whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}>{msg}</div>
 }
 
 // ─── Bottom Sheet ─────────────────────────────────────────────────────────────
@@ -73,13 +73,13 @@ function Sheet({ open, onClose, title, children }) {
   return (
     <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
       <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)' }} />
-      <div style={{ position:'relative', background:'#0f0b08', borderRadius:'20px 20px 0 0', maxHeight:'95dvh', display:'flex', flexDirection:'column', border:'1px solid #1e1a16', borderBottom:'none' }}>
+      <div style={{ position:'relative', background:'#FBF7F0', borderRadius:'20px 20px 0 0', maxHeight:'95dvh', display:'flex', flexDirection:'column', border:'1px solid #E0D8CC', borderBottom:'none' }}>
         <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 4px', flexShrink:0 }}>
-          <div style={{ width:36, height:4, borderRadius:2, background:'#2a2318' }} />
+          <div style={{ width:36, height:4, borderRadius:2, background:'#D6CEBE' }} />
         </div>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'4px 20px 12px', flexShrink:0, borderBottom:'1px solid #1e1a16' }}>
-          <span style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:400, fontStyle:'italic', color:'#F5EFE0', flex:1, paddingRight:12 }}>{title}</span>
-          <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'1px solid #2a2318', background:'#1a1611', cursor:'pointer', fontSize:14, color:'#8B7355', flexShrink:0 }}>✕</button>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'4px 20px 12px', flexShrink:0, borderBottom:'1px solid #E0D8CC' }}>
+          <span style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:400, fontStyle:'italic', color:'#2C1A0E', flex:1, paddingRight:12 }}>{title}</span>
+          <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'1px solid #D6CEBE', background:'#EAE2D6', cursor:'pointer', fontSize:14, color:'#B8956A', flexShrink:0 }}>✕</button>
         </div>
         <div style={{ overflowY:'auto', padding:'16px 16px 40px', flex:1, WebkitOverflowScrolling:'touch', paddingBottom:'max(40px, calc(16px + env(safe-area-inset-bottom, 0px)))' }}>
           {children}
@@ -92,9 +92,9 @@ function Sheet({ open, onClose, title, children }) {
 function Spinner() {
   return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'80px 20px', gap:16 }}>
-      <div style={{ width:32, height:32, border:'2px solid #2a2318', borderTopColor:'#C8992A', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
+      <div style={{ width:32, height:32, border:'2px solid #D6CEBE', borderTopColor:'#C4614A', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:16, color:'#5a4f3f', fontStyle:'italic' }}>{t('gen.caricamento')}</div>
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:16, color:'#9A8070', fontStyle:'italic' }}>{t('gen.caricamento')}</div>
     </div>
   )
 }
@@ -283,7 +283,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
         </div>
         <div style={{ gridColumn: '1/-1' }}>
           <button onClick={handleAI} disabled={aiLoading}
-            style={{ width: '100%', padding: 12, background: aiLoading ? '#F4F1EC' : '#1C1410', color: aiLoading ? '#7A6E65' : '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: aiLoading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            style={{ width: '100%', padding: 12, background: aiLoading ? '#FAF6EF' : '#1C1410', color: aiLoading ? '#7A6E65' : '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: aiLoading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             {aiLoading ? <>⏳ AI sta analizzando…</> : <>✨ Compila con AI</>}
           </button>
           <div style={{ fontSize: 11, color: '#B0A89E', textAlign: 'center', marginTop: 6 }}>
@@ -391,44 +391,44 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
     setSalvandoAvatar(false)
   }
 
-  const S_inp = { width:'100%', padding:'12px 14px', border:'1.5px solid #1e1a16', borderRadius:10, fontSize:15, background:'#1a1611', color:'#F5EFE0', WebkitAppearance:'none', boxSizing:'border-box' }
-  const S_btn = { width:'100%', padding:12, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }
+  const S_inp = { width:'100%', padding:'12px 14px', border:'1.5px solid #E0D8CC', borderRadius:10, fontSize:15, background:'#EAE2D6', color:'#2C1A0E', WebkitAppearance:'none', boxSizing:'border-box' }
+  const S_btn = { width:'100%', padding:12, background:'#C4614A', color:'#FBF7F0', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }
 
   return (
     <div style={{ position:'fixed', inset:0, zIndex:300, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
-      <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(4px)' }} />
-      <div style={{ position:'relative', background:'#0f0b08', borderRadius:'20px 20px 0 0', maxHeight:'85dvh', display:'flex', flexDirection:'column', paddingBottom:'env(safe-area-inset-bottom, 16px)', border:'1px solid #1e1a16', borderBottom:'none' }}>
+      <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(44,26,14,0.5)', backdropFilter:'blur(4px)' }} />
+      <div style={{ position:'relative', background:'#FBF7F0', borderRadius:'20px 20px 0 0', maxHeight:'85dvh', display:'flex', flexDirection:'column', paddingBottom:'env(safe-area-inset-bottom, 16px)', border:'1px solid #E0D8CC', borderBottom:'none' }}>
         <div style={{ display:'flex', justifyContent:'center', padding:'12px 0 4px' }}>
-          <div style={{ width:36, height:4, borderRadius:2, background:'#2a2318' }} />
+          <div style={{ width:36, height:4, borderRadius:2, background:'#D6CEBE' }} />
         </div>
 
         <div style={{ overflowY:'auto', padding:'8px 20px 32px', flex:1 }}>
           {/* Info utente */}
-          <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:16 }}>
-            <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{T('utente.titolo')}</div>
+          <div style={{ background:'#F5EDE0', border:'1px solid #E0D8CC', borderRadius:14, padding:16, marginBottom:16 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:'#C4614A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{T('utente.titolo')}</div>
 
             {/* Foto profilo */}
             <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:14 }}>
               <div style={{ position:'relative', flexShrink:0 }}>
                 {avatarUrl
-                  ? <img src={avatarUrl} alt="profilo" style={{ width:64, height:64, borderRadius:'50%', objectFit:'cover', border:'2px solid #C8992A44' }} />
-                  : <div style={{ width:64, height:64, borderRadius:'50%', background:'#1a1611', border:'2px solid #2a2318', display:'flex', alignItems:'center', justifyContent:'center', fontSize:28 }}>👤</div>
+                  ? <img src={avatarUrl} alt="profilo" style={{ width:64, height:64, borderRadius:'50%', objectFit:'cover', border:'2px solid #C4614A44' }} />
+                  : <div style={{ width:64, height:64, borderRadius:'50%', background:'#EAE2D6', border:'2px solid #D6CEBE', display:'flex', alignItems:'center', justifyContent:'center', fontSize:28 }}>👤</div>
                 }
               </div>
               <div style={{ flex:1 }}>
-                <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:20, fontWeight:400, color:'#F5EFE0', marginBottom:2 }}>{profilo?.nome} {profilo?.cognome}</div>
-                <div style={{ fontSize:12, color:'#5a4f3f' }}>{profilo?.email}</div>
+                <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:20, fontWeight:400, color:'#2C1A0E', marginBottom:2 }}>{profilo?.nome} {profilo?.cognome}</div>
+                <div style={{ fontSize:12, color:'#9A8070' }}>{profilo?.email}</div>
               </div>
             </div>
 
             {/* Upload foto */}
             <div style={{ marginBottom:12 }}>
-              <div style={{ fontSize:11, color:'#8B7355', marginBottom:6 }}>{T('utente.foto')}</div>
+              <div style={{ fontSize:11, color:'#B8956A', marginBottom:6 }}>{T('utente.foto')}</div>
               <ImageUpload value={avatarUrl} onChange={handleSalvaAvatar} label={T('utente.foto')} folder="avatars" />
             </div>
 
             {!showCambioPassword ? (
-              <button onClick={()=>setShowCambioPassword(true)} style={{ fontSize:12, color:'#C8992A', background:'none', border:'1px solid #C8992A44', borderRadius:8, padding:'6px 12px', cursor:'pointer' }}>
+              <button onClick={()=>setShowCambioPassword(true)} style={{ fontSize:12, color:'#C4614A', background:'none', border:'1px solid #C4614A44', borderRadius:8, padding:'6px 12px', cursor:'pointer' }}>
                 {T('utente.cambia_pwd')}
               </button>
             ) : (
@@ -436,64 +436,64 @@ function UtenteMenu({ profilo, gruppo, isAdmin, onClose, onCondividi, onAdmin, o
                 <input type="password" value={nuovaPassword} onChange={e=>setNuovaPassword(e.target.value)} placeholder={T('utente.nuova_pwd')} style={S_inp} />
                 <input type="password" value={confermaPassword} onChange={e=>setConfermaPassword(e.target.value)} placeholder={T('utente.conferma_pwd')} style={S_inp} onKeyDown={e=>e.key==='Enter'&&handleCambioPassword()} />
                 <div style={{ display:'flex', gap:8 }}>
-                  <button onClick={()=>setShowCambioPassword(false)} style={{ flex:1, padding:10, background:'none', border:'1px solid #2a2318', borderRadius:10, color:'#5a4f3f', fontSize:13, cursor:'pointer' }}>{T('utente.annulla')}</button>
-                  <button onClick={handleCambioPassword} disabled={salvandoPwd} style={{ flex:1, padding:10, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', opacity:salvandoPwd?0.7:1 }}>{salvandoPwd?T('form.salvataggio'):T('utente.salva')}</button>
+                  <button onClick={()=>setShowCambioPassword(false)} style={{ flex:1, padding:10, background:'none', border:'1px solid #D6CEBE', borderRadius:10, color:'#9A8070', fontSize:13, cursor:'pointer' }}>{T('utente.annulla')}</button>
+                  <button onClick={handleCambioPassword} disabled={salvandoPwd} style={{ flex:1, padding:10, background:'#C4614A', color:'#FBF7F0', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', opacity:salvandoPwd?0.7:1 }}>{salvandoPwd?T('form.salvataggio'):T('utente.salva')}</button>
                 </div>
               </div>
             )}
           </div>
 
           {/* Condividi cantina */}
-          <button onClick={onCondividi} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
+          <button onClick={onCondividi} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#F5EDE0', border:'1px solid #E0D8CC', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
             <span style={{ fontSize:24 }}>👥</span>
             <div>
-              <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>{T('utente.condividi')}</div>
-              <div style={{ fontSize:12, color:'#5a4f3f' }}>{gruppo ? `${T('utente.condividi_attiva')} — ${gruppo.nome}` : T('utente.condividi_sub')}</div>
+              <div style={{ fontSize:14, fontWeight:600, color:'#2C1A0E', marginBottom:2 }}>{T('utente.condividi')}</div>
+              <div style={{ fontSize:12, color:'#9A8070' }}>{gruppo ? `${T('utente.condividi_attiva')} — ${gruppo.nome}` : T('utente.condividi_sub')}</div>
             </div>
-            <span style={{ marginLeft:'auto', color:'#5a4f3f', fontSize:16 }}>›</span>
+            <span style={{ marginLeft:'auto', color:'#9A8070', fontSize:16 }}>›</span>
           </button>
 
           {/* Admin */}
           {isAdmin && (
-            <button onClick={onAdmin} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
+            <button onClick={onAdmin} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#F5EDE0', border:'1px solid #E0D8CC', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
               <span style={{ fontSize:24 }}>⚙️</span>
               <div>
-                <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>{T('utente.admin')}</div>
-                <div style={{ fontSize:12, color:'#5a4f3f' }}>{T('utente.admin_sub')}</div>
+                <div style={{ fontSize:14, fontWeight:600, color:'#2C1A0E', marginBottom:2 }}>{T('utente.admin')}</div>
+                <div style={{ fontSize:12, color:'#9A8070' }}>{T('utente.admin_sub')}</div>
               </div>
-              <span style={{ marginLeft:'auto', color:'#5a4f3f', fontSize:16 }}>›</span>
+              <span style={{ marginLeft:'auto', color:'#9A8070', fontSize:16 }}>›</span>
             </button>
           )}
 
           {/* Toggle modalità sommelier */}
-          <button onClick={onToggleSommelier} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
+          <button onClick={onToggleSommelier} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#F5EDE0', border:'1px solid #E0D8CC', borderRadius:14, padding:16, cursor:'pointer', marginBottom:10, textAlign:'left' }}>
             <span style={{ fontSize:24 }}>🎓</span>
             <div style={{ flex:1 }}>
-              <div style={{ fontSize:14, fontWeight:600, color:'#F5EFE0', marginBottom:2 }}>{T('utente.sommelier')}</div>
-              <div style={{ fontSize:12, color:'#5a4f3f' }}>{modalitaSommelier ? T('utente.sommelier_on') : T('utente.sommelier_off')}</div>
+              <div style={{ fontSize:14, fontWeight:600, color:'#2C1A0E', marginBottom:2 }}>{T('utente.sommelier')}</div>
+              <div style={{ fontSize:12, color:'#9A8070' }}>{modalitaSommelier ? T('utente.sommelier_on') : T('utente.sommelier_off')}</div>
             </div>
             {/* Toggle switch */}
-            <div style={{ width:44, height:24, borderRadius:12, background:modalitaSommelier?'#C8992A':'#2a2318', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
-              <div style={{ width:20, height:20, borderRadius:'50%', background:'#F5EFE0', position:'absolute', top:2, left:modalitaSommelier?22:2, transition:'left 0.2s' }} />
+            <div style={{ width:44, height:24, borderRadius:12, background:modalitaSommelier?'#C4614A':'#D6CEBE', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
+              <div style={{ width:20, height:20, borderRadius:'50%', background:'#2C1A0E', position:'absolute', top:2, left:modalitaSommelier?22:2, transition:'left 0.2s' }} />
             </div>
           </button>
 
           {/* Lingua */}
-          <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:10 }}>
-            <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{T('utente.lingua')}</div>
+          <div style={{ background:'#F5EDE0', border:'1px solid #E0D8CC', borderRadius:14, padding:16, marginBottom:10 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:'#C4614A', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{T('utente.lingua')}</div>
             <div style={{ display:'flex', gap:8 }}>
               {LINGUE.map(l => (
                 <button key={l.code} onClick={() => onCambiaLingua(l.code)}
-                  style={{ flex:1, padding:'10px 8px', border:`1px solid ${getLingua()===l.code?'#C8992A':'#1e1a16'}`, borderRadius:10, background:getLingua()===l.code?'#C8992A22':'none', cursor:'pointer', textAlign:'center' }}>
+                  style={{ flex:1, padding:'10px 8px', border:`1px solid ${getLingua()===l.code?'#C4614A':'#E0D8CC'}`, borderRadius:10, background:getLingua()===l.code?'#C4614A22':'none', cursor:'pointer', textAlign:'center' }}>
                   <div style={{ fontSize:20, marginBottom:3 }}>{l.flag}</div>
-                  <div style={{ fontSize:11, color:getLingua()===l.code?'#C8992A':'#5a4f3f', fontWeight:getLingua()===l.code?700:400 }}>{l.label}</div>
+                  <div style={{ fontSize:11, color:getLingua()===l.code?'#C4614A':'#9A8070', fontWeight:getLingua()===l.code?700:400 }}>{l.label}</div>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Logout */}
-          <button onClick={onLogout} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#1a0a0a', border:'1px solid #2a1010', borderRadius:14, padding:16, cursor:'pointer', textAlign:'left' }}>
+          <button onClick={onLogout} style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#FDF0EE', border:'1px solid #F0D8D4', borderRadius:14, padding:16, cursor:'pointer', textAlign:'left' }}>
             <span style={{ fontSize:24 }}>↩</span>
             <div style={{ fontSize:14, fontWeight:600, color:'#9B2335' }}>{T('utente.logout')}</div>
           </button>
@@ -546,7 +546,7 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(28,20,16,0.6)', backdropFilter: 'blur(2px)' }} />
-      <div style={{ position: 'relative', background: '#F4F1EC', borderRadius: '20px 20px 0 0', maxHeight: '80dvh', display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+      <div style={{ position: 'relative', background: '#FAF6EF', borderRadius: '20px 20px 0 0', maxHeight: '80dvh', display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
           <div style={{ width: 36, height: 4, borderRadius: 2, background: '#D6D0C8' }} />
         </div>
@@ -581,7 +581,7 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
                 {loading ? T('gruppo.creando') : T('gruppo.crea')}
               </button>
             ) : codiceGenerato ? (
-              <div style={{ background: '#F5EFE0', border: '1px solid #C8992A', borderRadius: 10, padding: 14, textAlign: 'center' }}>
+              <div style={{ background: '#2C1A0E', border: '1px solid #C4614A', borderRadius: 10, padding: 14, textAlign: 'center' }}>
                 <div style={{ fontSize: 11, color: '#854F0B', marginBottom: 6 }}>{T('gruppo.codice_generato')}</div>
                 <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 4, color: '#1C1410', fontFamily: 'monospace' }}>{codiceGenerato}</div>
                 <div style={{ fontSize: 12, color: '#7A6E65', marginTop: 6 }}>{T('gruppo.condividi_con')}</div>
@@ -758,39 +758,39 @@ export default function App() {
   const fmtEur = v => v > 0 ? `€ ${v.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0})}` : '—'
 
   if (session === undefined) return (
-    <div style={{ height:'100dvh', display:'flex', alignItems:'center', justifyContent:'center', background:'#0f0b08' }}>
-      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:40, color:'#C8992A' }}>🍷</div>
+    <div style={{ height:'100dvh', display:'flex', alignItems:'center', justifyContent:'center', background:'#FBF7F0' }}>
+      <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:40, color:'#C4614A' }}>🍷</div>
     </div>
   )
   if (session === null) return <Auth />
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'#0f0b08', overflow:'hidden' }}>
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'#FBF7F0', overflow:'hidden' }}>
 
       {/* Topbar */}
-      <div style={{ background:'#0f0b08', paddingTop:'calc(12px + env(safe-area-inset-top, 0px))', flexShrink:0, borderBottom:'1px solid #1e1a16' }}>
+      <div style={{ background:'#FBF7F0', paddingTop:'calc(12px + env(safe-area-inset-top, 0px))', flexShrink:0, borderBottom:'1px solid #E0D8CC' }}>
         <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', padding:'0 16px' }}>
           <div>
-            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:10, fontWeight:300, letterSpacing:3, textTransform:'uppercase', color:'#8B7355', marginBottom:3 }}>
+            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:10, fontWeight:300, letterSpacing:3, textTransform:'uppercase', color:'#B8956A', marginBottom:3 }}>
               {gruppo?.nome || `${T('app.cantina_di')} ${profilo?.nome || '...'}`}
             </div>
-            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:26, fontWeight:300, color:'#F5EFE0', fontStyle:'italic', lineHeight:1 }}>
+            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:26, fontWeight:300, color:'#2C1A0E', fontStyle:'italic', lineHeight:1 }}>
               {T('app.nome')}
             </div>
           </div>
           <button onClick={() => setShowUtente(true)}
-            style={{ width:38, height:38, borderRadius:'50%', background:'#1a1611', border:'1px solid #2a2318', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, marginBottom:4, overflow:'hidden', padding:0 }}>
+            style={{ width:38, height:38, borderRadius:'50%', background:'#EAE2D6', border:'1px solid #D6CEBE', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, marginBottom:4, overflow:'hidden', padding:0 }}>
             {profilo?.avatar_url
               ? <img src={profilo.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
               : '👤'
             }
           </button>
         </div>
-        <div style={{ display:'flex', borderTop:'1px solid #1e1a16', marginTop:10 }}>
+        <div style={{ display:'flex', borderTop:'1px solid #E0D8CC', marginTop:10 }}>
           {[[T('kpi.bottiglie'),totBottiglie],[T('kpi.etichette'),totEtichette],[T('kpi.valore'),fmtEur(valoreEur)]].map(([lbl,val])=>(
-            <div key={lbl} style={{ flex:1, padding:'8px 12px', borderRight:'1px solid #1e1a16', textAlign:'center' }}>
-              <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:300, color:'#F5EFE0', lineHeight:1 }}>{val}</div>
-              <div style={{ fontSize:9, letterSpacing:1.5, textTransform:'uppercase', color:'#5a4f3f', marginTop:2 }}>{lbl}</div>
+            <div key={lbl} style={{ flex:1, padding:'8px 12px', borderRight:'1px solid #E0D8CC', textAlign:'center' }}>
+              <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:300, color:'#2C1A0E', lineHeight:1 }}>{val}</div>
+              <div style={{ fontSize:9, letterSpacing:1.5, textTransform:'uppercase', color:'#9A8070', marginTop:2 }}>{lbl}</div>
             </div>
           ))}
         </div>
@@ -810,41 +810,41 @@ export default function App() {
       </div>
 
       {/* Bottom Nav */}
-      <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#0a0806', borderTop:'1px solid #1e1a16', display:'flex', zIndex:50 }}>
+      <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#F0E8DC', borderTop:'1px solid #E0D8CC', display:'flex', zIndex:50 }}>
         {[['libreria','🍾',T('nav.cantina')],['statistiche','📊',T('nav.stats')],['abbinamento','✦',T('nav.ai_chef')],...(modalitaSommelier?[['schede','📓',T('nav.schede')]]:[])]
           .map(([id,icon,label])=>{
             const active = tab===id
             return (
               <button key={id} onClick={()=>setTab(id)} style={{ flex:1, padding:'12px 4px 10px', border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
-                <span style={{ fontSize:18, lineHeight:1, color:active?'#C8992A':'#5a4f3f' }}>{icon}</span>
-                <span style={{ fontSize:9, letterSpacing:'0.8px', textTransform:'uppercase', fontWeight:active?700:400, color:active?'#C8992A':'#5a4f3f' }}>{label}</span>
+                <span style={{ fontSize:18, lineHeight:1, color:active?'#C4614A':'#9A8070' }}>{icon}</span>
+                <span style={{ fontSize:9, letterSpacing:'0.8px', textTransform:'uppercase', fontWeight:active?700:400, color:active?'#C4614A':'#9A8070' }}>{label}</span>
               </button>
             )
           })}
-        <div style={{ position:'absolute', bottom:'-100px', left:0, right:0, height:'100px', background:'#0a0806' }} />
+        <div style={{ position:'absolute', bottom:'-100px', left:0, right:0, height:'100px', background:'#F0E8DC' }} />
       </div>
 
       {/* FAB */}
       <button onClick={()=>setShowFab(v=>!v)}
-        style={{ position:'fixed', bottom:70, right:20, width:50, height:50, borderRadius:'50%', background:'#C8992A', border:'none', cursor:'pointer', fontSize:26, color:'#0f0b08', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px #C8992A55', zIndex:52, lineHeight:1, fontWeight:300 }}>
+        style={{ position:'fixed', bottom:70, right:20, width:50, height:50, borderRadius:'50%', background:'#C4614A', border:'none', cursor:'pointer', fontSize:26, color:'#FBF7F0', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px #C4614A55', zIndex:52, lineHeight:1, fontWeight:300 }}>
         {showFab ? '✕' : '+'}
       </button>
 
       {/* FAB menu */}
       {showFab && (
         <>
-          <div style={{ position:'fixed', inset:0, zIndex:51, background:'rgba(0,0,0,0.5)', backdropFilter:'blur(2px)' }} onClick={()=>setShowFab(false)} />
+          <div style={{ position:'fixed', inset:0, zIndex:51, background:'rgba(44,26,14,0.3)', backdropFilter:'blur(2px)' }} onClick={()=>setShowFab(false)} />
           <div style={{ position:'fixed', bottom:132, right:20, display:'flex', flexDirection:'column', gap:10, alignItems:'flex-end', zIndex:52 }}>
             {modalitaSommelier && (
               <button onClick={()=>{setShowFab(false);setAspiBottiglia(null);setAspiLibera(true)}}
-                style={{ display:'flex', alignItems:'center', gap:12, background:'#1a1611', border:'1px solid #2a2318', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
-                <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>{T('fab.nuova_scheda')}</span>
+                style={{ display:'flex', alignItems:'center', gap:12, background:'#EAE2D6', border:'1px solid #D6CEBE', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
+                <span style={{ fontSize:13, color:'#2C1A0E', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>{T('fab.nuova_scheda')}</span>
                 <span style={{ fontSize:20 }}>📓</span>
               </button>
             )}
             <button onClick={()=>{setShowFab(false);setTab('aggiungi-bottiglia')}}
-              style={{ display:'flex', alignItems:'center', gap:12, background:'#1a1611', border:'1px solid #2a2318', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
-              <span style={{ fontSize:13, color:'#F5EFE0', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>{T('fab.nuova_bottiglia')}</span>
+              style={{ display:'flex', alignItems:'center', gap:12, background:'#EAE2D6', border:'1px solid #D6CEBE', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
+              <span style={{ fontSize:13, color:'#2C1A0E', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>{T('fab.nuova_bottiglia')}</span>
               <span style={{ fontSize:20 }}>🍾</span>
             </button>
           </div>
@@ -869,9 +869,9 @@ export default function App() {
       {/* Sheet: dettaglio/modifica bottiglia */}
       <Sheet open={!!dettaglioBottiglia} onClose={()=>setDettaglioBottiglia(null)} title={dettaglioBottiglia?.nome||''}>
         {dettaglioBottiglia && <>
-          <div style={{ display:'flex', gap:0, marginBottom:16, background:'#1a1611', borderRadius:10, padding:3 }}>
+          <div style={{ display:'flex', gap:0, marginBottom:16, background:'#EAE2D6', borderRadius:10, padding:3 }}>
             {[['detail',T('det.dettaglio')],['edit',T('det.modifica')]].map(([m,l])=>(
-              <button key={m} onClick={()=>setModalitaBottiglia(m)} style={{ flex:1, padding:'8px 0', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', background:modalitaBottiglia===m?'#2a2318':'transparent', color:modalitaBottiglia===m?'#F5EFE0':'#5a4f3f' }}>{l}</button>
+              <button key={m} onClick={()=>setModalitaBottiglia(m)} style={{ flex:1, padding:'8px 0', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', background:modalitaBottiglia===m?'#D6CEBE':'transparent', color:modalitaBottiglia===m?'#2C1A0E':'#9A8070' }}>{l}</button>
             ))}
           </div>
           {modalitaBottiglia==='detail'

@@ -100,7 +100,7 @@ function getRiflessiOpts(tipologia) {
 function ChipValore({ value, match }) {
   if (!value) return <span style={{ fontSize:13, color:'#B0A89E', fontStyle:'italic' }}>—</span>
   const color = match === true ? '#2D6A4F' : match === false ? '#9B2335' : '#1C1410'
-  const bg = match === true ? '#F0F7F3' : match === false ? '#FFF0F0' : '#F4F1EC'
+  const bg = match === true ? '#F0F7F3' : match === false ? '#FFF0F0' : '#FAF6EF'
   return (
     <span style={{ fontSize:12, fontWeight:600, padding:'4px 10px', borderRadius:100, background:bg, color, display:'inline-block' }}>
       {match === true ? '✓ ' : match === false ? '✗ ' : ''}{value}
@@ -170,14 +170,14 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
   const S_inp = { width:'100%', padding:'8px 10px', border:'1.5px solid #E2DDD6', borderRadius:8, fontSize:13, background:'#fff', color:'#1C1410', WebkitAppearance:'none', appearance:'none' }
 
   return (
-    <div style={{ position:'fixed', inset:0, zIndex:500, background:'#F4F1EC', display:'flex', flexDirection:'column' }}>
+    <div style={{ position:'fixed', inset:0, zIndex:500, background:'#FAF6EF', display:'flex', flexDirection:'column' }}>
       {/* Header — dark, safe area top */}
-      <div style={{ background:'#0f0b08', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0, borderBottom:'1px solid #1e1a16' }}>
+      <div style={{ background:'#FBF7F0', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0, borderBottom:'1px solid #E0D8CC' }}>
         <div>
-          <div style={{ fontFamily:'Cormorant Garamond, serif', color:'#F5EFE0', fontSize:17, fontWeight:400, fontStyle:'italic' }}>{scheda.nomeVino}</div>
-          <div style={{ color:'#8B7355', fontSize:12 }}>Benchmark AI · {scheda.cantina} {scheda.annata}</div>
+          <div style={{ fontFamily:'Cormorant Garamond, serif', color:'#2C1A0E', fontSize:17, fontWeight:400, fontStyle:'italic' }}>{scheda.nomeVino}</div>
+          <div style={{ color:'#B8956A', fontSize:12 }}>Benchmark AI · {scheda.cantina} {scheda.annata}</div>
         </div>
-        <button onClick={onClose} style={{ width:34, height:34, borderRadius:'50%', border:'1px solid #2a2318', background:'#1a1611', color:'#F5EFE0', fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>✕</button>
+        <button onClick={onClose} style={{ width:34, height:34, borderRadius:'50%', border:'1px solid #D6CEBE', background:'#EAE2D6', color:'#2C1A0E', fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>✕</button>
       </div>
 
       {/* Stato: nessun benchmark */}
@@ -190,7 +190,7 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
           </div>
           {errore && <div style={{ fontSize:13, color:'#9B2335', marginBottom:16, textAlign:'center' }}>{errore}</div>}
           <button onClick={handleGenera} disabled={generando}
-            style={{ padding:'14px 32px', background:generando?'#F4F1EC':'#0f0b08', color:generando?'#7A6E65':'#F5EFE0', border:'none', borderRadius:14, fontSize:15, fontWeight:600, cursor:generando?'default':'pointer' }}>
+            style={{ padding:'14px 32px', background:generando?'#FAF6EF':'#FBF7F0', color:generando?'#7A6E65':'#2C1A0E', border:'none', borderRadius:14, fontSize:15, fontWeight:600, cursor:generando?'default':'pointer' }}>
             {generando ? '⏳ Generando…' : '✨ Genera benchmark'}
           </button>
         </div>
@@ -200,8 +200,8 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
       {hasBenchmark && (
         <>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', background:'#1C1410', padding:'10px 16px', flexShrink:0 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'#F5EFE0', textTransform:'uppercase', letterSpacing:1 }}>La tua scheda</div>
-            <div style={{ fontSize:11, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1 }}>✨ Benchmark AI</div>
+            <div style={{ fontSize:11, fontWeight:700, color:'#2C1A0E', textTransform:'uppercase', letterSpacing:1 }}>La tua scheda</div>
+            <div style={{ fontSize:11, fontWeight:700, color:'#C4614A', textTransform:'uppercase', letterSpacing:1 }}>✨ Benchmark AI</div>
           </div>
           <div style={{ display:'flex', gap:12, padding:'8px 16px', background:'#F9F7F4', borderBottom:'1px solid #E2DDD6', flexShrink:0 }}>
             <span style={{ fontSize:11, color:'#2D6A4F' }}>✓ Concordante</span>
@@ -242,7 +242,7 @@ export default function BenchmarkASPI({ scheda, onClose, onSaved }) {
           </div>
           <div style={{ padding:'12px 16px', paddingBottom:'calc(12px + env(safe-area-inset-bottom, 0px))', background:'#fff', borderTop:'1px solid #E2DDD6', flexShrink:0 }}>
             <button onClick={handleSalva} disabled={saving}
-              style={{ width:'100%', padding:14, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:12, fontSize:15, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
+              style={{ width:'100%', padding:14, background:'#C4614A', color:'#FBF7F0', border:'none', borderRadius:12, fontSize:15, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
               {saving ? 'Salvataggio…' : 'Salva modifiche'}
             </button>
           </div>

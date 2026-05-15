@@ -4,24 +4,24 @@
 
 :root {
   /* Dark palette */
-  --bg:        #0f0b08;
+  --bg:        #FBF7F0;
   --bg2:       #141009;
-  --bg3:       #1a1611;
-  --border:    #1e1a16;
+  --bg3:       #EAE2D6;
+  --border:    #E0D8CC;
   --border2:   #2a2318;
 
   /* Text */
-  --text:      #F5EFE0;
-  --text2:     #8B7355;
-  --text3:     #5a4f3f;
+  --text:      #2C1A0E;
+  --text2:     #B8956A;
+  --text3:     #9A8070;
 
   /* Accents */
-  --gold:      #C8992A;
+  --gold:      #C4614A;
   --wine:      #7B1E2E;
 
   /* Stato evolutivo */
   --red:       #9B2335;
-  --amber:     #C8992A;
+  --amber:     #C4614A;
   --green:     #2D6A4F;
   --blue:      #1A5FA8;
 
@@ -50,7 +50,7 @@ html { height: 100%; }
 
 body {
   font-family: var(--font-sans);
-  background: #0f0b08;
+  background: #FBF7F0;
   color: var(--text);
   height: 100%;
   overflow: hidden;

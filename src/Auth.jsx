@@ -3,11 +3,11 @@ import { supabase } from './supabase'
 import { useT } from './useT'
 
 const S = {
-  inp: { width:'100%', padding:'13px 16px', border:'1.5px solid #1e1a16', borderRadius:12, fontSize:15, background:'#1a1611', color:'#F5EFE0', WebkitAppearance:'none', boxSizing:'border-box' },
-  btn: { width:'100%', padding:14, background:'#C8992A', color:'#0f0b08', border:'none', borderRadius:12, fontSize:15, fontWeight:700, cursor:'pointer', fontFamily:'DM Sans, sans-serif' },
-  lbl: { display:'block', fontSize:12, fontWeight:500, color:'#8B7355', marginBottom:6 },
-  err: { background:'#2a0a0a', border:'1px solid #9B233544', borderRadius:10, padding:'10px 14px', fontSize:13, color:'#C0393B', marginBottom:16 },
-  ok:  { background:'#0a1a0a', border:'1px solid #2D6A4F44', borderRadius:10, padding:'10px 14px', fontSize:13, color:'#2D6A4F', marginBottom:16 },
+  inp: { width:'100%', padding:'13px 16px', border:'1.5px solid #E0D8CC', borderRadius:12, fontSize:15, background:'#EAE2D6', color:'#2C1A0E', WebkitAppearance:'none', boxSizing:'border-box' },
+  btn: { width:'100%', padding:14, background:'#C4614A', color:'#FBF7F0', border:'none', borderRadius:12, fontSize:15, fontWeight:700, cursor:'pointer', fontFamily:'DM Sans, sans-serif' },
+  lbl: { display:'block', fontSize:12, fontWeight:500, color:'#B8956A', marginBottom:6 },
+  err: { background:'#FDF0EE', border:'1px solid #C4614A44', borderRadius:10, padding:'10px 14px', fontSize:13, color:'#C0393B', marginBottom:16 },
+  ok:  { background:'#F0F9F4', border:'1px solid #2D6A4F44', borderRadius:10, padding:'10px 14px', fontSize:13, color:'#2D6A4F', marginBottom:16 },
 }
 
 export default function Auth() {
@@ -72,17 +72,17 @@ export default function Auth() {
   }
 
   return (
-    <div style={{ minHeight:'100dvh', background:'#0f0b08', display:'flex', flexDirection:'column', justifyContent:'center', padding:'24px 24px 48px' }}>
+    <div style={{ minHeight:'100dvh', background:'#FBF7F0', display:'flex', flexDirection:'column', justifyContent:'center', padding:'24px 24px 48px' }}>
       <div style={{ textAlign:'center', marginBottom:44 }}>
-        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:52, color:'#C8992A', marginBottom:12, fontStyle:'italic', lineHeight:1 }}>🍷</div>
-        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:30, fontWeight:300, color:'#F5EFE0', fontStyle:'italic' }}>Piuttosto Pronto</div>
-        <div style={{ fontSize:11, color:'#5a4f3f', letterSpacing:3, textTransform:'uppercase', marginTop:6 }}>{T('auth.club')}</div>
+        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:52, color:'#C4614A', marginBottom:12, fontStyle:'italic', lineHeight:1 }}>🍷</div>
+        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:30, fontWeight:300, color:'#2C1A0E', fontStyle:'italic' }}>Piuttosto Pronto</div>
+        <div style={{ fontSize:11, color:'#9A8070', letterSpacing:3, textTransform:'uppercase', marginTop:6 }}>{T('auth.club')}</div>
       </div>
-      <div style={{ background:'#141009', borderRadius:20, padding:24, border:'1px solid #1e1a16' }}>
-        <div style={{ display:'flex', marginBottom:24, background:'#1a1611', borderRadius:10, padding:3 }}>
+      <div style={{ background:'#F5EDE0', borderRadius:20, padding:24, border:'1px solid #E0D8CC' }}>
+        <div style={{ display:'flex', marginBottom:24, background:'#EAE2D6', borderRadius:10, padding:3 }}>
           {[['login',T('auth.accedi')],['register',T('auth.registrati')]].map(([m,l])=>(
             <button key={m} onClick={()=>{setModo(m);reset()}}
-              style={{ flex:1, padding:'9px 0', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', background:modo===m?'#2a2318':'transparent', color:modo===m?'#F5EFE0':'#5a4f3f', transition:'all 0.15s' }}>{l}</button>
+              style={{ flex:1, padding:'9px 0', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', background:modo===m?'#D6CEBE':'transparent', color:modo===m?'#2C1A0E':'#9A8070', transition:'all 0.15s' }}>{l}</button>
           ))}
         </div>
         {errore && <div style={S.err}>{errore}</div>}
@@ -92,7 +92,7 @@ export default function Auth() {
             <div><span style={S.lbl}>{T('auth.email')}</span><input style={S.inp} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="tua@email.com" autoComplete="email" /></div>
             <div><span style={S.lbl}>{T('auth.password')}</span><input style={S.inp} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" onKeyDown={e=>e.key==='Enter'&&handleLogin()} /></div>
             <button onClick={handleLogin} disabled={loading} style={{ ...S.btn, opacity:loading?0.7:1 }}>{loading?T('auth.accesso'):T('auth.accedi')}</button>
-            <button onClick={()=>{setModo('reset');reset()}} style={{ background:'none', border:'none', fontSize:13, color:'#5a4f3f', cursor:'pointer', textDecoration:'underline' }}>{T('auth.pwd_dimenticata')}</button>
+            <button onClick={()=>{setModo('reset');reset()}} style={{ background:'none', border:'none', fontSize:13, color:'#9A8070', cursor:'pointer', textDecoration:'underline' }}>{T('auth.pwd_dimenticata')}</button>
           </div>
         )}
         {modo==='register' && (
@@ -106,17 +106,17 @@ export default function Auth() {
             <div>
               <span style={S.lbl}>{T('auth.password')}</span>
               <input style={S.inp} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder={T('auth.pwd_min')} autoComplete="new-password" />
-              <div style={{ fontSize:11, color:'#5a4f3f', marginTop:4 }}>{T('auth.pwd_hint')}</div>
+              <div style={{ fontSize:11, color:'#9A8070', marginTop:4 }}>{T('auth.pwd_hint')}</div>
             </div>
             <button onClick={handleRegister} disabled={loading} style={{ ...S.btn, opacity:loading?0.7:1 }}>{loading?T('auth.registrazione'):T('auth.crea_account')}</button>
           </div>
         )}
         {modo==='reset' && (
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-            <div style={{ fontSize:13, color:'#8B7355', marginBottom:4, lineHeight:1.5 }}>{T('auth.reset_desc')}</div>
+            <div style={{ fontSize:13, color:'#B8956A', marginBottom:4, lineHeight:1.5 }}>{T('auth.reset_desc')}</div>
             <div><span style={S.lbl}>{T('auth.email')}</span><input style={S.inp} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="tua@email.com" /></div>
             <button onClick={handleReset} disabled={loading} style={{ ...S.btn, opacity:loading?0.7:1 }}>{loading?T('auth.invio'):T('auth.invia_reset')}</button>
-            <button onClick={()=>{setModo('login');reset()}} style={{ background:'none', border:'none', fontSize:13, color:'#5a4f3f', cursor:'pointer', textDecoration:'underline' }}>{T('auth.torna_login')}</button>
+            <button onClick={()=>{setModo('login');reset()}} style={{ background:'none', border:'none', fontSize:13, color:'#9A8070', cursor:'pointer', textDecoration:'underline' }}>{T('auth.torna_login')}</button>
           </div>
         )}
       </div>

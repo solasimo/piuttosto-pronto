@@ -22,7 +22,7 @@ export function getMaturita(b) {
 // Mappa cls -> chiave italiana fissa (per raggruppamento stabile)
 const CLS_TO_KEY = { red: 'Oltre il picco', amber: 'Al picco', green: 'In evoluzione', blue: 'Da definire' }
 
-export const matColor = cls => ({ green:'#2D6A4F', amber:'#C8992A', red:'#9B2335', blue:'#1A5FA8' })[cls] || '#5a4f3f'
+export const matColor = cls => ({ green:'#2D6A4F', amber:'#C4614A', red:'#9B2335', blue:'#1A5FA8' })[cls] || '#9A8070'
 
 const TIPO_COLOR = {
   Rosso:      '#993C1D', Bianco:     '#854F0B', Rosato:     '#993556',
@@ -60,13 +60,13 @@ function ConfirmDialog({ open, nome, onConfirm, onCancel }) {
   return (
     <div style={{ position:'fixed', inset:0, zIndex:400, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
       <div onClick={onCancel} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(4px)' }} />
-      <div style={{ position:'relative', background:'#141009', borderRadius:16, padding:24, width:'100%', maxWidth:340, textAlign:'center', border:'1px solid #2a2318' }}>
+      <div style={{ position:'relative', background:'#F5EDE0', borderRadius:16, padding:24, width:'100%', maxWidth:340, textAlign:'center', border:'1px solid #D6CEBE' }}>
         <div style={{ fontSize:32, marginBottom:12 }}>🗑️</div>
-        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:400, color:'#F5EFE0', marginBottom:8 }}>{T('lib.elimina_titolo')}</div>
-        <div style={{ fontSize:13, color:'#8B7355', marginBottom:24, lineHeight:1.6 }}>{T('lib.elimina_testo').replace('questa bottiglia', `"${nome}"`)}</div>
+        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:400, color:'#2C1A0E', marginBottom:8 }}>{T('lib.elimina_titolo')}</div>
+        <div style={{ fontSize:13, color:'#B8956A', marginBottom:24, lineHeight:1.6 }}>{T('lib.elimina_testo').replace('questa bottiglia', `"${nome}"`)}</div>
         <div style={{ display:'flex', gap:10 }}>
-          <button onClick={onCancel} style={{ flex:1, padding:12, background:'#1a1611', color:'#8B7355', border:'1px solid #2a2318', borderRadius:10, fontSize:14, cursor:'pointer' }}>{T('lib.annulla')}</button>
-          <button onClick={onConfirm} style={{ flex:1, padding:12, background:'#9B2335', color:'#F5EFE0', border:'none', borderRadius:10, fontSize:14, fontWeight:600, cursor:'pointer' }}>{T('lib.elimina')}</button>
+          <button onClick={onCancel} style={{ flex:1, padding:12, background:'#EAE2D6', color:'#B8956A', border:'1px solid #D6CEBE', borderRadius:10, fontSize:14, cursor:'pointer' }}>{T('lib.annulla')}</button>
+          <button onClick={onConfirm} style={{ flex:1, padding:12, background:'#9B2335', color:'#2C1A0E', border:'none', borderRadius:10, fontSize:14, fontWeight:600, cursor:'pointer' }}>{T('lib.elimina')}</button>
         </div>
       </div>
     </div>
@@ -82,35 +82,35 @@ export function DettaglioBottiglia({ b }) {
   const Row = ({ label, value }) => {
     if (!value && value !== 0) return null
     return (
-      <div style={{ display:'flex', gap:12, padding:'9px 0', borderBottom:'1px solid #1e1a16' }}>
-        <span style={{ fontSize:12, color:'#5a4f3f', minWidth:130, flexShrink:0 }}>{label}</span>
-        <span style={{ fontSize:14, color:'#F5EFE0', lineHeight:1.4, flex:1 }}>{value}</span>
+      <div style={{ display:'flex', gap:12, padding:'9px 0', borderBottom:'1px solid #E0D8CC' }}>
+        <span style={{ fontSize:12, color:'#9A8070', minWidth:130, flexShrink:0 }}>{label}</span>
+        <span style={{ fontSize:14, color:'#2C1A0E', lineHeight:1.4, flex:1 }}>{value}</span>
       </div>
     )
   }
 
   const SecBox = ({ title, children }) => (
-    <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:12 }}>
-      <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1.2, marginBottom:12, paddingBottom:8, borderBottom:'1px solid #1e1a16' }}>{title}</div>
+    <div style={{ background:'#F5EDE0', border:'1px solid #E0D8CC', borderRadius:14, padding:16, marginBottom:12 }}>
+      <div style={{ fontSize:10, fontWeight:700, color:'#C4614A', textTransform:'uppercase', letterSpacing:1.2, marginBottom:12, paddingBottom:8, borderBottom:'1px solid #E0D8CC' }}>{title}</div>
       {children}
     </div>
   )
 
   return (
     <div>
-      {b.foto_url && <img src={b.foto_url} alt={b.nome} style={{ width:'100%', maxHeight:260, objectFit:'cover', borderRadius:14, marginBottom:14, border:'1px solid #1e1a16' }} />}
+      {b.foto_url && <img src={b.foto_url} alt={b.nome} style={{ width:'100%', maxHeight:260, objectFit:'cover', borderRadius:14, marginBottom:14, border:'1px solid #E0D8CC' }} />}
       <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-        <span style={{ fontSize:11, fontWeight:600, letterSpacing:0.8, textTransform:'uppercase', padding:'4px 12px', borderRadius:100, background: TIPO_BG[b.tipologia]||'#1a1611', color: TIPO_COLOR[b.tipologia]||'#8B7355', border:`1px solid ${TIPO_COLOR[b.tipologia]||'#5a4f3f'}33` }}>
+        <span style={{ fontSize:11, fontWeight:600, letterSpacing:0.8, textTransform:'uppercase', padding:'4px 12px', borderRadius:100, background: TIPO_BG[b.tipologia]||'#EAE2D6', color: TIPO_COLOR[b.tipologia]||'#B8956A', border:`1px solid ${TIPO_COLOR[b.tipologia]||'#9A8070'}33` }}>
           {b.tipologia ? T(`tipo.${b.tipologia}`) : '—'}
         </span>
         <div style={{ display:'flex', alignItems:'center', gap:5 }}>
           <div style={{ width:8, height:8, borderRadius:'50%', background:matColor(m.cls) }} />
           <span style={{ fontSize:12, fontWeight:600, color:matColor(m.cls) }}>{m.label}</span>
-          {pct !== null && <span style={{ fontSize:12, color:'#5a4f3f' }}>({pct}%)</span>}
+          {pct !== null && <span style={{ fontSize:12, color:'#9A8070' }}>({pct}%)</span>}
         </div>
       </div>
       {pct !== null && (
-        <div style={{ height:5, borderRadius:3, background:'#1e1a16', overflow:'hidden', marginBottom:16 }}>
+        <div style={{ height:5, borderRadius:3, background:'#E0D8CC', overflow:'hidden', marginBottom:16 }}>
           <div style={{ height:'100%', width:`${Math.min(pct,100)}%`, background:matColor(m.cls), borderRadius:3 }} />
         </div>
       )}
@@ -143,7 +143,7 @@ function EditInput({ label, value, onChange, placeholder, type, full, aiField })
   return (
     <div style={full ? { gridColumn:'1/-1' } : {}}>
       <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
-        <span style={{ fontSize:12, fontWeight:500, color:'#8B7355' }}>{label}</span>
+        <span style={{ fontSize:12, fontWeight:500, color:'#B8956A' }}>{label}</span>
         {aiField && <span style={{ fontSize:10, background:'#1A5FA822', color:'#185FA5', padding:'1px 6px', borderRadius:100, fontWeight:600, border:'1px solid #185FA533' }}>AI</span>}
       </div>
       <input style={{ ...S.inp, borderColor:aiField?'#185FA5':undefined }} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder||''} type={type||'text'} />
@@ -155,7 +155,7 @@ function EditSelect({ label, value, onChange, options, full, aiField }) {
   return (
     <div style={full ? { gridColumn:'1/-1' } : {}}>
       <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
-        <span style={{ fontSize:12, fontWeight:500, color:'#8B7355' }}>{label}</span>
+        <span style={{ fontSize:12, fontWeight:500, color:'#B8956A' }}>{label}</span>
         {aiField && <span style={{ fontSize:10, background:'#1A5FA822', color:'#185FA5', padding:'1px 6px', borderRadius:100, fontWeight:600, border:'1px solid #185FA533' }}>AI</span>}
       </div>
       <select style={{ ...S.inp, borderColor:aiField?'#185FA5':undefined }} value={value} onChange={e=>onChange(e.target.value)}>
@@ -169,7 +169,7 @@ function EditTextarea({ label, value, onChange, placeholder, aiField }) {
   return (
     <div style={{ gridColumn:'1/-1' }}>
       <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
-        <span style={{ fontSize:12, fontWeight:500, color:'#8B7355' }}>{label}</span>
+        <span style={{ fontSize:12, fontWeight:500, color:'#B8956A' }}>{label}</span>
         {aiField && <span style={{ fontSize:10, background:'#1A5FA822', color:'#185FA5', padding:'1px 6px', borderRadius:100, fontWeight:600, border:'1px solid #185FA533' }}>AI</span>}
       </div>
       <textarea style={{ ...S.inp, minHeight:70, resize:'vertical', lineHeight:1.5 }} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder||''} />
@@ -179,8 +179,8 @@ function EditTextarea({ label, value, onChange, placeholder, aiField }) {
 function EditSecBox({ title, children }) {
   const T = useT()
   return (
-    <div style={{ background:'#141009', border:'1px solid #1e1a16', borderRadius:14, padding:16, marginBottom:14 }}>
-      <div style={{ fontSize:10, fontWeight:700, color:'#C8992A', textTransform:'uppercase', letterSpacing:1.2, marginBottom:14, paddingBottom:8, borderBottom:'1px solid #1e1a16' }}>{title}</div>
+    <div style={{ background:'#F5EDE0', border:'1px solid #E0D8CC', borderRadius:14, padding:16, marginBottom:14 }}>
+      <div style={{ fontSize:10, fontWeight:700, color:'#C4614A', textTransform:'uppercase', letterSpacing:1.2, marginBottom:14, paddingBottom:8, borderBottom:'1px solid #E0D8CC' }}>{title}</div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>{children}</div>
     </div>
   )
@@ -257,7 +257,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
       <EditSecBox title={T('form.foto')}>
         <div style={{gridColumn:'1/-1'}}><ImageUpload value={f.foto_url} onChange={set('foto_url')} label="" folder="vini" /></div>
         <div style={{gridColumn:'1/-1'}}>
-          <button onClick={handleAI} disabled={aiLoading} style={{width:'100%',padding:12,background:aiLoading?'#1a1611':'#C8992A22',color:aiLoading?'#5a4f3f':'#C8992A',border:'1px solid #C8992A44',borderRadius:12,fontSize:14,fontWeight:600,cursor:aiLoading?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+          <button onClick={handleAI} disabled={aiLoading} style={{width:'100%',padding:12,background:aiLoading?'#EAE2D6':'#C4614A22',color:aiLoading?'#9A8070':'#C4614A',border:'1px solid #C4614A44',borderRadius:12,fontSize:14,fontWeight:600,cursor:aiLoading?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
             {aiLoading?<>{T('form.ai_analizza')}</>:<>{T('form.aggiorna_ai')}</>}
           </button>
         </div>
@@ -269,7 +269,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
         <EditInput label={T('form.anno')} value={f.anno} onChange={set('anno')} placeholder="2019" type="number" aiField={ai('anno')} />
         <div style={{gridColumn:'1/-1'}}>
           <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5}}>
-            <span style={{fontSize:12,fontWeight:500,color:'#8B7355'}}>Paese</span>
+            <span style={{fontSize:12,fontWeight:500,color:'#B8956A'}}>Paese</span>
             {ai('paese')&&<span style={{fontSize:10,background:'#1A5FA822',color:'#185FA5',padding:'1px 6px',borderRadius:100,fontWeight:600,border:'1px solid #185FA533'}}>AI</span>}
           </div>
           <select style={{...S.inp,borderColor:ai('paese')?'#185FA5':undefined}} value={f.paese} onChange={e=>setF(p=>({...p,paese:e.target.value,regione:''}))}>
@@ -279,7 +279,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
         {f.paese&&f.paese!=='Altro'&&regioniOptions&&(
           <div style={{gridColumn:'1/-1'}}>
             <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5}}>
-              <span style={{fontSize:12,fontWeight:500,color:'#8B7355'}}>Regione</span>
+              <span style={{fontSize:12,fontWeight:500,color:'#B8956A'}}>Regione</span>
               {ai('regione')&&<span style={{fontSize:10,background:'#1A5FA822',color:'#185FA5',padding:'1px 6px',borderRadius:100,fontWeight:600,border:'1px solid #185FA533'}}>AI</span>}
             </div>
             <select style={{...S.inp,borderColor:ai('regione')?'#185FA5':undefined}} value={f.regione} onChange={e=>set('regione')(e.target.value)}>
@@ -306,7 +306,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
         <EditTextarea label={T('form.car_bottiglia')} value={f.caratteristiche_bottiglia} onChange={set('caratteristiche_bottiglia')} placeholder={T('form.placeholder.car_bottiglia')} aiField={ai('caratteristiche_bottiglia')} />
         <EditTextarea label={T('form.car_annata')} value={f.caratteristiche_annata} onChange={set('caratteristiche_annata')} placeholder={T('form.placeholder.car_annata')} aiField={ai('caratteristiche_annata')} />
       </EditSecBox>
-      <button onClick={handleSave} disabled={saving} style={{width:'100%',padding:14,background:'#C8992A',color:'#0f0b08',border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',opacity:saving?0.7:1,marginBottom:8,fontFamily:'DM Sans, sans-serif'}}>
+      <button onClick={handleSave} disabled={saving} style={{width:'100%',padding:14,background:'#C4614A',color:'#FBF7F0',border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',opacity:saving?0.7:1,marginBottom:8,fontFamily:'DM Sans, sans-serif'}}>
         {saving?T('form.salvataggio'):T('form.salva')}
       </button>
     </div>
@@ -319,11 +319,11 @@ function DaBerePresto({ cantina, onDettaglio }) {
   const urgenti = cantina.filter(b=>{const m=getMaturita(b);return m.pct!==null&&m.pct>=108&&m.pct<110})
   if (urgenti.length===0) return null
   return (
-    <div style={{margin:'0 0 8px',background:'#1a1205',border:'1px solid #C8992A33',borderLeft:'2px solid #C8992A',borderRadius:8,padding:'10px 14px',display:'flex',alignItems:'center',gap:10}}>
-      <div style={{width:6,height:6,borderRadius:'50%',background:'#C8992A',flexShrink:0,boxShadow:'0 0 6px #C8992A'}} />
+    <div style={{margin:'0 0 8px',background:'#FDF8F0',border:'1px solid #C4614A33',borderLeft:'2px solid #C4614A',borderRadius:8,padding:'10px 14px',display:'flex',alignItems:'center',gap:10}}>
+      <div style={{width:6,height:6,borderRadius:'50%',background:'#C4614A',flexShrink:0,boxShadow:'0 0 6px #C4614A'}} />
       <div style={{flex:1}}>
         {urgenti.map(b=>(
-          <div key={b.id} onClick={()=>onDettaglio(b)} style={{cursor:'pointer',fontSize:12,color:'#C8992A',lineHeight:1.5}}>
+          <div key={b.id} onClick={()=>onDettaglio(b)} style={{cursor:'pointer',fontSize:12,color:'#C4614A',lineHeight:1.5}}>
             {b.nome} {b.anno} — {t('lib.da_bere_presto')}
           </div>
         ))}
@@ -337,7 +337,7 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina, showHint }) 
   const T = useT()
   const m = getMaturita(b)
   const pct = m.pct !== null ? Math.min(m.pct, 100) : 0
-  const tipoColor = TIPO_COLOR[b.tipologia] || '#8B7355'
+  const tipoColor = TIPO_COLOR[b.tipologia] || '#B8956A'
   const tipoBg = TIPO_BG[b.tipologia] || '#F1EFE8'
   const tipoSolid = TIPO_SOLID[b.tipologia] || '#3a2a1a'
 
@@ -388,15 +388,15 @@ function BottigliaRow({ b, onBevuto, onQty, onDettaglio, onElimina, showHint }) 
   const isAnimating = hinting || !swiping
 
   return (
-    <div style={{ position:'relative', overflow:'hidden', borderBottom:'1px solid #E2DDD6', background:'#F4F1EC' }}>
+    <div style={{ position:'relative', overflow:'hidden', borderBottom:'1px solid #E2DDD6', background:'#FAF6EF' }}>
       {/* Sfondo swipe — stesso colore del gradiente, nessun rettangolo */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, left:0, background:`linear-gradient(to left, ${tipoSolid} 0%, ${tipoSolid} ${THRESHOLD}px, #F4F1EC ${THRESHOLD + 40}px)` }} />
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, left:0, background:`linear-gradient(to left, ${tipoSolid} 0%, ${tipoSolid} ${THRESHOLD}px, #FAF6EF ${THRESHOLD + 40}px)` }} />
 
       {/* Riga principale */}
       <div
         onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
         onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
-        style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', background:'#F4F1EC', position:'relative', zIndex:2, transform:`translateX(-${translateX}px)`, transition:isAnimating?'transform 0.3s ease':'none', cursor:'grab', userSelect:'none' }}>
+        style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', background:'#FAF6EF', position:'relative', zIndex:2, transform:`translateX(-${translateX}px)`, transition:isAnimating?'transform 0.3s ease':'none', cursor:'grab', userSelect:'none' }}>
 
         {/* Gradiente hint — leggero, sfuma verso il colore tipologia */}
         <div style={{ position:'absolute', right:0, top:0, bottom:0, width:36, background:`linear-gradient(to left, ${tipoSolid}55, transparent)`, pointerEvents:'none', zIndex:3 }} />
@@ -471,9 +471,9 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
 
   return (
     <>
-      <div style={{ position:'sticky', top:0, background:'#0f0b08', paddingBottom:10, paddingTop:16, zIndex:10, borderBottom:'1px solid #1e1a16' }}>
+      <div style={{ position:'sticky', top:0, background:'#FBF7F0', paddingBottom:10, paddingTop:16, zIndex:10, borderBottom:'1px solid #E0D8CC' }}>
         <input value={q} onChange={e=>setQ(e.target.value)} placeholder={`🔍  ${T('lib.cerca')}`} style={{ ...S.inp, width:'100%' }} />
-        <div style={{ fontSize:11, color:'#8B7355', marginTop:8, letterSpacing:0.5 }}>
+        <div style={{ fontSize:11, color:'#B8956A', marginTop:8, letterSpacing:0.5 }}>
           {totFiltered} {totFiltered===1?T('lib.bottiglia'):T('lib.bottiglie')} · {filtered.length} {filtered.length===1?T('lib.etichetta'):T('lib.etichette')}
         </div>
       </div>
@@ -500,7 +500,7 @@ export default function Libreria({ cantina, onBevuto, onQty, onElimina, onUpdate
       })}
 
       {filtered.length===0&&(
-        <div style={{ textAlign:'center', padding:'64px 20px', color:'#5a4f3f' }}>
+        <div style={{ textAlign:'center', padding:'64px 20px', color:'#9A8070' }}>
           <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:40, marginBottom:12, fontStyle:'italic' }}>🍾</div>
           <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:300, fontStyle:'italic' }}>{T('lib.nessuna')}</div>
         </div>

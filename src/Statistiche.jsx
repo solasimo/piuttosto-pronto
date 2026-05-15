@@ -8,7 +8,7 @@ import { t, tPaese } from './i18n'
 const TIPOLOGIE = ['Rosso','Bianco','Rosato','Orange','Bollicine','Dolce','Fortificato']
 
 const TIPO_COLORS = {
-  Rosso:'#7B1E2E', Bianco:'#C8992A', Rosato:'#993556', Orange:'#C4621D',
+  Rosso:'#7B1E2E', Bianco:'#C4614A', Rosato:'#993556', Orange:'#C4621D',
   Bollicine:'#185FA5', Dolce:'#876200', Fortificato:'#5B2D8E',
 }
 const TIPO_BG = {
@@ -28,7 +28,7 @@ function BottigliaSheet({ b, onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(28,20,16,0.6)', backdropFilter: 'blur(2px)' }} />
-      <div style={{ position: 'relative', background: '#F4F1EC', borderRadius: '20px 20px 0 0', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'relative', background: '#FAF6EF', borderRadius: '20px 20px 0 0', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
           <div style={{ width: 36, height: 4, borderRadius: 2, background: '#D6D0C8' }} />
         </div>
@@ -227,7 +227,7 @@ function PaeseSection({ paese, regioni, bottigliePaese, onBottigliaClick }) {
               <div style={{ fontSize: 10, fontWeight: 700, color: '#B0A89E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{T('stats.da_esplorare')} ({totRegioni - coperte})</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {regioni.filter(r => !byRegione[r]).map(r => (
-                  <span key={r} style={{ fontSize: 12, padding: '4px 10px', borderRadius: 100, background: '#F4F1EC', color: '#B0A89E', border: '1px dashed #D6D0C8' }}>{r}</span>
+                  <span key={r} style={{ fontSize: 12, padding: '4px 10px', borderRadius: 100, background: '#FAF6EF', color: '#B0A89E', border: '1px dashed #D6D0C8' }}>{r}</span>
                 ))}
               </div>
             </div>

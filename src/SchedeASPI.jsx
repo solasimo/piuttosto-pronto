@@ -26,7 +26,7 @@ const S = {
   subPill: (active) => ({
     padding: '4px 11px', borderRadius: 100, border: '1.5px solid',
     borderColor: active ? '#7B1E2E' : '#E2DDD6',
-    background: active ? '#F5EFE0' : '#fff',
+    background: active ? '#2C1A0E' : '#fff',
     color: active ? '#7B1E2E' : '#7A6E65',
     fontSize: 12, fontWeight: active ? 600 : 400, cursor: 'pointer',
     flexShrink: 0, whiteSpace: 'nowrap',
@@ -175,7 +175,7 @@ function ConfermaElimina({ scheda, onConferma, onAnnulla }) {
           Sei sicuro di voler eliminare la scheda di <strong style={{ color: '#1C1410' }}>{scheda.nomeVino || scheda.nome}</strong>? L'operazione non è reversibile.
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={onAnnulla} style={{ flex: 1, padding: 13, background: '#F4F1EC', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', color: '#7A6E65' }}>
+          <button onClick={onAnnulla} style={{ flex: 1, padding: 13, background: '#FAF6EF', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', color: '#7A6E65' }}>
             Annulla
           </button>
           <button onClick={() => onConferma(scheda)} style={{ flex: 1, padding: 13, background: '#9B2335', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', color: '#fff' }}>
@@ -308,7 +308,7 @@ export default function SchedeASPI({ archivio, onOpen, onNuova, onElimina, onUpd
       <div style={{ marginBottom: 16 }}>
         <button
           onClick={() => setFiltriAperti(v => !v)}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 16px', borderRadius: 100, border: '1.5px solid', borderColor: attiviFiltri > 0 ? '#7B1E2E' : '#E2DDD6', background: attiviFiltri > 0 ? '#F5EFE0' : '#fff', color: attiviFiltri > 0 ? '#7B1E2E' : '#7A6E65', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 16px', borderRadius: 100, border: '1.5px solid', borderColor: attiviFiltri > 0 ? '#7B1E2E' : '#E2DDD6', background: attiviFiltri > 0 ? '#2C1A0E' : '#fff', color: attiviFiltri > 0 ? '#7B1E2E' : '#7A6E65', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           <span>⚙️</span>
           {T('schede.filtra')}
           {attiviFiltri > 0 && <span style={{ background: '#7B1E2E', color: '#fff', borderRadius: '50%', width: 18, height: 18, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{attiviFiltri}</span>}

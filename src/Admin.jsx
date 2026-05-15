@@ -71,13 +71,13 @@ export default function Admin({ onClose }) {
   const isScaduto = d => d && new Date(d) < new Date()
 
   return (
-    <div style={{ position:'fixed', inset:0, zIndex:500, background:'#F4F1EC', display:'flex', flexDirection:'column' }}>
+    <div style={{ position:'fixed', inset:0, zIndex:500, background:'#FAF6EF', display:'flex', flexDirection:'column' }}>
       <div style={{ background:'#1C1410', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
         <div>
-          <div style={{ fontFamily:'Cormorant Garamond, serif', color:'#F5EFE0', fontSize:17, fontWeight:400, fontStyle:'italic' }}>{T('admin.titolo')}</div>
+          <div style={{ fontFamily:'Cormorant Garamond, serif', color:'#2C1A0E', fontSize:17, fontWeight:400, fontStyle:'italic' }}>{T('admin.titolo')}</div>
           <div style={{ color:'rgba(245,239,224,0.5)', fontSize:12 }}>Piuttosto Pronto</div>
         </div>
-        <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#F5EFE0', fontSize:16, cursor:'pointer' }}>✕</button>
+        <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#2C1A0E', fontSize:16, cursor:'pointer' }}>✕</button>
       </div>
 
       <div style={{ display:'flex', background:'#fff', borderBottom:'1px solid #E2DDD6', flexShrink:0 }}>
@@ -99,7 +99,7 @@ export default function Admin({ onClose }) {
                   <div style={{ flex:1 }}>
                     <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2, flexWrap:'wrap' }}>
                       <span style={{ fontSize:14, fontWeight:600, color:'#1C1410' }}>{u.nome} {u.cognome}</span>
-                      {u.is_admin && <span style={{ fontSize:10, background:'#F5EFE0', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>ADMIN</span>}
+                      {u.is_admin && <span style={{ fontSize:10, background:'#2C1A0E', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>ADMIN</span>}
                       {!u.is_active && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.sospeso')}</span>}
                     </div>
                     <div style={{ fontSize:12, color:'#7A6E65', marginBottom:2 }}>{u.email}</div>
@@ -139,7 +139,7 @@ export default function Admin({ onClose }) {
                         {isGruppo && <span style={{ fontSize:10, background:'#E6F1FB', color:'#185FA5', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.gruppo')}</span>}
                         {usato && <span style={{ fontSize:10, background:'#F0F7F3', color:'#2D6A4F', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.usato')}</span>}
                         {scaduto && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.scaduto')}</span>}
-                        {!usato && !scaduto && <span style={{ fontSize:10, background:'#F5EFE0', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.attivo')}</span>}
+                        {!usato && !scaduto && <span style={{ fontSize:10, background:'#2C1A0E', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.attivo')}</span>}
                       </div>
                       <div style={{ fontSize:12, color:'#B0A89E' }}>{T('admin.scade')} {fmtData(inv.scade_at)}</div>
                       {usato && <div style={{ fontSize:12, color:'#B0A89E' }}>{T('admin.usato_il')} {fmtData(inv.usato_at)}</div>}
