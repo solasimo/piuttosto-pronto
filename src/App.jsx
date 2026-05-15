@@ -773,8 +773,8 @@ export default function App() {
             <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:10, fontWeight:300, letterSpacing:3, textTransform:'uppercase', color:'#B8956A', marginBottom:3 }}>
               {gruppo?.nome || `${T('app.cantina_di')} ${profilo?.nome || '...'}`}
             </div>
-            <div style={{ fontFamily:'"DM Sans", sans-serif', fontSize:24, fontWeight:700, color:'#2C1A0E', lineHeight:1, letterSpacing:'-0.5px' }}>
-              {T('app.nome')}
+            <div style={{ fontFamily:'"DM Sans", sans-serif', fontSize:26, fontWeight:800, color:'#2C1A0E', lineHeight:1, letterSpacing:'-1px' }}>
+              Cabi<span style={{ color:'#C4614A' }}>N</span>et
             </div>
           </div>
           <button onClick={() => setShowUtente(true)}
@@ -788,7 +788,7 @@ export default function App() {
         <div style={{ display:'flex', borderTop:'1px solid #E0D8CC', marginTop:10 }}>
           {[[T('kpi.bottiglie'),totBottiglie],[T('kpi.etichette'),totEtichette],[T('kpi.valore'),fmtEur(valoreEur)]].map(([lbl,val])=>(
             <div key={lbl} style={{ flex:1, padding:'8px 12px', borderRight:'1px solid #E0D8CC', textAlign:'center' }}>
-              <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:18, fontWeight:300, color:'#2C1A0E', lineHeight:1 }}>{val}</div>
+              <div style={{ fontFamily:'"DM Sans", sans-serif', fontSize:20, fontWeight:600, color:'#2C1A0E', lineHeight:1 }}>{val}</div>
               <div style={{ fontSize:9, letterSpacing:1.5, textTransform:'uppercase', color:'#9A8070', marginTop:2 }}>{lbl}</div>
             </div>
           ))}
