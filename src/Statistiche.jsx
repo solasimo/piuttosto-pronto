@@ -269,7 +269,7 @@ export default function Statistiche({ cantina }) {
   return (
     <div>
       {/* KPI: solo paesi e tipologie — bottiglie/etichette/valore sono in topbar */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20, marginTop: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20, marginTop: 0 }}>
         {[['🌍',T('stats.paesi'),paesiCoperti+'/'+totPaesi],['🎨',T('stats.tipologie'),tipologieCoperte+'/7']].map(([ico,l,v]) => (
           <div key={l} style={{ ...S.card, textAlign: 'center', padding: '14px 10px' }}>
             <div style={{ fontSize: 20, marginBottom: 3 }}>{ico}</div>

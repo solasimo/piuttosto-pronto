@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaGruppo, creaInvitoGruppo, uniscitiGruppo, aggiornaLingua } from './supabase'
-import { t, setLingua, getLingua, LINGUE } from './i18n'
+import { t, setLingua, getLingua, LINGUE, tPaese } from './i18n'
 import { useT } from './useT'
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
 import AspiDetail from './AspiDetail'
@@ -196,7 +196,7 @@ function AggiungiForm({ onAdd, showToast }) {
     if (!f.nome && !f.foto_url) { showToast('⚠️ Inserisci almeno nome o foto'); return }
     setAiLoading(true)
     try {
-      const SYSTEM = `Sei un esperto enologo. Analizza le informazioni sul vino e restituisci SOLO JSON valido senza markdown.
+      const SYSTEM = `Sei un esperto enologo. Analizza le informazioni sul vino e restituisci SOLO JSON valido senza markdown. Rispondi SEMPRE in ${getLingua() === 'it' ? 'italiano' : getLingua() === 'en' ? 'inglese' : 'francese'} per i campi testuali (note, info_cantina, caratteristiche_bottiglia, caratteristiche_annata).
 Compila solo i campi di cui sei 100% certo. Lascia stringa vuota "" se non sei certo.
 Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incerto).
 {
@@ -304,7 +304,7 @@ Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incert
             {ai('paese') && <span style={{ fontSize: 10, background: '#E6F1FB', color: '#185FA5', padding: '1px 6px', borderRadius: 100, fontWeight: 600 }}>AI</span>}
           </div>
           <select style={{ ...S.inp, borderColor: ai('paese') ? '#185FA5' : undefined }} value={f.paese} onChange={e => setF(p => ({ ...p, paese: e.target.value, regione: '' }))}>
-            {PAESI_OPTIONS.map(p => <option key={p} value={p}>{p || T('form.seleziona')}</option>)}
+            {PAESI_OPTIONS.map(p => <option key={p} value={p}>{p ? tPaese(p) : T('form.seleziona')}</option>)}
           </select>
         </div>
         {f.paese && f.paese !== 'Altro' && regioniOptions && (
@@ -799,13 +799,13 @@ export default function App() {
       {/* Content */}
       <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', paddingBottom:80 }}>
         {loading ? <Spinner /> : <>
-          {tab==='libreria' && <div style={{padding:'12px 14px 0'}}><Libreria cantina={cantina} onBevuto={b=>{
+          {tab==='libreria' && <div style={{padding:'16px 14px 0'}}><Libreria cantina={cantina} onBevuto={b=>{
             if (modalitaSommelier) { setAspiBottiglia(b); setAspiLibera(false) }
             else { handleQty(b.id, -1) }
           }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
-          {tab==='statistiche' && <div style={{padding:'0 14px'}}><Statistiche cantina={cantina} onBottigliaClick={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
-          {tab==='abbinamento' && <div style={{padding:'0 14px'}}><AIChef cantina={cantina} /></div>}
-          {tab==='schede' && <div style={{padding:'0 14px'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} onBenchmark={setBenchmarkScheda} /></div>}
+          {tab==='statistiche' && <div style={{padding:'16px 14px 0'}}><Statistiche cantina={cantina} onBottigliaClick={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
+          {tab==='abbinamento' && <div style={{padding:'16px 14px 0'}}><AIChef cantina={cantina} /></div>}
+          {tab==='schede' && <div style={{padding:'16px 14px 0'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} onBenchmark={setBenchmarkScheda} /></div>}
         </>}
       </div>
 

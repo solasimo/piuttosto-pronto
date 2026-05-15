@@ -72,15 +72,15 @@ export default function Admin({ onClose }) {
 
   return (
     <div style={{ position:'fixed', inset:0, zIndex:500, background:'#FAF6EF', display:'flex', flexDirection:'column' }}>
-      <div style={{ background:'#1C1410', padding:'14px 16px', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
+      <div style={{ background:'#FBF7F0', padding:'14px 16px', borderBottom:'1px solid #E0D8CC', paddingTop:'calc(14px + env(safe-area-inset-top, 0px))', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
         <div>
           <div style={{ fontFamily:'Cormorant Garamond, serif', color:'#2C1A0E', fontSize:17, fontWeight:400, fontStyle:'italic' }}>{T('admin.titolo')}</div>
-          <div style={{ color:'rgba(245,239,224,0.5)', fontSize:12 }}>Piuttosto Pronto</div>
+          <div style={{ color:'#9A8070', fontSize:12 }}>Piuttosto Pronto</div>
         </div>
         <button onClick={onClose} style={{ width:32, height:32, borderRadius:'50%', border:'none', background:'rgba(255,255,255,0.15)', color:'#2C1A0E', fontSize:16, cursor:'pointer' }}>✕</button>
       </div>
 
-      <div style={{ display:'flex', background:'#fff', borderBottom:'1px solid #E2DDD6', flexShrink:0 }}>
+      <div style={{ display:'flex', background:'#FBF7F0', borderBottom:'1px solid #E0D8CC', flexShrink:0 }}>
         {[['utenti',T('admin.utenti')],['inviti',T('admin.inviti')],['gruppi',T('admin.gruppi')]].map(([k,l]) => (
           <button key={k} onClick={() => setTab(k)}
             style={{ flex:1, padding:'12px 0', border:'none', borderBottom:tab===k?'2px solid #7B1E2E':'2px solid transparent', background:'none', fontSize:12, fontWeight:600, color:tab===k?'#7B1E2E':'#7A6E65', cursor:'pointer' }}>{l}</button>
@@ -100,7 +100,7 @@ export default function Admin({ onClose }) {
                     <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2, flexWrap:'wrap' }}>
                       <span style={{ fontSize:14, fontWeight:600, color:'#1C1410' }}>{u.nome} {u.cognome}</span>
                       {u.is_admin && <span style={{ fontSize:10, background:'#2C1A0E', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>ADMIN</span>}
-                      {!u.is_active && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.sospeso')}</span>}
+                      {!u.is_active && <span style={{ fontSize:10, background:'#FEE8E4', color:'#C4614A', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.sospeso')}</span>}
                     </div>
                     <div style={{ fontSize:12, color:'#7A6E65', marginBottom:2 }}>{u.email}</div>
                     <div style={{ fontSize:11, color:'#B0A89E' }}>{T('admin.iscritto')} {fmtData(u.created_at)}</div>
@@ -138,7 +138,7 @@ export default function Admin({ onClose }) {
                         <span style={{ fontSize:16, fontWeight:700, letterSpacing:2, color:'#1C1410', fontFamily:'monospace' }}>{inv.codice}</span>
                         {isGruppo && <span style={{ fontSize:10, background:'#E6F1FB', color:'#185FA5', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.gruppo')}</span>}
                         {usato && <span style={{ fontSize:10, background:'#F0F7F3', color:'#2D6A4F', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.usato')}</span>}
-                        {scaduto && <span style={{ fontSize:10, background:'#FFF0F0', color:'#9B2335', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.scaduto')}</span>}
+                        {scaduto && <span style={{ fontSize:10, background:'#FEE8E4', color:'#C4614A', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.scaduto')}</span>}
                         {!usato && !scaduto && <span style={{ fontSize:10, background:'#2C1A0E', color:'#854F0B', padding:'1px 6px', borderRadius:100, fontWeight:700 }}>{T('admin.attivo')}</span>}
                       </div>
                       <div style={{ fontSize:12, color:'#B0A89E' }}>{T('admin.scade')} {fmtData(inv.scade_at)}</div>

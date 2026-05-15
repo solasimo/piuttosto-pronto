@@ -3,7 +3,7 @@ import { TIPOLOGIE } from './AspiForm'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
 import { useT } from './useT'
-import { t, tPaese } from './i18n'
+import { t, tPaese, getLingua } from './i18n'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -217,7 +217,7 @@ export function ModificaBottiglia({ b, onSave, saving }) {
   const handleAI = async () => {
     setAiLoading(true)
     try {
-      const SYSTEM = `Sei un esperto enologo. Analizza le informazioni sul vino e restituisci SOLO JSON valido senza markdown. Compila solo i campi di cui sei 100% certo. Lascia stringa vuota se non sei certo. Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incerto). {"nome":"","cantina":"","tipologia":"","anno":"","paese":"","regione":"","denominazione":"","vitigno":"","valutazione":"","temp":"","invecchiamento":"","info_cantina":"","caratteristiche_bottiglia":"","caratteristiche_annata":"","note":""}`
+      const SYSTEM = `Sei un esperto enologo. Analizza le informazioni sul vino e restituisci SOLO JSON valido senza markdown. Rispondi SEMPRE in ${getLingua() === 'it' ? 'italiano' : getLingua() === 'en' ? 'inglese' : 'francese'} per i campi testuali. Compila solo i campi di cui sei 100% certo. Lascia stringa vuota se non sei certo. Valutazione annata: 1-5 (0 se incerto). Invecchiamento: numero anni (0 se incerto). {"nome":"","cantina":"","tipologia":"","anno":"","paese":"","regione":"","denominazione":"","vitigno":"","valutazione":"","temp":"","invecchiamento":"","info_cantina":"","caratteristiche_bottiglia":"","caratteristiche_annata":"","note":""}`
       const userContent = []
       if (f.foto_url) {
         const imgRes = await fetch(f.foto_url)
@@ -269,11 +269,11 @@ export function ModificaBottiglia({ b, onSave, saving }) {
         <EditInput label={T('form.anno')} value={f.anno} onChange={set('anno')} placeholder="2019" type="number" aiField={ai('anno')} />
         <div style={{gridColumn:'1/-1'}}>
           <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5}}>
-            <span style={{fontSize:12,fontWeight:500,color:'#B8956A'}}>Paese</span>
+            <span style={{fontSize:12,fontWeight:500,color:'#B8956A'}}>{T('form.paese')}</span>
             {ai('paese')&&<span style={{fontSize:10,background:'#1A5FA822',color:'#185FA5',padding:'1px 6px',borderRadius:100,fontWeight:600,border:'1px solid #185FA533'}}>AI</span>}
           </div>
           <select style={{...S.inp,borderColor:ai('paese')?'#185FA5':undefined}} value={f.paese} onChange={e=>setF(p=>({...p,paese:e.target.value,regione:''}))}>
-            {PAESI_OPTIONS.map(p=><option key={p} value={p}>{p||'— seleziona —'}</option>)}
+            {PAESI_OPTIONS.map(p=><option key={p} value={p}>{p ? tPaese(p) : T('form.seleziona')}</option>)}
           </select>
         </div>
         {f.paese&&f.paese!=='Altro'&&regioniOptions&&(

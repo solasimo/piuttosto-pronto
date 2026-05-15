@@ -37,7 +37,7 @@ async function callClaude(systemPrompt, userMessage) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
+      model: '',
       max_tokens: 1000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
@@ -214,7 +214,7 @@ export default function AIChef({ cantina }) {
   return (
     <div>
       {/* Toggle modo */}
-      <div style={{ display:'flex', gap:0, marginBottom:20, marginTop:16, background:'#E2DDD6', borderRadius:12, padding:3 }}>
+      <div style={{ display:'flex', gap:0, marginBottom:20, marginTop:0, background:'#E2DDD6', borderRadius:12, padding:3 }}>
         {[['abbinamento',`🍽️ ${T('chef.piatto_vino')}`],['inverso',`🍷 ${T('chef.vino_piatto')}`]].map(([k,l]) => (
           <button key={k} onClick={() => { setModo(k); setRisultato(null); setErrore('') }}
             style={{ flex:1, padding:'9px 0', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', background: modo===k ? '#fff' : 'transparent', color: modo===k ? '#1C1410' : '#7A6E65', transition:'background 0.15s' }}>{l}</button>
