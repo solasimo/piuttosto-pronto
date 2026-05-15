@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaGruppo, creaInvitoGruppo, uniscitiGruppo, aggiornaLingua } from './supabase'
+import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaGruppo, creaInvitoGruppo, uniscitiGruppo, lasciaGruppo, aggiornaLingua } from './supabase'
 import { t, setLingua, getLingua, LINGUE, tPaese } from './i18n'
 import { useT } from './useT'
 import AspiForm, { ASPI_EMPTY, TIPOLOGIE } from './AspiForm'
@@ -508,6 +508,7 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
   const [codiceInput, setCodiceInput] = useState('')
   const [codiceGenerato, setCodiceGenerato] = useState('')
   const [loading, setLoading] = useState(false)
+  const [confermaLascia, setConfermaLascia] = useState(false)
 
   const handleCreaGruppo = async () => {
     setLoading(true)
@@ -535,6 +536,17 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
       const { gruppo_id } = await uniscitiGruppo(codiceInput.trim())
       showToast('✓ ' + T('gruppo.creata'))
       onGruppoAggiornato({ id: gruppo_id })
+      onClose()
+    } catch(e) { showToast('Errore: ' + e.message) }
+    setLoading(false)
+  }
+
+  const handleLascia = async () => {
+    setLoading(true)
+    try {
+      await lasciaGruppo()
+      showToast(T('gruppo.lasciata'))
+      onGruppoAggiornato(null)
       onClose()
     } catch(e) { showToast('Errore: ' + e.message) }
     setLoading(false)
@@ -606,13 +618,40 @@ function GruppoPanel({ profilo, gruppo, onClose, onGruppoAggiornato, showToast }
               </button>
             </div>
           )}
+
+          {/* Lascia cantina condivisa */}
+          {gruppo && (
+            !confermaLascia ? (
+              <button onClick={() => setConfermaLascia(true)}
+                style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'#FDF0EE', border:'1px solid #F0D8D4', borderRadius:14, padding:16, cursor:'pointer', textAlign:'left', marginTop:4 }}>
+                <span style={{ fontSize:22 }}>🚪</span>
+                <div>
+                  <div style={{ fontSize:14, fontWeight:600, color:'#C4614A', marginBottom:2 }}>{T('gruppo.lascia')}</div>
+                  <div style={{ fontSize:12, color:'#B8956A' }}>{T('gruppo.lascia_desc')}</div>
+                </div>
+              </button>
+            ) : (
+              <div style={{ background:'#FDF0EE', border:'1px solid #C4614A44', borderRadius:14, padding:16, marginTop:4 }}>
+                <div style={{ fontSize:14, fontWeight:600, color:'#C4614A', marginBottom:6 }}>{T('gruppo.lascia_conferma_titolo')}</div>
+                <div style={{ fontSize:13, color:'#9A8070', marginBottom:16, lineHeight:1.5 }}>{T('gruppo.lascia_conferma_desc')}</div>
+                <div style={{ display:'flex', gap:8 }}>
+                  <button onClick={() => setConfermaLascia(false)}
+                    style={{ flex:1, padding:11, background:'#fff', border:'1px solid #E0D8CC', borderRadius:10, fontSize:13, color:'#9A8070', cursor:'pointer' }}>
+                    {T('lib.annulla')}
+                  </button>
+                  <button onClick={handleLascia} disabled={loading}
+                    style={{ flex:1, padding:11, background:'#C4614A', border:'none', borderRadius:10, fontSize:13, fontWeight:700, color:'#fff', cursor:'pointer', opacity:loading?0.7:1 }}>
+                    {loading ? '...' : T('gruppo.lascia_conferma_btn')}
+                  </button>
+                </div>
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>
   )
 }
-
-// ─── APP ROOT ─────────────────────────────────────────────────────────────────
 // ─── APP ROOT ─────────────────────────────────────────────────────────────────
 export default function App() {
   const T = useT()
