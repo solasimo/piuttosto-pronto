@@ -98,8 +98,35 @@ case 'crea_invito_gruppo': {
           .from('gruppi_membri').select('gruppo_id')
           .eq('user_id', user.id).maybeSingle()
         if (!membro) return res.status(400).json({ error: 'Non sei in nessun gruppo' })
-        await supabase.from('gruppi_membri').delete().eq('user_id', user.id)
-        await aggiornaGruppoNome(supabase, membro.gruppo_id)
+
+        const gruppo_id = membro.gruppo_id
+
+        // 1. Tutti i vini della cantina tornano al loro user_id originale
+        //    (rimuove gruppo_id da cantina e archivio)
+        await supabase.from('cantina')
+          .update({ gruppo_id: null })
+          .eq('gruppo_id', gruppo_id)
+
+        await supabase.from('archivio')
+          .update({ gruppo_id: null })
+          .eq('gruppo_id', gruppo_id)
+
+        // 2. Elimina tutti i membri del gruppo
+        await supabase.from('gruppi_membri')
+          .delete()
+          .eq('gruppo_id', gruppo_id)
+
+        // 3. Elimina gli inviti pendenti del gruppo
+        await supabase.from('inviti')
+          .delete()
+          .eq('gruppo_id', gruppo_id)
+          .is('usato_da', null)
+
+        // 4. Elimina il gruppo
+        await supabase.from('gruppi')
+          .delete()
+          .eq('id', gruppo_id)
+
         return res.json({ ok: true })
       }
 
