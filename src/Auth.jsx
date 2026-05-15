@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from './supabase'
 import { useT } from './useT'
+import { setLingua, getLingua, LINGUE } from './i18n'
 
 const S = {
   inp: { width:'100%', padding:'13px 16px', border:'1.5px solid #E0D8CC', borderRadius:12, fontSize:15, background:'#EAE2D6', color:'#2C1A0E', WebkitAppearance:'none', boxSizing:'border-box' },
@@ -73,10 +74,25 @@ export default function Auth() {
 
   return (
     <div style={{ minHeight:'100dvh', background:'#FBF7F0', display:'flex', flexDirection:'column', justifyContent:'center', padding:'24px 24px 48px' }}>
+
+      {/* Selettore lingua in alto a destra */}
+      <div style={{ position:'fixed', top:16, right:16, display:'flex', gap:6, zIndex:10 }}>
+        {LINGUE.map(l => (
+          <button key={l.code} onClick={() => setLingua(l.code)}
+            style={{ width:34, height:34, borderRadius:'50%', border:`1.5px solid ${getLingua()===l.code?'#C4614A':'#D6CEBE'}`, background:getLingua()===l.code?'#C4614A22':'transparent', cursor:'pointer', fontSize:16, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            {l.flag}
+          </button>
+        ))}
+      </div>
+
+      {/* Logo */}
       <div style={{ textAlign:'center', marginBottom:44 }}>
-        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:52, color:'#C4614A', marginBottom:12, fontStyle:'italic', lineHeight:1 }}>🍷</div>
-        <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:30, fontWeight:300, color:'#2C1A0E', fontStyle:'italic' }}>Piuttosto Pronto</div>
-        <div style={{ fontSize:11, color:'#9A8070', letterSpacing:3, textTransform:'uppercase', marginTop:6 }}>{T('auth.club')}</div>
+        <div style={{ marginBottom:8 }}>
+          <span style={{ fontFamily:'"DM Sans", sans-serif', fontSize:56, fontWeight:800, color:'#2C1A0E', letterSpacing:'-3px', lineHeight:1 }}>
+            Cabi<span style={{ color:'#C4614A' }}>N</span>et
+          </span>
+        </div>
+        <div style={{ fontSize:11, color:'#B8956A', letterSpacing:5, textTransform:'uppercase', fontFamily:'"DM Sans", sans-serif', fontWeight:400 }}>For sommeliers</div>
       </div>
       <div style={{ background:'#F5EDE0', borderRadius:20, padding:24, border:'1px solid #E0D8CC' }}>
         <div style={{ display:'flex', marginBottom:24, background:'#EAE2D6', borderRadius:10, padding:3 }}>
