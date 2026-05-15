@@ -1,7 +1,7 @@
 // ─── Traduzioni ───────────────────────────────────────────────────────────────
 const T = {
   it: {
-    'app.nome': 'Piuttosto Pronto',
+    'app.nome': 'CabiNet',
     'app.cantina_di': 'Cantina di',
     'app.la_mia_cantina': 'La mia cantina',
     'kpi.bottiglie': 'Bottiglie',
@@ -267,7 +267,7 @@ const T = {
 
   },
   en: {
-    'app.nome': 'Piuttosto Pronto',
+    'app.nome': 'CabiNet',
     'app.cantina_di': 'Cellar of',
     'app.la_mia_cantina': 'My wine cellar',
     'kpi.bottiglie': 'Bottles',
@@ -544,7 +544,7 @@ const T = {
 
   },
   fr: {
-    'app.nome': 'Piuttosto Pronto',
+    'app.nome': 'CabiNet',
     'app.cantina_di': 'Cave de',
     'app.la_mia_cantina': 'Ma cave',
     'kpi.bottiglie': 'Bouteilles',

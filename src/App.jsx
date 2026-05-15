@@ -773,7 +773,7 @@ export default function App() {
             <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:10, fontWeight:300, letterSpacing:3, textTransform:'uppercase', color:'#B8956A', marginBottom:3 }}>
               {gruppo?.nome || `${T('app.cantina_di')} ${profilo?.nome || '...'}`}
             </div>
-            <div style={{ fontFamily:'Cormorant Garamond, serif', fontSize:26, fontWeight:300, color:'#2C1A0E', fontStyle:'italic', lineHeight:1 }}>
+            <div style={{ fontFamily:'"DM Sans", sans-serif', fontSize:24, fontWeight:700, color:'#2C1A0E', lineHeight:1, letterSpacing:'-0.5px' }}>
               {T('app.nome')}
             </div>
           </div>
