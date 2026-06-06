@@ -11,6 +11,7 @@ import AIChef from './AIChef'
 import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
 import Auth from './Auth'
+import Learning from './Learning'
 import Admin from './Admin'
 import BenchmarkASPI from './BenchmarkASPI'
 
@@ -843,13 +844,14 @@ export default function App() {
           }} onQty={handleQty} onElimina={handleDeleteBottiglia} onUpdate={handleUpdateBottiglia} onDettaglio={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
           {tab==='statistiche' && <div style={{padding:'16px 14px 0'}}><Statistiche cantina={cantina} onBottigliaClick={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
           {tab==='abbinamento' && <div style={{padding:'16px 14px 0'}}><AIChef cantina={cantina} /></div>}
+          {tab==='learning' && <div style={{padding:'16px 14px 0'}}><Learning /></div>}
           {tab==='schede' && <div style={{padding:'16px 14px 0'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} onBenchmark={setBenchmarkScheda} /></div>}
         </>}
       </div>
 
       {/* Bottom Nav */}
       <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#F0E8DC', borderTop:'1px solid #E0D8CC', display:'flex', zIndex:50 }}>
-        {[['libreria','🍾',T('nav.cantina')],['statistiche','📊',T('nav.stats')],['abbinamento','✦',T('nav.ai_chef')],...(modalitaSommelier?[['schede','📓',T('nav.schede')]]:[])]
+        {[['libreria','🍾',T('nav.cantina')],['statistiche','📊',T('nav.stats')],['abbinamento','✦',T('nav.ai_chef')],['learning','🎓',T('nav.learning')],...(modalitaSommelier?[['schede','📓',T('nav.schede')]]:[])]
           .map(([id,icon,label])=>{
             const active = tab===id
             return (
