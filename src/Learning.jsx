@@ -32,11 +32,19 @@ const TX = {
     sottotitolo: 'Preparazione esame ASSP',
     scegli: 'Scegli area di studio',
     l1: '1° Livello', l1sub: 'Vino · Birra · Distillati',
-    l2: '2° Livello', l2sub: 'Enologia internazionale (prossimamente)',
+    l2: '2° Livello', l2sub: 'Enologia internazionale',
     tutto: 'Tutto', tuttosub: 'Tutti i livelli',
     progressi_btn: '📊 I tuoi progressi',
     scegli_cat: 'Scegli argomento',
     cat_vino: '🍷 Vino', cat_birra: '🍺 Birra', cat_dist: '🥃 Distillati', cat_tutto: '🎯 Tutto il livello',
+    scegli_cat_l2: 'Scegli area geografica',
+    cat_italia: '🇮🇹 Italia',
+    cat_italia_nord_ovest: 'Nord-Ovest (VdA, Piemonte, Lombardia, Liguria)',
+    cat_italia_nord_est: 'Nord-Est (Veneto, TAA, Friuli, Emilia)',
+    cat_italia_centro: 'Centro (Toscana, Marche, Umbria, Lazio)',
+    cat_italia_sud: 'Sud (Abruzzo, Molise, Campania, Puglia, Basilicata)',
+    cat_italia_isole: 'Isole (Calabria, Sicilia, Sardegna)',
+    cat_tutto_l2: '🎯 Tutta Italia',
     indietro: '← Indietro',
     caricamento: 'Claude sta preparando le domande…',
     caricamento_sub: 'Basandosi sui tuoi appunti del corso ASSP',
@@ -68,11 +76,19 @@ const TX = {
     sottotitolo: 'ASSP exam preparation',
     scegli: 'Choose study area',
     l1: '1st Level', l1sub: 'Wine · Beer · Spirits',
-    l2: '2nd Level', l2sub: 'International oenology (coming soon)',
+    l2: '2nd Level', l2sub: 'International oenology',
     tutto: 'Everything', tuttosub: 'All levels',
     progressi_btn: '📊 Your progress',
     scegli_cat: 'Choose topic',
     cat_vino: '🍷 Wine', cat_birra: '🍺 Beer', cat_dist: '🥃 Spirits', cat_tutto: '🎯 Entire level',
+    scegli_cat_l2: 'Choose geographic area',
+    cat_italia: '🇮🇹 Italy',
+    cat_italia_nord_ovest: 'North-West (VdA, Piedmont, Lombardy, Liguria)',
+    cat_italia_nord_est: 'North-East (Veneto, TAA, Friuli, Emilia)',
+    cat_italia_centro: 'Centre (Tuscany, Marche, Umbria, Lazio)',
+    cat_italia_sud: 'South (Abruzzo, Molise, Campania, Puglia, Basilicata)',
+    cat_italia_isole: 'Islands (Calabria, Sicily, Sardinia)',
+    cat_tutto_l2: '🎯 All Italy',
     indietro: '← Back',
     caricamento: 'Claude is preparing questions…',
     caricamento_sub: 'Based on your ASSP course notes',
@@ -104,11 +120,19 @@ const TX = {
     sottotitolo: "Préparation à l'examen ASSP",
     scegli: "Choisir la zone d'étude",
     l1: '1er Niveau', l1sub: 'Vin · Bière · Spiritueux',
-    l2: '2e Niveau', l2sub: 'Œnologie internationale (bientôt)',
+    l2: '2e Niveau', l2sub: 'Œnologie internationale',
     tutto: 'Tout', tuttosub: 'Tous les niveaux',
     progressi_btn: '📊 Vos progrès',
     scegli_cat: 'Choisir le sujet',
     cat_vino: '🍷 Vin', cat_birra: '🍺 Bière', cat_dist: '🥃 Spiritueux', cat_tutto: '🎯 Tout le niveau',
+    scegli_cat_l2: 'Choisir la zone géographique',
+    cat_italia: '🇮🇹 Italie',
+    cat_italia_nord_ovest: 'Nord-Ouest (VdA, Piémont, Lombardie, Ligurie)',
+    cat_italia_nord_est: 'Nord-Est (Vénétie, TAA, Frioul, Émilie)',
+    cat_italia_centro: 'Centre (Toscane, Marches, Ombrie, Latium)',
+    cat_italia_sud: 'Sud (Abruzzes, Molise, Campanie, Pouilles, Basilicate)',
+    cat_italia_isole: 'Îles (Calabre, Sicile, Sardaigne)',
+    cat_tutto_l2: '🎯 Toute l\'Italie',
     indietro: '← Retour',
     caricamento: 'Claude prépare les questions…',
     caricamento_sub: 'Basé sur vos notes du cours ASSP',
@@ -277,14 +301,15 @@ export default function Learning() {
         <span style={{ fontSize: 18, color: oro }}>→</span>
       </button>
 
-      {/* 2° Livello (bloccato) */}
-      <div style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', opacity: 0.4 }}>
-        <div>
+      {/* 2° Livello */}
+      <button style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
+        onClick={() => setVista('cat_l2')}>
+        <div style={{ textAlign: 'left' }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: scuro, marginBottom: 3 }}>{tx('l2')}</div>
           <div style={{ fontSize: 12, color: medio }}>{tx('l2sub')}</div>
         </div>
-        <span style={{ fontSize: 18 }}>🔒</span>
-      </div>
+        <span style={{ fontSize: 18, color: oro }}>→</span>
+      </button>
 
       {/* Tutto */}
       <button style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
@@ -305,6 +330,33 @@ export default function Learning() {
           <div style={{ fontSize: 12, color: medio }}>Storico e aree da migliorare</div>
         </div>
       </button>
+    </div>
+  )
+
+
+  // ── Categorie L2 ─────────────────────────────────────────────────
+  if (vista === 'cat_l2') return (
+    <div style={{ paddingBottom: 40 }}>
+      <button style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', padding: '0 0 16px', fontFamily: '"DM Sans", sans-serif' }}
+        onClick={() => setVista('menu')}>{tx('indietro')}</button>
+
+      <span style={label10}>{tx('scegli_cat_l2')}</span>
+
+      {[
+        { label: tx('cat_italia_nord_ovest'), arg: 'italia_nord_ovest' },
+        { label: tx('cat_italia_nord_est'),   arg: 'italia_nord_est' },
+        { label: tx('cat_italia_centro'),      arg: 'italia_centro' },
+        { label: tx('cat_italia_sud'),         arg: 'italia_sud' },
+        { label: tx('cat_italia_isole'),       arg: 'italia_isole' },
+        { label: tx('cat_tutto_l2'),           arg: null },
+      ].map(({ label, arg }) => (
+        <button key={label}
+          style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
+          onClick={() => avvia(2, arg)}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: scuro, textAlign: 'left', lineHeight: 1.4 }}>{label}</span>
+          <span style={{ color: oro, flexShrink: 0, marginLeft: 8 }}>→</span>
+        </button>
+      ))}
     </div>
   )
 
