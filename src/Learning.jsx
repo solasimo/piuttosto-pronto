@@ -51,6 +51,10 @@ const TX = {
     dom_label_vf: 'Vero / Falso', dom_label_m: 'Scelta multipla', dom_label_a: 'Risposta aperta',
     vero: 'VERO', falso: 'FALSO',
     scrivi: 'Scrivi la tua risposta qui…',
+    classifica_istr: 'Seleziona bianco o rosso per ogni vitigno:',
+    bianco: 'Bianco', rosso: 'Rosso',
+    mappa_istr: 'Abbina ogni elemento alla sua area geografica:',
+    parziale: 'parzialmente corretto',
     conferma: 'Conferma risposta',
     correzione: 'Correzione in corso…',
     corretta: '✓ Corretto!', sbagliata: '✗ Sbagliato',
@@ -95,6 +99,10 @@ const TX = {
     dom_label_vf: 'True / False', dom_label_m: 'Multiple choice', dom_label_a: 'Open answer',
     vero: 'TRUE', falso: 'FALSE',
     scrivi: 'Write your answer here…',
+    classifica_istr: 'Select white or red for each grape variety:',
+    bianco: 'White', rosso: 'Red',
+    mappa_istr: 'Match each element to its geographic area:',
+    parziale: 'partially correct',
     conferma: 'Confirm answer',
     correzione: 'Correcting…',
     corretta: '✓ Correct!', sbagliata: '✗ Wrong',
@@ -139,6 +147,10 @@ const TX = {
     dom_label_vf: 'Vrai / Faux', dom_label_m: 'Choix multiple', dom_label_a: 'Réponse ouverte',
     vero: 'VRAI', falso: 'FAUX',
     scrivi: 'Écrivez votre réponse ici…',
+    classifica_istr: 'Sélectionnez blanc ou rouge pour chaque cépage :',
+    bianco: 'Blanc', rosso: 'Rouge',
+    mappa_istr: 'Associez chaque élément à sa zone géographique :',
+    parziale: 'partiellement correct',
     conferma: 'Confirmer la réponse',
     correzione: 'Correction en cours…',
     corretta: '✓ Correct !', sbagliata: '✗ Incorrect',
@@ -188,6 +200,11 @@ export default function Learning() {
   const [sessStart, setSessStart] = useState(0)
   const [progressi, setProgressi] = useState([])
 
+
+  const [classificaRisposte, setClassificaRisposte] = useState({})
+  const [abbinamentoRisposte, setAbbinamentoRisposte] = useState({})
+  const [mappaRisposte, setMappaRisposte] = useState({})
+
   const dom = domande[idx] || null
 
   // ── Avvia sessione ───────────────────────────────────────────────
@@ -205,6 +222,9 @@ export default function Learning() {
       setNCorrQ(0)
       setFeedback(null)
       setTesto('')
+      setClassificaRisposte({})
+      setAbbinamentoRisposte({})
+      setMappaRisposte({})
       setTStart(Date.now())
       setSessStart(Date.now())
       setVista('gioco')
@@ -213,6 +233,66 @@ export default function Learning() {
       setVista('errore')
     }
     setLoading(false)
+  }
+
+
+  // ── Correggi classifica colore ───────────────────────────────────
+  async function correggiClassifica() {
+    if (feedback) return
+    const giuste = dom.risposta_giusta
+    let nCorr = 0
+    Object.keys(giuste).forEach(v => { if (classificaRisposte[v] === giuste[v]) nCorr++ })
+    const tot = Object.keys(giuste).length
+    const ok = nCorr === tot
+    if (ok) setNCorrQ(n => n + 1)
+    setFeedback({ ok, scelta: classificaRisposte, spiegazione: dom.spiegazione, parziale: `${nCorr}/${tot}` })
+    try {
+      await api('salva_risposta', {
+        sessione_id: sessId, argomento: dom.argomento, tipo_domanda: dom.tipo,
+        domanda: dom.domanda, risposta_utente: JSON.stringify(classificaRisposte),
+        risposta_giusta: JSON.stringify(giuste), corretta: ok,
+        spiegazione: dom.spiegazione, tempo_ms: Date.now() - tStart,
+      })
+    } catch (_) {}
+  }
+
+  // ── Correggi abbinamento ─────────────────────────────────────────
+  async function correggiAbbinamento() {
+    if (feedback) return
+    let nCorr = 0
+    dom.coppie.forEach(({ sx, dx }) => { if (abbinamentoRisposte[sx] === dx) nCorr++ })
+    const tot = dom.coppie.length
+    const ok = nCorr === tot
+    if (ok) setNCorrQ(n => n + 1)
+    setFeedback({ ok, scelta: abbinamentoRisposte, spiegazione: dom.spiegazione, parziale: `${nCorr}/${tot}` })
+    try {
+      await api('salva_risposta', {
+        sessione_id: sessId, argomento: dom.argomento, tipo_domanda: dom.tipo,
+        domanda: dom.domanda, risposta_utente: JSON.stringify(abbinamentoRisposte),
+        risposta_giusta: JSON.stringify(Object.fromEntries(dom.coppie.map(({sx,dx}) => [sx,dx]))),
+        corretta: ok, spiegazione: dom.spiegazione, tempo_ms: Date.now() - tStart,
+      })
+    } catch (_) {}
+  }
+
+  // ── Correggi mappa ───────────────────────────────────────────────
+  async function correggiMappa() {
+    if (feedback) return
+    const giuste = dom.risposta_giusta
+    let nCorr = 0
+    dom.elementi.forEach(el => { if (mappaRisposte[el] === giuste[el]) nCorr++ })
+    const tot = dom.elementi.length
+    const ok = nCorr === tot
+    if (ok) setNCorrQ(n => n + 1)
+    setFeedback({ ok, scelta: mappaRisposte, spiegazione: dom.spiegazione, parziale: `${nCorr}/${tot}` })
+    try {
+      await api('salva_risposta', {
+        sessione_id: sessId, argomento: dom.argomento, tipo_domanda: dom.tipo,
+        domanda: dom.domanda, risposta_utente: JSON.stringify(mappaRisposte),
+        risposta_giusta: JSON.stringify(giuste), corretta: ok,
+        spiegazione: dom.spiegazione, tempo_ms: Date.now() - tStart,
+      })
+    } catch (_) {}
   }
 
   // ── Rispondi a V/F o multipla ────────────────────────────────────
@@ -423,7 +503,7 @@ export default function Learning() {
         {/* Domanda */}
         <div style={{ ...card, borderLeft: `4px solid ${terra}` }}>
           <span style={{ ...label10, marginBottom: 8 }}>
-            {dom.tipo === 'vero_falso' ? tx('dom_label_vf') : dom.tipo === 'multipla' ? tx('dom_label_m') : tx('dom_label_a')}
+            {dom.tipo === 'vero_falso' ? tx('dom_label_vf') : dom.tipo === 'multipla' ? tx('dom_label_m') : dom.tipo === 'aperta' || dom.tipo === 'elenco' ? tx('dom_label_a') : dom.tipo === 'classifica_colore' ? tx('classifica_istr').split(':')[0] : dom.tipo === 'abbinamento' ? 'Abbinamento' : dom.tipo === 'mappa' ? 'Mappa geografica' : tx('dom_label_a')}
           </span>
           <div style={{ fontSize: 16, fontWeight: 600, color: scuro, lineHeight: 1.6 }}>{dom.domanda}</div>
         </div>
@@ -465,7 +545,7 @@ export default function Learning() {
         )}
 
         {/* Aperta */}
-        {dom.tipo === 'aperta' && !feedback && (
+        {(dom.tipo === 'aperta' || dom.tipo === 'elenco') && !feedback && (
           <div style={{ marginBottom: 14 }}>
             <textarea value={testo} onChange={e => setTesto(e.target.value)} rows={5}
               placeholder={tx('scrivi')}
@@ -474,6 +554,150 @@ export default function Learning() {
               disabled={!testo.trim()} onClick={inviaAperta}>
               {tx('conferma')}
             </button>
+          </div>
+        )}
+
+
+        {/* Classifica colore */}
+        {dom.tipo === 'classifica_colore' && !feedback && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 12, color: medio, marginBottom: 12, lineHeight: 1.5 }}>
+              {tx('classifica_istr')}
+            </div>
+            {dom.vitigni.map(v => (
+              <div key={v} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...card, padding: '10px 14px', marginBottom: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: scuro }}>{v}</span>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {['bianco', 'rosso'].map(col => {
+                    const sel = (classificaRisposte[v] === col)
+                    return (
+                      <button key={col} onClick={() => setClassificaRisposte(prev => ({ ...prev, [v]: col }))}
+                        style={{ padding: '6px 14px', borderRadius: 20, border: `1.5px solid ${sel ? (col === 'bianco' ? '#B8956A' : '#9B2335') : chiaro}`, background: sel ? (col === 'bianco' ? '#FDF5E8' : '#FDF0EE') : '#fff', color: sel ? (col === 'bianco' ? '#8B6A2A' : '#9B2335') : medio, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: '"DM Sans", sans-serif' }}>
+                        {col === 'bianco' ? '⬜ ' + tx('bianco') : '🟥 ' + tx('rosso')}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+            <button style={{ ...btnPrimary, marginTop: 10, opacity: Object.keys(classificaRisposte).length === dom.vitigni.length ? 1 : 0.5 }}
+              disabled={Object.keys(classificaRisposte).length !== dom.vitigni.length}
+              onClick={() => correggiClassifica()}>
+              {tx('conferma')}
+            </button>
+          </div>
+        )}
+
+        {/* Classifica colore — feedback */}
+        {dom.tipo === 'classifica_colore' && feedback && (
+          <div style={{ marginBottom: 14 }}>
+            {dom.vitigni.map(v => {
+              const giusta = dom.risposta_giusta[v]
+              const data_ris = feedback.dettaglio?.[v] || {}
+              const ok = feedback.scelta?.[v] === giusta
+              return (
+                <div key={v} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...card, padding: '10px 14px', marginBottom: 8, background: ok ? '#F0F9F4' : '#FDF0EE', border: `1px solid ${ok ? verde : rosso}33` }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: scuro }}>{v}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {!ok && <span style={{ fontSize: 12, color: rosso, textDecoration: 'line-through' }}>{feedback.scelta?.[v]}</span>}
+                    <span style={{ fontSize: 12, fontWeight: 700, color: ok ? verde : rosso }}>{giusta}</span>
+                    <span>{ok ? '✓' : '✗'}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Abbinamento */}
+        {dom.tipo === 'abbinamento' && !feedback && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 12, color: medio, marginBottom: 10 }}>
+              <span style={{ fontWeight: 700 }}>{dom.istruzione_sx}</span> → <span style={{ fontWeight: 700 }}>{dom.istruzione_dx}</span>
+            </div>
+            {dom.coppie.map(({ sx }, i) => (
+              <div key={sx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <div style={{ flex: '0 0 40%', ...card, padding: '8px 12px', margin: 0, fontSize: 13, fontWeight: 600, color: scuro }}>{sx}</div>
+                <span style={{ color: medio }}>→</span>
+                <select value={abbinamentoRisposte[sx] || ''}
+                  onChange={e => setAbbinamentoRisposte(prev => ({ ...prev, [sx]: e.target.value }))}
+                  style={{ flex: 1, padding: '8px 10px', border: `1.5px solid ${chiaro}`, borderRadius: 10, fontSize: 13, color: scuro, background: '#fff', fontFamily: '"DM Sans", sans-serif' }}>
+                  <option value=''>—</option>
+                  {dom.coppie.map(({ dx }) => <option key={dx} value={dx}>{dx}</option>)}
+                </select>
+              </div>
+            ))}
+            <button style={{ ...btnPrimary, marginTop: 10, opacity: Object.keys(abbinamentoRisposte).length === dom.coppie.length ? 1 : 0.5 }}
+              disabled={Object.keys(abbinamentoRisposte).length !== dom.coppie.length}
+              onClick={() => correggiAbbinamento()}>
+              {tx('conferma')}
+            </button>
+          </div>
+        )}
+
+        {/* Abbinamento — feedback */}
+        {dom.tipo === 'abbinamento' && feedback && (
+          <div style={{ marginBottom: 14 }}>
+            {dom.coppie.map(({ sx, dx }) => {
+              const ok = feedback.scelta?.[sx] === dx
+              return (
+                <div key={sx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <div style={{ flex: '0 0 40%', ...card, padding: '8px 12px', margin: 0, fontSize: 13, fontWeight: 600, color: scuro }}>{sx}</div>
+                  <span>→</span>
+                  <div style={{ flex: 1, ...card, padding: '8px 12px', margin: 0, fontSize: 13, background: ok ? '#F0F9F4' : '#FDF0EE', border: `1px solid ${ok ? verde : rosso}33` }}>
+                    {!ok && <span style={{ color: rosso, textDecoration: 'line-through', marginRight: 6 }}>{feedback.scelta?.[sx]}</span>}
+                    <span style={{ fontWeight: 700, color: ok ? verde : rosso }}>{dx}</span> {ok ? '✓' : '✗'}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Mappa geografica */}
+        {dom.tipo === 'mappa' && !feedback && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 12, color: medio, marginBottom: 12 }}>{tx('mappa_istr')}</div>
+            {dom.elementi.map(el => {
+              const aree = [...new Set(Object.values(dom.risposta_giusta))]
+              return (
+                <div key={el} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <div style={{ flex: '0 0 45%', ...card, padding: '8px 12px', margin: 0, fontSize: 13, fontWeight: 600, color: scuro }}>{el}</div>
+                  <span style={{ color: medio }}>→</span>
+                  <select value={mappaRisposte[el] || ''}
+                    onChange={e => setMappaRisposte(prev => ({ ...prev, [el]: e.target.value }))}
+                    style={{ flex: 1, padding: '8px 10px', border: `1.5px solid ${chiaro}`, borderRadius: 10, fontSize: 13, color: scuro, background: '#fff', fontFamily: '"DM Sans", sans-serif' }}>
+                    <option value=''>—</option>
+                    {aree.map(a => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+              )
+            })}
+            <button style={{ ...btnPrimary, marginTop: 10, opacity: Object.keys(mappaRisposte).length === dom.elementi.length ? 1 : 0.5 }}
+              disabled={Object.keys(mappaRisposte).length !== dom.elementi.length}
+              onClick={() => correggiMappa()}>
+              {tx('conferma')}
+            </button>
+          </div>
+        )}
+
+        {/* Mappa — feedback */}
+        {dom.tipo === 'mappa' && feedback && (
+          <div style={{ marginBottom: 14 }}>
+            {dom.elementi.map(el => {
+              const giusta = dom.risposta_giusta[el]
+              const ok = feedback.scelta?.[el] === giusta
+              return (
+                <div key={el} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <div style={{ flex: '0 0 45%', ...card, padding: '8px 12px', margin: 0, fontSize: 13, fontWeight: 600, color: scuro }}>{el}</div>
+                  <span>→</span>
+                  <div style={{ flex: 1, ...card, padding: '8px 12px', margin: 0, fontSize: 13, background: ok ? '#F0F9F4' : '#FDF0EE', border: `1px solid ${ok ? verde : rosso}33` }}>
+                    {!ok && <span style={{ color: rosso, textDecoration: 'line-through', marginRight: 6 }}>{feedback.scelta?.[el]}</span>}
+                    <span style={{ fontWeight: 700, color: ok ? verde : rosso }}>{giusta}</span> {ok ? '✓' : '✗'}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
 
@@ -498,7 +722,7 @@ export default function Learning() {
               </div>
             )}
 
-            {dom.tipo !== 'aperta' && (
+            {(dom.tipo !== 'aperta' && dom.tipo !== 'elenco' && dom.tipo !== 'classifica_colore' && dom.tipo !== 'abbinamento' && dom.tipo !== 'mappa') && (
               <div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: medio, marginBottom: 4 }}>{tx('spiegazione')}</div>
                 <div style={{ fontSize: 13, color: scuro, lineHeight: 1.6 }}>{dom.spiegazione}</div>
@@ -523,6 +747,16 @@ export default function Learning() {
             )}
           </div>
         )}
+
+
+            {feedback?.parziale && (dom.tipo === 'classifica_colore' || dom.tipo === 'abbinamento' || dom.tipo === 'mappa') && (
+              <div style={{ fontSize: 13, color: medio, marginBottom: 8 }}>{feedback.parziale} corrette</div>
+            )}
+            {feedback?.spiegazione && (dom.tipo === 'classifica_colore' || dom.tipo === 'abbinamento' || dom.tipo === 'mappa') && (
+              <div style={{ fontSize: 12, color: scuro, lineHeight: 1.6, marginTop: 8 }}>
+                <span style={{ fontWeight: 700, color: medio }}>{tx('spiegazione')} </span>{feedback.spiegazione}
+              </div>
+            )}
 
         {fb && (
           <button style={btnPrimary} onClick={avanti}>
