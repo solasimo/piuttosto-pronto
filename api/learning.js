@@ -20,7 +20,6 @@ export default async function handler(req, res) {
   try {
     switch (action) {
 
-      // Carica KB e genera domande
       case 'genera_domande': {
         const { livello, categoria, lingua } = payload
 
@@ -29,17 +28,101 @@ export default async function handler(req, res) {
         if (categoria) query = query.eq('categoria', categoria)
         const { data: kb, error: kbErr } = await query.order('ordine')
         if (kbErr) return res.status(500).json({ error: kbErr.message })
-        if (!kb?.length) return res.status(404).json({ error: 'Nessun contenuto trovato per questa selezione' })
+        if (!kb?.length) return res.status(404).json({ error: 'Nessun contenuto trovato' })
 
         const kbText = kb.map(r => `=== ${r.argomento} ===\n${r.contenuto}`).join('\n\n')
         const linguaLabel = lingua === 'en' ? 'English' : lingua === 'fr' ? 'français' : 'italiano'
 
         const system = `Sei un generatore di domande d'esame per il corso di sommelier ASSP.
+
 REGOLA ASSOLUTA: usa ESCLUSIVAMENTE le informazioni della KNOWLEDGE BASE fornita. Non aggiungere mai nozioni esterne.
-Genera esattamente 10 domande in ${linguaLabel} calibrate sullo stile degli esami ASSP allegati: precise, tecniche, con trabocchetti realistici.
-Distribuzione: 4 vero_falso + 3 multipla + 3 aperta.
-Rispondi SOLO con JSON valido, zero testo fuori dal JSON:
-{"domande":[{"id":1,"tipo":"vero_falso","argomento":"nome","domanda":"testo","risposta_giusta":"V","spiegazione":"spiegazione dalla KB"},{"id":2,"tipo":"multipla","argomento":"nome","domanda":"testo","opzioni":{"A":"","B":"","C":"","D":""},"risposta_giusta":"A","spiegazione":"spiegazione dalla KB"},{"id":3,"tipo":"aperta","argomento":"nome","domanda":"testo","risposta_modello":"risposta completa","punti_chiave":["punto1","punto2"]}]}`
+
+Genera esattamente 10 domande in ${linguaLabel} calibrate sullo stile degli esami ASSP.
+Le domande devono essere precise, tecniche, con trabocchetti realistici, esattamente come all'esame.
+
+TIPI DISPONIBILI e distribuzione consigliata:
+- vero_falso: affermazione da giudicare vera o falsa (2-3 domande)
+- multipla: 4 opzioni A/B/C/D, una sola corretta (2-3 domande)
+- aperta: risposta descrittiva libera (1-2 domande)
+- classifica_colore: lista di vitigni da classificare come bianco/rosso (1 domanda)
+- abbinamento: collegare elementi di colonna sinistra a colonna destra, es. vitigno→regione, vino→paese (1-2 domande)
+- elenco: domanda che richiede di elencare elementi specifici, es. 3 zone + comuni + vitigni (1 domanda)
+- mappa: descrivere la posizione geografica di regioni viticole su una mappa descrittiva (0-1 domanda)
+
+Scegli i tipi più adatti al contenuto della KB selezionata. Non usare tutti i tipi se non appropriati.
+
+Rispondi SOLO con JSON valido, nessun testo fuori:
+{
+  "domande": [
+    {
+      "id": 1,
+      "tipo": "vero_falso",
+      "argomento": "nome_argomento",
+      "domanda": "testo",
+      "risposta_giusta": "V",
+      "spiegazione": "spiegazione tecnica dalla KB"
+    },
+    {
+      "id": 2,
+      "tipo": "multipla",
+      "argomento": "nome_argomento",
+      "domanda": "testo",
+      "opzioni": {"A": "...", "B": "...", "C": "...", "D": "..."},
+      "risposta_giusta": "B",
+      "spiegazione": "spiegazione tecnica dalla KB"
+    },
+    {
+      "id": 3,
+      "tipo": "aperta",
+      "argomento": "nome_argomento",
+      "domanda": "testo",
+      "risposta_modello": "risposta completa attesa",
+      "punti_chiave": ["punto1", "punto2", "punto3"]
+    },
+    {
+      "id": 4,
+      "tipo": "classifica_colore",
+      "argomento": "nome_argomento",
+      "domanda": "Indica se i seguenti vitigni sono bianchi o rossi:",
+      "vitigni": ["Vitigno1", "Vitigno2", "Vitigno3", "Vitigno4", "Vitigno5", "Vitigno6"],
+      "risposta_giusta": {"Vitigno1": "bianco", "Vitigno2": "rosso", "Vitigno3": "bianco", "Vitigno4": "rosso", "Vitigno5": "bianco", "Vitigno6": "rosso"},
+      "spiegazione": "breve spiegazione per i casi meno ovvi"
+    },
+    {
+      "id": 5,
+      "tipo": "abbinamento",
+      "argomento": "nome_argomento",
+      "domanda": "Abbina ogni elemento alla colonna di destra:",
+      "istruzione_sx": "Vitigno / Vino / Denominazione",
+      "istruzione_dx": "Regione / Paese / Cantone",
+      "coppie": [
+        {"sx": "Elemento A", "dx": "Risposta A"},
+        {"sx": "Elemento B", "dx": "Risposta B"},
+        {"sx": "Elemento C", "dx": "Risposta C"},
+        {"sx": "Elemento D", "dx": "Risposta D"},
+        {"sx": "Elemento E", "dx": "Risposta E"}
+      ],
+      "spiegazione": "note aggiuntive dalla KB"
+    },
+    {
+      "id": 6,
+      "tipo": "elenco",
+      "argomento": "nome_argomento",
+      "domanda": "testo che chiede di elencare elementi specifici",
+      "risposta_modello": "risposta modello completa",
+      "punti_chiave": ["elemento1", "elemento2", "elemento3"]
+    },
+    {
+      "id": 7,
+      "tipo": "mappa",
+      "argomento": "nome_argomento",
+      "domanda": "Indica a quale area geografica appartengono le seguenti denominazioni/vitigni/regioni:",
+      "elementi": ["Elemento1", "Elemento2", "Elemento3", "Elemento4"],
+      "risposta_giusta": {"Elemento1": "Area X", "Elemento2": "Area Y", "Elemento3": "Area Z", "Elemento4": "Area W"},
+      "spiegazione": "contesto geografico dalla KB"
+    }
+  ]
+}`
 
         const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -52,7 +135,7 @@ Rispondi SOLO con JSON valido, zero testo fuori dal JSON:
             model: 'claude-sonnet-4-6',
             max_tokens: 4000,
             system,
-            messages: [{ role: 'user', content: `KNOWLEDGE BASE:\n\n${kbText}\n\nCategoria: ${categoria || 'tutto'}. Genera 10 domande.` }],
+            messages: [{ role: 'user', content: `KNOWLEDGE BASE:\n\n${kbText}\n\nCategoria selezionata: ${categoria || 'tutto'}. Genera 10 domande variando i tipi in base al contenuto.` }],
           }),
         })
 
@@ -71,7 +154,6 @@ Rispondi SOLO con JSON valido, zero testo fuori dal JSON:
         return res.json({ sessione_id: sessione.id, domande: parsed.domande })
       }
 
-      // Correggi risposta aperta
       case 'correggi_aperta': {
         const { domanda, risposta_modello, punti_chiave, risposta_utente, lingua } = payload
         const linguaLabel = lingua === 'en' ? 'English' : lingua === 'fr' ? 'français' : 'italiano'
@@ -101,33 +183,32 @@ Rispondi SOLO con JSON: {"corretta":true/false,"punteggio":0-3,"feedback":"max 2
         return res.json(JSON.parse(raw))
       }
 
-      // Salva risposta
       case 'salva_risposta': {
         const { sessione_id, argomento, tipo_domanda, domanda, risposta_utente, risposta_giusta, corretta, spiegazione, tempo_ms } = payload
 
         await supabase.from('learning_risposte').insert({
           sessione_id, user_id: user.id, argomento, tipo_domanda,
-          domanda, risposta_utente, risposta_giusta, corretta, spiegazione, tempo_ms,
+          domanda, risposta_utente: typeof risposta_utente === 'string' ? risposta_utente : JSON.stringify(risposta_utente),
+          risposta_giusta: typeof risposta_giusta === 'string' ? risposta_giusta : JSON.stringify(risposta_giusta),
+          corretta, spiegazione, tempo_ms,
         })
 
-        // Upsert progressi
         const { data: prog } = await supabase.from('learning_progressi')
           .select().eq('user_id', user.id).eq('argomento', argomento).maybeSingle()
         const n_risposte = (prog?.n_risposte || 0) + 1
         const n_corrette = (prog?.n_corrette || 0) + (corretta ? 1 : 0)
-
         const { data: sess } = await supabase.from('learning_sessioni').select('livello,categoria').eq('id', sessione_id).single()
 
         await supabase.from('learning_progressi').upsert({
           user_id: user.id, livello: sess?.livello || 1, categoria: sess?.categoria || 'vino',
-          argomento, n_risposte, n_corrette, pct_corretto: Math.round((n_corrette / n_risposte) * 100),
+          argomento, n_risposte, n_corrette,
+          pct_corretto: Math.round((n_corrette / n_risposte) * 100),
           ultima_sessione: new Date().toISOString(),
         }, { onConflict: 'user_id,livello,categoria,argomento' })
 
         return res.json({ ok: true })
       }
 
-      // Chiudi sessione
       case 'chiudi_sessione': {
         const { sessione_id, n_corrette, durata_sec } = payload
         const { data: sess } = await supabase.from('learning_sessioni').select('n_domande').eq('id', sessione_id).single()
@@ -136,7 +217,6 @@ Rispondi SOLO con JSON: {"corretta":true/false,"punteggio":0-3,"feedback":"max 2
         return res.json({ punteggio })
       }
 
-      // Progressi
       case 'get_progressi': {
         const { data, error } = await supabase.from('learning_progressi')
           .select('*').eq('user_id', user.id).order('pct_corretto', { ascending: true })
