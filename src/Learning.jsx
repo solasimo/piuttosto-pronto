@@ -177,6 +177,28 @@ export default function Learning() {
   const domanda = domande[idx]
 
   // Avvia sessione
+  const selezionaCategoria = (cat) => {
+    setCategoriaSel(cat.cat)
+    if (cat.cat === 'tutto') {
+      avviaSessione(1, null)
+    } else {
+      avviaSessione(1, cat.cat)
+    }
+  }
+
+  const selezionaLivello = (lv) => {
+    if (lv.bloccato) return
+    setLivelloSel(lv.livello)
+    if (lv.livello === 1) {
+      setSchermata('categorie')
+    } else if (lv.livello === null) {
+      setCategoriaSel(null)
+      avviaSessione(null, null)
+    } else {
+      avviaSessione(lv.livello, null)
+    }
+  }
+
   const avviaSessione = async (livello, categoria) => {
     setLoading(true)
     setErrore('')
@@ -302,8 +324,8 @@ export default function Learning() {
         <span style={S.label}>{L.livelli[0].label.includes('1') ? 'Seleziona area di studio' : 'Select study area'}</span>
         {L.livelli.map(lv => (
           <button key={lv.id} disabled={lv.bloccato}
-            onClick={() => { setLivelloSel(lv.livello); setSchermata(lv.livello === 1 ? 'categorie' : 'gioco'); if (!lv.livello) { setCategoriaSel(null); avviaSessione(null, null) } }}
-            style={{ ...S.card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: lv.bloccato ? 'default' : 'pointer', opacity: lv.bloccato ? 0.45 : 1, border: `1.5px solid ${lv.bloccato ? C.chiaro : C.chiaro}` }}>
+            onClick={() => selezionaLivello(lv)}
+            style={{ width:'100%', background:'#fff', border:`1.5px solid ${C.chiaro}`, borderRadius:16, padding:18, marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', cursor: lv.bloccato ? 'default' : 'pointer', opacity: lv.bloccato ? 0.45 : 1, textAlign:'left' }}>
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: C.scuro, marginBottom: 3 }}>{lv.label}</div>
               <div style={{ fontSize: 12, color: C.medio }}>{lv.sub}</div>
@@ -335,7 +357,7 @@ export default function Learning() {
       <span style={S.label}>1° Livello — Scegli argomento</span>
       {L.categorie_l1.map(cat => (
         <button key={cat.id}
-          onClick={() => { setCategoriaSel(cat.cat); avviaSessione(cat.cat === 'tutto' ? null : 1, cat.cat) }}
+          onClick={() => selezionaCategoria(cat)}
           style={{ ...S.card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.scuro }}>{cat.label}</div>
           <span style={{ color: C.oro }}>→</span>
