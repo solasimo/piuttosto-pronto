@@ -401,6 +401,18 @@ export default function Learning() {
         <span style={{ fontSize: 18, color: oro }}>→</span>
       </button>
 
+
+      {/* Atlante */}
+      <button style={{ ...card, display: 'flex', alignItems: 'center', gap: 12, width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}`, marginTop: 8 }}
+        onClick={() => window.dispatchEvent(new CustomEvent('switch-tab', { detail: 'atlante' }))}>
+        <span style={{ fontSize: 24 }}>🗺️</span>
+        <div style={{ textAlign: 'left' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: scuro }}>Atlante viticolo</div>
+          <div style={{ fontSize: 12, color: medio }}>Mappe interattive · Italia</div>
+        </div>
+        <span style={{ color: oro, marginLeft: 'auto' }}>→</span>
+      </button>
+
       {/* Progressi */}
       <button style={{ ...card, display: 'flex', alignItems: 'center', gap: 12, width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}`, marginTop: 8 }}
         onClick={apriProgressi}>

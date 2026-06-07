@@ -12,6 +12,7 @@ import { PAESI_REGIONI, PAESI_OPTIONS } from './dati'
 import ImageUpload from './ImageUpload'
 import Auth from './Auth'
 import Learning from './Learning'
+import Atlante from './Atlante'
 import Admin from './Admin'
 import BenchmarkASPI from './BenchmarkASPI'
 
@@ -680,6 +681,12 @@ export default function App() {
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(''), 2500) }
 
   useEffect(() => {
+    const handler = (e) => setTab(e.detail)
+    window.addEventListener('switch-tab', handler)
+    return () => window.removeEventListener('switch-tab', handler)
+  }, [])
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
@@ -845,13 +852,14 @@ export default function App() {
           {tab==='statistiche' && <div style={{padding:'16px 14px 0'}}><Statistiche cantina={cantina} onBottigliaClick={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
           {tab==='abbinamento' && <div style={{padding:'16px 14px 0'}}><AIChef cantina={cantina} /></div>}
           {tab==='learning' && <div style={{padding:'16px 14px 0'}}><Learning /></div>}
+          {tab==='atlante' && <div style={{padding:'16px 14px 0'}}><Atlante /></div>}
           {tab==='schede' && <div style={{padding:'16px 14px 0'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} onBenchmark={setBenchmarkScheda} /></div>}
         </>}
       </div>
 
       {/* Bottom Nav */}
       <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#F0E8DC', borderTop:'1px solid #E0D8CC', display:'flex', zIndex:50 }}>
-        {[['libreria','🍾',T('nav.cantina')],['statistiche','📊',T('nav.stats')],['abbinamento','✦',T('nav.ai_chef')],['learning','🎓',T('nav.learning')],...(modalitaSommelier?[['schede','📓',T('nav.schede')]]:[])]
+        {[['libreria','🍾',T('nav.cantina')],['statistiche','📊',T('nav.stats')],['abbinamento','✦',T('nav.ai_chef')],['learning','🎓',T('nav.learning')],['atlante','🗺️',T('nav.atlante')],...(modalitaSommelier?[['schede','📓',T('nav.schede')]]:[])]
           .map(([id,icon,label])=>{
             const active = tab===id
             return (
