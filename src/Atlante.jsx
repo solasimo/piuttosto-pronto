@@ -138,23 +138,7 @@ function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
           </g>
         )
       })}
-      {/* Label sottozone al centroide */}
-      {Object.entries(zonaCentroids).map(([zi, pts]) => {
-        const cx = pts.xs.reduce((a,b)=>a+b,0)/pts.xs.length
-        const cy = pts.ys.reduce((a,b)=>a+b,0)/pts.ys.length
-        const col = ZONA_COLORS[parseInt(zi) % ZONA_COLORS.length]
-        const sz = sottozone?.[parseInt(zi)]
-        if (!sz) return null
-        // Abbrevia il nome della sottozona
-        const label = sz.nome.length > 16 ? sz.nome.split(' ')[0] : sz.nome
-        return (
-          <text key={zi} x={cx} y={cy - 10} textAnchor="middle" dominantBaseline="middle"
-            fontSize="5.5" fontFamily="DM Sans" fontWeight="700"
-            fill={col.stroke} pointerEvents="none">
-            {label}
-          </text>
-        )
-      })}
+      {/* Label sottozone rimosse: già visibili nella legenda */}
     </svg>
   )
 }
@@ -537,7 +521,7 @@ export default function Atlante() {
           </div>
         )}
 
-        {/* Vitigni della sottozona — presi dalla regione filtrati per contesto */}
+        {/* Vitigni della sottozona */}
         {regioneData && (regioneData.vitigni_rossi?.length > 0 || regioneData.vitigni_bianchi?.length > 0) && (
           <div style={card}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>Vitigni della zona</div>
@@ -546,6 +530,21 @@ export default function Atlante() {
               {(regioneData.vitigni_bianchi || []).map(v => <span key={v} style={pill('b')}>{v}</span>)}
             </div>
             <BarraProduzione produzione={sottozona.produzione} />
+          </div>
+        )}
+
+        {/* Focus esame sottozona */}
+        {sottozona.focus_points?.length > 0 && (
+          <div style={{ ...card, background: '#FFFBF5', border: `1px solid ${oro}44` }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: oro, marginBottom: 10 }}>
+              🎯 Focus esame
+            </div>
+            {sottozona.focus_points.map((fp, i) => (
+              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < sottozona.focus_points.length - 1 ? 10 : 0 }}>
+                <span style={{ color: terra, fontSize: 14, flexShrink: 0, marginTop: 1 }}>•</span>
+                <span style={{ fontSize: 13, color: scuro, lineHeight: 1.6 }}>{fp.testo}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -644,6 +643,21 @@ export default function Atlante() {
                 </div>
               ) : null
             })()}
+
+            {/* Focus esame */}
+            {regioneData.focus_points?.length > 0 && (
+              <div style={{ ...card, background: '#FFFBF5', border: `1px solid ${oro}44` }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: oro, marginBottom: 10 }}>
+                  🎯 Focus esame
+                </div>
+                {regioneData.focus_points.map((fp, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < regioneData.focus_points.length - 1 ? 10 : 0 }}>
+                    <span style={{ color: terra, fontSize: 14, flexShrink: 0, marginTop: 1 }}>•</span>
+                    <span style={{ fontSize: 13, color: scuro, lineHeight: 1.6 }}>{fp.testo}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Pulsante esercizio sottozone */}
             <button style={{ ...btnO, marginTop: 4 }} onClick={() => { setEsSottoRisposte({}); setEsSottoFeedback(null); setEsSottoCorrette({}); setEsSottoSelected(null); setEsUltimoFeedback(null); setEsMode('sottozone'); setVista('esercizio') }}>
