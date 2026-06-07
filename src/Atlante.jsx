@@ -138,14 +138,14 @@ function MappaItalia({ progressi, onSelect, selected }) {
           <g key={reg.id} onClick={() => onSelect(reg.id)} style={{ cursor: 'pointer' }}>
             <path d={reg.path} fill={fill} stroke={stroke} strokeWidth={sw}
               style={{ transition: 'fill 0.2s' }}/>
-            {/* Label solo per regioni grandi */}
-            {['PIE','LOM','VEN','TOS','SIC','SAR','CAM','PUG','LAZ','EMR'].includes(reg.id) && (
-              <text x={reg.cx} y={reg.cy} textAnchor="middle" dominantBaseline="middle"
-                fontSize="7" fontFamily="DM Sans, sans-serif" fontWeight="600"
-                fill={isSel || livello === 2 ? '#fff' : '#555'} pointerEvents="none">
-                {reg.label}
-              </text>
-            )}
+            {/* Label per tutte le regioni — font adattivo */}
+            <text x={reg.cx} y={reg.cy} textAnchor="middle" dominantBaseline="middle"
+              fontSize={['VDA','LIG','MOL','UMB','TAA','FVG','MAR'].includes(reg.id) ? '5.5' : ['ABR','BAS','CAL'].includes(reg.id) ? '6' : '7'}
+              fontFamily="DM Sans, sans-serif" fontWeight="700"
+              fill={isSel || livello === 2 ? '#fff' : '#333'} pointerEvents="none"
+              style={{ textShadow: '0 0 3px rgba(0,0,0,0.3)' }}>
+              {reg.label}
+            </text>
           </g>
         )
       })}
@@ -169,11 +169,14 @@ export default function Atlante() {
   const [esMode, setEsMode] = useState('regioni')    // regioni | sottozone
   const [esRegRisposte, setEsRegRisposte] = useState({})
   const [esRegFeedback, setEsRegFeedback] = useState(null)
+  const [esRegCorrette, setEsRegCorrette] = useState({})
   const [esSottoRisposte, setEsSottoRisposte] = useState({})
   const [esSottoFeedback, setEsSottoFeedback] = useState(null)
+  const [esSottoCorrette, setEsSottoCorrette] = useState({})
   const [esRegSelected, setEsRegSelected] = useState(null)
   const [esSottoSelected, setEsSottoSelected] = useState(null)
   const [esInput, setEsInput] = useState('')
+  const [esUltimoFeedback, setEsUltimoFeedback] = useState(null)
 
   useEffect(() => { carica() }, [])
 
@@ -210,13 +213,26 @@ export default function Atlante() {
   // Esercizio regioni: click su regione → inserisci nome
   function esClickRegione(reg_id) {
     if (esRegFeedback) return
+    // Se già risposta giusta per questa regione, non permettere modifica
+    if (esRegCorrette[reg_id]) return
     setEsRegSelected(reg_id)
-    setEsInput(esRegRisposte[reg_id] || '')
+    setEsInput('')
+    setEsUltimoFeedback(null)
   }
 
   function esConfermaRegione() {
     if (!esRegSelected || !esInput.trim()) return
+    const reg = regioni.find(r => r.regione_id === esRegSelected)
+    if (!reg) return
+    const risposta = esInput.trim().toLowerCase()
+    const atteso = reg.regione_nome.toLowerCase()
+    const ok = risposta === atteso ||
+      (risposta.length >= 4 && atteso.includes(risposta)) ||
+      risposta.includes(atteso.split('/')[0].trim().toLowerCase())
+    // Salva risposta e feedback immediato
     setEsRegRisposte(prev => ({ ...prev, [esRegSelected]: esInput.trim() }))
+    if (ok) setEsRegCorrette(prev => ({ ...prev, [esRegSelected]: true }))
+    setEsUltimoFeedback({ ok, atteso: reg.regione_nome, scritto: esInput.trim() })
     setEsInput('')
     setEsRegSelected(null)
   }
@@ -238,9 +254,11 @@ export default function Atlante() {
 
   function esResetRegioni() {
     setEsRegRisposte({})
+    setEsRegCorrette({})
     setEsRegFeedback(null)
     setEsRegSelected(null)
     setEsInput('')
+    setEsUltimoFeedback(null)
   }
 
   // Esercizio sottozone: solo per la regione selezionata
@@ -315,9 +333,11 @@ export default function Atlante() {
               {Object.values(REGIONS).map(reg => {
                 const risposta = esRegRisposte[reg.id]
                 const isSel = esRegSelected === reg.id
+                const isCorr = esRegCorrette[reg.id]
                 const fb = esRegFeedback?.feedback[reg.id]
                 const fill = esRegFeedback
                   ? (fb ? '#2D6A4F' : risposta ? '#9B2335' : '#D6CEBE')
+                  : isCorr ? '#2D6A4F'
                   : isSel ? terra
                   : risposta ? '#B8956A'
                   : '#D6CEBE'
@@ -372,16 +392,31 @@ export default function Atlante() {
           </div>
         )}
 
-        {/* Campo input */}
+        {/* Campo input — senza il nome della regione */}
         {(esRegSelected || esSottoSelected !== null) && !esRegFeedback && !esSottoFeedback && (
           <div style={{ ...card, borderColor: terra, marginBottom: 12 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: terra, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>
-              {isRegMode ? `Regione selezionata: ${REGIONS[esRegSelected]?.label}` : `Zona ${esSottoSelected + 1}`}
+              {isRegMode ? 'Qual è il nome di questa regione?' : `Zona ${esSottoSelected + 1} — come si chiama?`}
             </div>
             <input autoFocus value={esInput} onChange={e => setEsInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && (isRegMode ? esConfermaRegione() : esConfermaSottozona())}
               placeholder="Scrivi il nome..."
               style={{ width: '100%', border: 'none', outline: 'none', fontSize: 15, color: scuro, background: 'transparent', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box' }}/>
+          </div>
+        )}
+
+        {/* Feedback immediato ultima risposta */}
+        {esUltimoFeedback && (
+          <div style={{ ...card, background: esUltimoFeedback.ok ? '#F0F9F4' : '#FDF0EE', borderColor: esUltimoFeedback.ok ? verde : terra, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 22 }}>{esUltimoFeedback.ok ? '✓' : '✗'}</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: esUltimoFeedback.ok ? verde : terra }}>
+                {esUltimoFeedback.ok ? 'Corretto!' : `Sbagliato — era: ${esUltimoFeedback.atteso}`}
+              </div>
+              {!esUltimoFeedback.ok && (
+                <div style={{ fontSize: 11, color: medio }}>Hai scritto: {esUltimoFeedback.scritto}</div>
+              )}
+            </div>
           </div>
         )}
 
@@ -392,9 +427,9 @@ export default function Atlante() {
               Conferma
             </button>
           )}
-          {!esRegFeedback && !esSottoFeedback && nCompilate === nTot && nTot > 0 && (
+          {!esRegFeedback && !esSottoFeedback && nCompilate === nTot && nTot > 0 && !esRegSelected && esSottoSelected === null && (
             <button style={{ ...btnP, flex: 1 }} onClick={isRegMode ? esVerificaRegioni : esVerificaSottozone}>
-              Verifica tutto →
+              Vedi risultato finale →
             </button>
           )}
         </div>
@@ -409,7 +444,7 @@ export default function Atlante() {
               <div style={{ fontSize: 40, marginBottom: 8 }}>{emoji}</div>
               <div style={{ fontSize: 40, fontWeight: 800, color: pct >= 80 ? verde : pct >= 60 ? giallo : terra }}>{pct}%</div>
               <div style={{ fontSize: 14, color: medio, marginBottom: 16 }}>{fb.nCorr} / {fb.tot} corrette</div>
-              <button style={btnP} onClick={isRegMode ? esResetRegioni : () => { setEsSottoRisposte({}); setEsSottoFeedback(null); setEsSottoSelected(null) }}>
+              <button style={btnP} onClick={isRegMode ? esResetRegioni : () => { setEsSottoRisposte({}); setEsSottoFeedback(null); setEsSottoSelected(null); setEsUltimoFeedback(null) }}>
                 Riprova
               </button>
             </div>
@@ -417,13 +452,12 @@ export default function Atlante() {
         })()}
 
         {/* Progresso */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: medio, marginTop: 12 }}>
-          <span>{nCompilate}/{nTot} compilate</span>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <span style={{ color: '#B8956A' }}>● Non compilata</span>
-            <span style={{ color: terra }}>● Selezionata</span>
+        {!esRegFeedback && !esSottoFeedback && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: medio, marginTop: 12 }}>
+            <span>{nCompilate}/{nTot} compilate</span>
+            <span style={{ color: verde }}>{Object.values(isRegMode ? esRegCorrette : esSottoCorrette).filter(Boolean).length} ✓ corrette</span>
           </div>
-        </div>
+        )}
       </div>
     )
   }
