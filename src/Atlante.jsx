@@ -79,8 +79,9 @@ function BarraProduzione({ produzione, compact = false }) {
 
 // ── Mappa Regione con province colorate per sottozona ────────────────────────
 function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
-  const mapData = REGION_MAPS[regione_id]
+  const mapData = REGION_MAPS[regione_id?.toUpperCase()]
   if (!mapData) return null
+  console.log('MappaRegione', regione_id, 'comuni_map:', mapData.comuni_map?.length ?? 'undefined')
 
   // Costruisce mappa provincia -> indice sottozona
   const provToZona = {}
