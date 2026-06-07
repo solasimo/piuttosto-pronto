@@ -1,6 +1,20 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 import { SVG_W, SVG_H, REGIONS } from './italySvgData'
+import { REGION_MAPS } from './italyRegionMaps'
+
+
+// Palette colori sottozone (max 8 per regione)
+const ZONA_COLORS = [
+  { fill: '#C4614A22', stroke: '#C4614A', label: '#8B2E1A' },
+  { fill: '#2D6A4F22', stroke: '#2D6A4F', label: '#1A4530' },
+  { fill: '#B8956A22', stroke: '#B8956A', label: '#6B4E1A' },
+  { fill: '#4A6FA5aa', stroke: '#2E4F7A', label: '#1A2E4A' },
+  { fill: '#9B233522', stroke: '#9B2335', label: '#6B0F1F' },
+  { fill: '#C77B1322', stroke: '#C77B13', label: '#6B3D0A' },
+  { fill: '#5B4E8A22', stroke: '#3D3060', label: '#2A1F50' },
+  { fill: '#2A7A6A22', stroke: '#1A5A4A', label: '#0A3530' },
+]
 
 const terra = '#C4614A', oro = '#B8956A', scuro = '#2C1A0E'
 const medio = '#9A8070', chiaro = '#E0D8CC', avorio = '#FBF7F0'
@@ -24,6 +38,89 @@ function regionColor(livello, selected) {
   if (livello === 2) return verde
   if (livello === 1) return giallo
   return '#D6CEBE'
+}
+
+
+// ── Mappa Regione con province colorate per sottozona ────────────────────────
+function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
+  const mapData = REGION_MAPS[regione_id]
+  if (!mapData) return null
+
+  // Costruisce mappa provincia -> indice sottozona
+  const provToZona = {}
+  ;(sottozone || []).forEach((sz, idx) => {
+    // Le province della sottozona vengono dedotte dai dati in learning_mappe
+    // che abbiamo nella struttura sottozone[].province (se presente)
+    // Altrimenti usiamo l'ordine per distribuire province tra sottozone
+    if (sz.province) {
+      sz.province.forEach(p => { provToZona[p] = idx })
+    }
+  })
+
+  // Se nessuna sottozona ha province esplicite, distribuiamo automaticamente
+  // le province tra le sottozone in base all'ordine geografico
+  const allProvs = Object.keys(mapData.provinces)
+  const hasExplicit = Object.keys(provToZona).length > 0
+  if (!hasExplicit && sottozone?.length > 0) {
+    const perZona = Math.ceil(allProvs.length / sottozone.length)
+    allProvs.forEach((prov, i) => {
+      provToZona[prov] = Math.min(Math.floor(i / perZona), sottozone.length - 1)
+    })
+  }
+
+  // Calcola centroidi delle sottozone per le label
+  const zonaCentroids = {}
+  allProvs.forEach(prov => {
+    const zi = provToZona[prov]
+    if (zi === undefined) return
+    const pd = mapData.provinces[prov]
+    if (!zonaCentroids[zi]) zonaCentroids[zi] = { xs: [], ys: [] }
+    zonaCentroids[zi].xs.push(pd.cx)
+    zonaCentroids[zi].ys.push(pd.cy)
+  })
+
+  return (
+    <svg viewBox={`0 0 ${mapData.w} ${mapData.h}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+      <rect width={mapData.w} height={mapData.h} fill="#FBF7F0" rx="8"/>
+      {allProvs.map(prov => {
+        const pd = mapData.provinces[prov]
+        const zi = provToZona[prov] ?? 0
+        const col = ZONA_COLORS[zi % ZONA_COLORS.length]
+        const isSel = selectedZona !== null && selectedZona === zi
+        return (
+          <g key={prov} onClick={() => onSelectZona?.(zi)} style={{ cursor: 'pointer' }}>
+            <path d={pd.path}
+              fill={isSel ? col.stroke + '55' : col.fill}
+              stroke={col.stroke}
+              strokeWidth={isSel ? 1.5 : 0.8}
+              style={{ transition: 'fill 0.15s' }}/>
+            <text x={pd.cx} y={pd.cy} textAnchor="middle" dominantBaseline="middle"
+              fontSize="6" fontFamily="DM Sans" fontWeight="500"
+              fill={col.label} pointerEvents="none">
+              {prov}
+            </text>
+          </g>
+        )
+      })}
+      {/* Label sottozone al centroide */}
+      {Object.entries(zonaCentroids).map(([zi, pts]) => {
+        const cx = pts.xs.reduce((a,b)=>a+b,0)/pts.xs.length
+        const cy = pts.ys.reduce((a,b)=>a+b,0)/pts.ys.length
+        const col = ZONA_COLORS[parseInt(zi) % ZONA_COLORS.length]
+        const sz = sottozone?.[parseInt(zi)]
+        if (!sz) return null
+        // Abbrevia il nome della sottozona
+        const label = sz.nome.length > 16 ? sz.nome.split(' ')[0] : sz.nome
+        return (
+          <text key={zi} x={cx} y={cy - 10} textAnchor="middle" dominantBaseline="middle"
+            fontSize="5.5" fontFamily="DM Sans" fontWeight="700"
+            fill={col.stroke} pointerEvents="none">
+            {label}
+          </text>
+        )
+      })}
+    </svg>
+  )
 }
 
 // ── Mappa Italia ─────────────────────────────────────────────────────────────
@@ -65,6 +162,7 @@ export default function Atlante() {
   const [regioneData, setRegioneData] = useState(null)
   const [sottozona, setSottozona] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [selectedZona, setSelectedZona] = useState(null)
   const [esLoading, setEsLoading] = useState(false)
 
   // Esercizio
@@ -96,6 +194,7 @@ export default function Atlante() {
     setSelected(reg_id)
     setRegioneData(null)
     setSottozona(null)
+    setSelectedZona(null)
     setVista('regione')
     try {
       const { regione } = await apiMappe('get_regione', { paese: 'italia', regione_id: reg_id })
@@ -225,15 +324,17 @@ export default function Atlante() {
                 return (
                   <g key={reg.id} onClick={() => esClickRegione(reg.id)} style={{ cursor: esRegFeedback ? 'default' : 'pointer' }}>
                     <path d={reg.path} fill={fill} stroke={isSel ? terra : '#fff'} strokeWidth={isSel ? 2 : 0.5} style={{ transition: 'fill 0.2s' }}/>
-                    {risposta && (
+                    {/* Durante esercizio: mostra ✓/✗ solo dopo verifica, nessun testo prima */}
+                    {esRegFeedback && (
                       <text x={reg.cx} y={reg.cy} textAnchor="middle" dominantBaseline="middle"
-                        fontSize="5.5" fontFamily="DM Sans" fontWeight="700" fill="#fff" pointerEvents="none">
-                        {risposta.slice(0,10)}
+                        fontSize="8" fontFamily="DM Sans" fontWeight="700"
+                        fill="#fff" pointerEvents="none">
+                        {esRegFeedback.feedback[reg.id] ? '✓' : risposta ? '✗' : '?'}
                       </text>
                     )}
-                    {esRegFeedback && !risposta && (
+                    {!esRegFeedback && isSel && (
                       <text x={reg.cx} y={reg.cy} textAnchor="middle" dominantBaseline="middle"
-                        fontSize="5.5" fontFamily="DM Sans" fill="#666" pointerEvents="none">?</text>
+                        fontSize="8" fontFamily="DM Sans" fill="#fff" pointerEvents="none">✏️</text>
                     )}
                   </g>
                 )
@@ -400,6 +501,34 @@ export default function Atlante() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Mappa regione con sottozone */}
+            <div style={{ ...card, padding: 8, marginBottom: 12 }}>
+              <MappaRegione
+                regione_id={regioneData.regione_id}
+                sottozone={regioneData.sottozone}
+                onSelectZona={(zi) => {
+                  setSelectedZona(zi === selectedZona ? null : zi)
+                  const sz = regioneData.sottozone?.[zi]
+                  if (sz) { setSottozona(sz); setVista('sottozona') }
+                }}
+                selectedZona={selectedZona}
+              />
+            </div>
+
+            {/* Legenda colori sottozone */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+              {(regioneData.sottozone || []).map((sz, i) => {
+                const col = ZONA_COLORS[i % ZONA_COLORS.length]
+                return (
+                  <div key={i} onClick={() => { setSottozona(sz); setVista('sottozona') }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 20, background: col.fill, border: `1px solid ${col.stroke}`, cursor: 'pointer' }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.stroke, flexShrink: 0 }}/>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: col.label }}>{sz.nome}</span>
+                  </div>
+                )
+              })}
             </div>
 
             {/* Vitigni */}
