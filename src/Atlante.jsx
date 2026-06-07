@@ -115,6 +115,16 @@ function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
     zonaCentroids[zi].ys.push(pd.cy)
   })
 
+  // Mappa provincia -> label (comune chiave se disponibile)
+  const provLabel = {}
+  ;(sottozone || []).forEach((sz) => {
+    if (sz.province) {
+      sz.province.forEach(p => {
+        provLabel[p] = sz.comune_label || sz.comuni?.[0] || p
+      })
+    }
+  })
+
   return (
     <svg viewBox={`0 0 ${mapData.w} ${mapData.h}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
       <rect width={mapData.w} height={mapData.h} fill="#FBF7F0" rx="8"/>
@@ -123,6 +133,7 @@ function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
         const zi = provToZona[prov] ?? 0
         const col = ZONA_COLORS[zi % ZONA_COLORS.length]
         const isSel = selectedZona !== null && selectedZona === zi
+        const label = provLabel[prov] || prov
         return (
           <g key={prov} onClick={() => onSelectZona?.(zi)} style={{ cursor: 'pointer' }}>
             <path d={pd.path}
@@ -133,7 +144,7 @@ function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
             <text x={pd.cx} y={pd.cy} textAnchor="middle" dominantBaseline="middle"
               fontSize="6" fontFamily="DM Sans" fontWeight="500"
               fill={col.label} pointerEvents="none">
-              {prov}
+              {label}
             </text>
           </g>
         )
