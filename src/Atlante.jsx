@@ -41,6 +41,42 @@ function regionColor(livello, selected) {
 }
 
 
+
+// ── Barra produzione ─────────────────────────────────────────────────────────
+function BarraProduzione({ produzione, compact = false }) {
+  if (!produzione || (!produzione.rosso && !produzione.bianco)) return null
+  const r = produzione.rosso || 0
+  const b = produzione.bianco || 0
+  const ro = produzione.rosato || 0
+  const tot = r + b + ro
+  if (tot === 0) return null
+  const pr = Math.round(r / tot * 100)
+  const pb = Math.round(b / tot * 100)
+  const pro = 100 - pr - pb
+
+  return (
+    <div style={{ marginTop: compact ? 6 : 10 }}>
+      {!compact && (
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9A8070', marginBottom: 6 }}>
+          Produzione
+        </div>
+      )}
+      {/* Barra */}
+      <div style={{ height: compact ? 6 : 8, borderRadius: 4, overflow: 'hidden', display: 'flex', background: '#E0D8CC' }}>
+        {pr > 0 && <div style={{ width: `${pr}%`, background: '#9B2335', transition: 'width 0.4s' }}/>}
+        {pb > 0 && <div style={{ width: `${pb}%`, background: '#B8956A', transition: 'width 0.4s' }}/>}
+        {pro > 0 && <div style={{ width: `${pro}%`, background: '#F4A7B9', transition: 'width 0.4s' }}/>}
+      </div>
+      {/* Leggenda */}
+      <div style={{ display: 'flex', gap: 10, marginTop: compact ? 4 : 6, flexWrap: 'wrap' }}>
+        {pr > 0 && <span style={{ fontSize: 10, color: '#9B2335', fontWeight: 600 }}>🟥 Rosso {pr}%</span>}
+        {pb > 0 && <span style={{ fontSize: 10, color: '#8B6A2A', fontWeight: 600 }}>⬜ Bianco {pb}%</span>}
+        {pro > 0 && <span style={{ fontSize: 10, color: '#c04f72', fontWeight: 600 }}>🌸 Rosato {pro}%</span>}
+      </div>
+    </div>
+  )
+}
+
 // ── Mappa Regione con province colorate per sottozona ────────────────────────
 function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
   const mapData = REGION_MAPS[regione_id]
@@ -500,6 +536,18 @@ export default function Atlante() {
             <div>{sottozona.doc.map(d => <span key={d} style={pill('g')}>{d}</span>)}</div>
           </div>
         )}
+
+        {/* Vitigni della sottozona — presi dalla regione filtrati per contesto */}
+        {regioneData && (regioneData.vitigni_rossi?.length > 0 || regioneData.vitigni_bianchi?.length > 0) && (
+          <div style={card}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>Vitigni della zona</div>
+            <div>
+              {(regioneData.vitigni_rossi || []).map(v => <span key={v} style={pill('r')}>{v}</span>)}
+              {(regioneData.vitigni_bianchi || []).map(v => <span key={v} style={pill('b')}>{v}</span>)}
+            </div>
+            <BarraProduzione produzione={sottozona.produzione} />
+          </div>
+        )}
       </div>
     )
   }
@@ -565,33 +613,40 @@ export default function Atlante() {
               })}
             </div>
 
-            {/* Vitigni */}
+            {/* Vitigni + barra produzione */}
             <div style={card}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>Vitigni</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>Vitigni principali</div>
               <div>
                 {(regioneData.vitigni_rossi || []).map(v => <span key={v} style={pill('r')}>{v}</span>)}
                 {(regioneData.vitigni_bianchi || []).map(v => <span key={v} style={pill('b')}>{v}</span>)}
               </div>
+              <BarraProduzione produzione={regioneData.produzione} />
             </div>
 
-            {/* Sottozone */}
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: oro, marginBottom: 8, marginTop: 4 }}>Zone viticole</div>
-            {(regioneData.sottozone || []).map((sz, i) => (
-              <div key={i} onClick={() => { setSottozona(sz); setVista('sottozona') }}
-                style={{ ...card, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: scuro, marginBottom: 3 }}>{sz.nome}</div>
-                  <div style={{ fontSize: 11, color: medio }}>
-                    {sz.comuni?.slice(0,3).join(' · ')}
-                    {sz.docg?.length > 0 && <span style={{ marginLeft: 6, color: '#8B3D0A', fontWeight: 600 }}>· {sz.docg.length} DOCG</span>}
-                  </div>
+            {/* DOCG */}
+            {(() => {
+              const allDocg = (regioneData.sottozone || []).flatMap(sz => sz.docg || [])
+              return allDocg.length > 0 ? (
+                <div style={card}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B3D0A', marginBottom: 10 }}>DOCG</div>
+                  <div>{allDocg.map(d => <span key={d} style={pill('d')}>{d}</span>)}</div>
                 </div>
-                <span style={{ color: oro, fontSize: 16 }}>›</span>
-              </div>
-            ))}
+              ) : null
+            })()}
+
+            {/* DOC */}
+            {(() => {
+              const allDoc = (regioneData.sottozone || []).flatMap(sz => sz.doc || [])
+              return allDoc.length > 0 ? (
+                <div style={card}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: verde, marginBottom: 10 }}>DOC principali</div>
+                  <div>{allDoc.map(d => <span key={d} style={pill('g')}>{d}</span>)}</div>
+                </div>
+              ) : null
+            })()}
 
             {/* Pulsante esercizio sottozone */}
-            <button style={{ ...btnO, marginTop: 8 }} onClick={() => { setEsSottoRisposte({}); setEsSottoFeedback(null); setEsSottoSelected(null); setEsMode('sottozone'); setVista('esercizio') }}>
+            <button style={{ ...btnO, marginTop: 4 }} onClick={() => { setEsSottoRisposte({}); setEsSottoFeedback(null); setEsSottoCorrette({}); setEsSottoSelected(null); setEsUltimoFeedback(null); setEsMode('sottozone'); setVista('esercizio') }}>
               🗺️ Esercizio sottozone
             </button>
           </>
