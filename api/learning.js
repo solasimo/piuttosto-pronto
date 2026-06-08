@@ -224,6 +224,99 @@ Rispondi SOLO con JSON: {"corretta":true/false,"punteggio":0-3,"feedback":"max 2
         return res.json({ progressi: data || [] })
       }
 
+      case 'genera_esercizi_regione': {
+        const { regione, regione_nome } = payload
+
+        const system = `Sei un generatore di esercizi flash per sommelier ASSP.
+Usa ESCLUSIVAMENTE le informazioni della regione fornita. Non aggiungere nozioni esterne.
+
+Genera esattamente 8 domande rapide e azionabili su ${regione_nome}.
+Mix di tipi: 3 multipla, 2 vero_falso, 3 flash (una flash card con domanda e risposta).
+
+Per "multipla": 4 opzioni, una corretta. Domande brevi e precise.
+Per "vero_falso": affermazione da giudicare vera o falsa.
+Per "flash": breve domanda con risposta concisa (es. "Qual è il vitigno principale?").
+
+Rispondi SOLO con JSON valido:
+{
+  "domande": [
+    {
+      "tipo": "multipla",
+      "domanda": "testo domanda",
+      "opzioni": ["A","B","C","D"],
+      "corretta": "a",
+      "spiegazione": "breve spiegazione max 1 frase"
+    },
+    {
+      "tipo": "vero_falso",
+      "domanda": "affermazione",
+      "corretta": true,
+      "spiegazione": "breve spiegazione"
+    },
+    {
+      "tipo": "flash",
+      "domanda": "domanda breve",
+      "risposta": "risposta concisa"
+    }
+  ]
+}`
+
+        const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 2000,
+            system,
+            messages: [{ role: 'user', content: `Dati della regione:\n${regione}` }],
+          }),
+        })
+
+        const aiData = await anthropicRes.json()
+        if (!anthropicRes.ok) return res.status(500).json({ error: 'Errore generazione esercizi' })
+        const raw = aiData.content[0].text.replace(/```json|```/g, '').trim()
+        const parsed = JSON.parse(raw)
+        return res.json({ domande: parsed.domande })
+      }
+
+      case 'domanda_libera': {
+        const { domanda, kb_context } = payload
+
+        const system = `Sei un esperto sommelier ASSP. Rispondi ESCLUSIVAMENTE usando le informazioni della knowledge base fornita.
+Se l'informazione non è presente nella KB, dillo esplicitamente con: "Questa informazione non è presente nelle mie note di studio."
+Non aggiungere mai nozioni esterne senza segnalarlo.
+Se usi conoscenze esterne alla KB, inizia la frase con [FONTE ESTERNA].
+Rispondi in italiano, in modo chiaro e preciso, come se spiegassi a uno studente ASSP.`
+
+        const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 800,
+            system,
+            messages: [{
+              role: 'user',
+              content: `Knowledge base di studio:\n${kb_context}\n\nDomanda dello studente: ${domanda}`
+            }],
+          }),
+        })
+
+        const aiData = await anthropicRes.json()
+        if (!anthropicRes.ok) return res.status(500).json({ error: 'Errore risposta' })
+        const risposta = aiData.content[0].text
+        const usaFonteEsterna = risposta.includes('[FONTE ESTERNA]')
+        return res.json({ risposta, fonte_esterna: usaFonteEsterna })
+      }
+
       default:
         return res.status(400).json({ error: `Azione sconosciuta: ${action}` })
     }
