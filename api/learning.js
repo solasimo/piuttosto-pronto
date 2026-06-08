@@ -25,7 +25,8 @@ export default async function handler(req, res) {
 
         let query = supabase.from('learning_kb').select('argomento, contenuto').eq('attivo', true)
         if (livello) query = query.eq('livello', livello)
-        if (categoria) query = query.eq('categoria', categoria)
+        if (categoria === 'italia') query = query.like('categoria', 'italia%')
+        else if (categoria) query = query.eq('categoria', categoria)
         const { data: kb, error: kbErr } = await query.order('ordine')
         if (kbErr) return res.status(500).json({ error: kbErr.message })
         if (!kb?.length) return res.status(404).json({ error: 'Nessun contenuto trovato' })
