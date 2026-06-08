@@ -681,18 +681,32 @@ export default function Learning() {
         {/* Classifica colore — feedback */}
         {dom.tipo === 'classifica_colore' && feedback && (
           <div style={{ marginBottom: 14 }}>
+            {/* Punteggio parziale */}
+            <div style={{ fontSize: 13, fontWeight: 700, color: isOk ? verde : medio, marginBottom: 10 }}>
+              {feedback.parziale} {isOk ? '✓ Tutto corretto!' : 'corrette'}
+            </div>
             {dom.vitigni.map(v => {
               const giusta = dom.risposta_giusta[v]
-              const data_ris = feedback.dettaglio?.[v] || {}
               const ok = feedback.scelta?.[v] === giusta
+              // Extract per-vitigno note from the global spiegazione (sentence containing the vitigno name)
+              const spiegazione = dom.spiegazione || ''
+              const frasi = spiegazione.split(/(?<=[.!?])\s+/)
+              const nota = frasi.find(f => f.toLowerCase().includes(v.toLowerCase())) || ''
               return (
-                <div key={v} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...card, padding: '10px 14px', marginBottom: 8, background: ok ? '#F0F9F4' : '#FDF0EE', border: `1px solid ${ok ? verde : rosso}33` }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: scuro }}>{v}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {!ok && <span style={{ fontSize: 12, color: rosso, textDecoration: 'line-through' }}>{feedback.scelta?.[v]}</span>}
-                    <span style={{ fontSize: 12, fontWeight: 700, color: ok ? verde : rosso }}>{giusta}</span>
-                    <span>{ok ? '✓' : '✗'}</span>
+                <div key={v} style={{ ...card, padding: '10px 14px', marginBottom: 8, background: ok ? '#F0F9F4' : '#FDF0EE', border: `1px solid ${ok ? verde : rosso}33` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: nota ? 6 : 0 }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: scuro }}>{v}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {!ok && <span style={{ fontSize: 12, color: rosso, textDecoration: 'line-through' }}>{feedback.scelta?.[v]}</span>}
+                      <span style={{ fontSize: 12, fontWeight: 700, color: ok ? verde : rosso }}>{giusta}</span>
+                      <span>{ok ? '✓' : '✗'}</span>
+                    </div>
                   </div>
+                  {nota && (
+                    <div style={{ fontSize: 12, color: ok ? '#2D6A4F' : '#9B2335', lineHeight: 1.5, borderTop: `1px solid ${ok ? verde : rosso}22`, paddingTop: 6 }}>
+                      {nota}
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -797,13 +811,13 @@ export default function Learning() {
         )}
 
         {/* Feedback */}
-        {fb && (
+        {fb && dom.tipo !== 'classifica_colore' && dom.tipo !== 'abbinamento' && dom.tipo !== 'mappa' && (
           <div style={{ ...card, background: isOk ? '#F0F9F4' : '#FDF0EE', border: `1px solid ${isOk ? verde : rosso}33`, marginBottom: 14 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: isOk ? verde : rosso, marginBottom: 12 }}>
               {isOk ? tx('corretta') : tx('sbagliata')}
             </div>
 
-            {dom.tipo !== 'aperta' && !isOk && (
+            {dom.tipo !== 'aperta' && dom.tipo !== 'classifica_colore' && dom.tipo !== 'abbinamento' && dom.tipo !== 'mappa' && !isOk && (
               <div style={{ marginBottom: 10 }}>
                 <span style={{ fontSize: 12, color: medio }}>{tx('risposta_giusta')} </span>
                 <span style={{ fontWeight: 700, color: verde }}>
@@ -839,14 +853,7 @@ export default function Learning() {
         )}
 
 
-            {feedback?.parziale && (dom.tipo === 'classifica_colore' || dom.tipo === 'abbinamento' || dom.tipo === 'mappa') && (
-              <div style={{ fontSize: 13, color: medio, marginBottom: 8 }}>{feedback.parziale} corrette</div>
-            )}
-            {feedback?.spiegazione && (dom.tipo === 'classifica_colore' || dom.tipo === 'abbinamento' || dom.tipo === 'mappa') && (
-              <div style={{ fontSize: 12, color: scuro, lineHeight: 1.6, marginTop: 8 }}>
-                <span style={{ fontWeight: 700, color: medio }}>{tx('spiegazione')} </span>{feedback.spiegazione}
-              </div>
-            )}
+
 
         {fb && (
           <button style={btnPrimary} onClick={avanti}>
