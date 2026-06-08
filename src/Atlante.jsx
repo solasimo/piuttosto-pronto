@@ -4,11 +4,23 @@ import { SVG_W as IT_SVG_W, SVG_H as IT_SVG_H, REGIONS as IT_REGIONS } from './c
 import { REGION_MAPS as IT_REGION_MAPS } from './countrymaps/italyRegionMaps'
 import { SVG_W as PT_SVG_W, SVG_H as PT_SVG_H, REGIONS as PT_REGIONS } from './countrymaps/portugalSvgData'
 import { REGION_MAPS as PT_REGION_MAPS } from './countrymaps/portugalRegionMaps'
+import { SVG_W as DE_SVG_W, SVG_H as DE_SVG_H, REGIONS as DE_REGIONS } from './countrymaps/germaniaSvgData'
+import { REGION_MAPS as DE_REGION_MAPS } from './countrymaps/germaniaRegionMaps'
+import { SVG_W as FR_SVG_W, SVG_H as FR_SVG_H, REGIONS as FR_REGIONS } from './countrymaps/franciaSvgData'
+import { REGION_MAPS as FR_REGION_MAPS } from './countrymaps/franciaRegionMaps'
+import { SVG_W as AT_SVG_W, SVG_H as AT_SVG_H, REGIONS as AT_REGIONS } from './countrymaps/austriaSvgData'
+import { REGION_MAPS as AT_REGION_MAPS } from './countrymaps/austriaRegionMaps'
+import { SVG_W as ES_SVG_W, SVG_H as ES_SVG_H, REGIONS as ES_REGIONS } from './countrymaps/spagnaSvgData'
+import { REGION_MAPS as ES_REGION_MAPS } from './countrymaps/spagnaRegionMaps'
 
 // Mappa paese -> dati SVG
 const COUNTRY_DATA = {
   italia:    { SVG_W: IT_SVG_W, SVG_H: IT_SVG_H, REGIONS: IT_REGIONS, REGION_MAPS: IT_REGION_MAPS, label: '🇮🇹 Italia',    totalZones: 20 },
-  portogallo:{ SVG_W: PT_SVG_W, SVG_H: PT_SVG_H, REGIONS: PT_REGIONS, REGION_MAPS: PT_REGION_MAPS, label: '🇵🇹 Portogallo', totalZones: 11 },
+  francia:   { SVG_W: FR_SVG_W, SVG_H: FR_SVG_H, REGIONS: FR_REGIONS, REGION_MAPS: FR_REGION_MAPS, label: '🇫🇷 Francia',   totalZones: 12 },
+  germania:  { SVG_W: DE_SVG_W, SVG_H: DE_SVG_H, REGIONS: DE_REGIONS, REGION_MAPS: DE_REGION_MAPS, label: '🇩🇪 Germania',  totalZones: 13 },
+  austria:   { SVG_W: AT_SVG_W, SVG_H: AT_SVG_H, REGIONS: AT_REGIONS, REGION_MAPS: AT_REGION_MAPS, label: '🇦🇹 Austria',   totalZones: 6  },
+  spagna:    { SVG_W: ES_SVG_W, SVG_H: ES_SVG_H, REGIONS: ES_REGIONS, REGION_MAPS: ES_REGION_MAPS, label: '🇪🇸 Spagna',    totalZones: 11 },
+  portogallo:{ SVG_W: PT_SVG_W, SVG_H: PT_SVG_H, REGIONS: PT_REGIONS, REGION_MAPS: PT_REGION_MAPS, label: '🇵🇹 Portogallo',totalZones: 11 },
 }
 
 
