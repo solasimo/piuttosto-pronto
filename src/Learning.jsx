@@ -253,8 +253,10 @@ export default function Learning() {
     Object.keys(giuste).forEach(v => { if (classificaRisposte[v] === giuste[v]) nCorr++ })
     const tot = Object.keys(giuste).length
     const ok = nCorr === tot
+    const isParz = !ok && nCorr > 0
     if (ok) setNCorrQ(n => n + 1)
-    setFeedback({ ok, scelta: classificaRisposte, spiegazione: dom.spiegazione, parziale: `${nCorr}/${tot}` })
+    else if (isParz) setNCorrQ(n => n + 0.5)
+    setFeedback({ ok, parziale: isParz ? `${nCorr}/${tot}` : null, parzialeCount: `${nCorr}/${tot}`, scelta: classificaRisposte, spiegazione: dom.spiegazione })
     try {
       await api('salva_risposta', {
         sessione_id: sessId, argomento: dom.argomento, tipo_domanda: dom.tipo,
@@ -272,8 +274,10 @@ export default function Learning() {
     dom.coppie.forEach(({ sx, dx }) => { if (abbinamentoRisposte[sx] === dx) nCorr++ })
     const tot = dom.coppie.length
     const ok = nCorr === tot
+    const isParz = !ok && nCorr > 0
     if (ok) setNCorrQ(n => n + 1)
-    setFeedback({ ok, scelta: abbinamentoRisposte, spiegazione: dom.spiegazione, parziale: `${nCorr}/${tot}` })
+    else if (isParz) setNCorrQ(n => n + 0.5)
+    setFeedback({ ok, parziale: isParz ? `${nCorr}/${tot}` : null, parzialeCount: `${nCorr}/${tot}`, scelta: abbinamentoRisposte, spiegazione: dom.spiegazione })
     try {
       await api('salva_risposta', {
         sessione_id: sessId, argomento: dom.argomento, tipo_domanda: dom.tipo,
@@ -292,8 +296,10 @@ export default function Learning() {
     dom.elementi.forEach(el => { if (mappaRisposte[el] === giuste[el]) nCorr++ })
     const tot = dom.elementi.length
     const ok = nCorr === tot
+    const isParz = !ok && nCorr > 0
     if (ok) setNCorrQ(n => n + 1)
-    setFeedback({ ok, scelta: mappaRisposte, spiegazione: dom.spiegazione, parziale: `${nCorr}/${tot}` })
+    else if (isParz) setNCorrQ(n => n + 0.5)
+    setFeedback({ ok, parziale: isParz ? `${nCorr}/${tot}` : null, parzialeCount: `${nCorr}/${tot}`, scelta: mappaRisposte, spiegazione: dom.spiegazione })
     try {
       await api('salva_risposta', {
         sessione_id: sessId, argomento: dom.argomento, tipo_domanda: dom.tipo,
@@ -328,8 +334,10 @@ export default function Learning() {
         domanda: dom.domanda, risposta_modello: dom.risposta_modello,
         punti_chiave: dom.punti_chiave, risposta_utente: testo.trim(), lingua: getLingua(),
       })
-      setFeedback({ ...corr, ok: corr.corretta, scelta: testo.trim() })
+      const isParz = !corr.corretta && corr.parziale
+      setFeedback({ ...corr, ok: corr.corretta, parziale: isParz, scelta: testo.trim() })
       if (corr.corretta) setNCorrQ(n => n + 1)
+      else if (isParz) setNCorrQ(n => n + 0.5)
       await api('salva_risposta', {
         sessione_id: sessId, argomento: dom.argomento, tipo_domanda: dom.tipo,
         domanda: dom.domanda, risposta_utente: testo.trim(), risposta_giusta: dom.risposta_modello,
@@ -577,6 +585,7 @@ export default function Learning() {
   if (vista === 'gioco' && dom) {
     const fb = feedback && !feedback.loading
     const isOk = fb && feedback.ok
+    const isParziale = fb && !feedback.ok && feedback.parziale
 
     return (
       <div style={{ paddingBottom: 40 }}>
@@ -587,7 +596,7 @@ export default function Learning() {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: medio, marginBottom: 16 }}>
           <span style={{ fontWeight: 700, color: scuro }}>{tx('domanda_n')} {idx + 1} {tx('di')} {domande.length}</span>
-          <span>{nCorrQ} ✓</span>
+          <span>{Number.isInteger(nCorrQ) ? nCorrQ : nCorrQ.toFixed(1)} ✓</span>
         </div>
 
         {/* Domanda */}
@@ -681,9 +690,12 @@ export default function Learning() {
         {/* Classifica colore — feedback */}
         {dom.tipo === 'classifica_colore' && feedback && (
           <div style={{ marginBottom: 14 }}>
-            {/* Punteggio parziale */}
-            <div style={{ fontSize: 13, fontWeight: 700, color: isOk ? verde : medio, marginBottom: 10 }}>
-              {feedback.parziale} {isOk ? '✓ Tutto corretto!' : 'corrette'}
+            {/* Punteggio parziale — header colorato */}
+            <div style={{ ...card, padding: '10px 14px', marginBottom: 10, background: isOk ? '#F0F9F4' : isParziale ? '#FFF8EC' : '#FDF0EE', border: `1px solid ${isOk ? verde : isParziale ? giallo : rosso}33` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: isOk ? verde : isParziale ? giallo : rosso }}>
+                {isOk ? tx('corretta') : isParziale ? tx('parziale') : tx('sbagliata')}
+              </div>
+              {!isOk && <div style={{ fontSize: 12, color: medio, marginTop: 2 }}>{feedback.parzialeCount} corrette</div>}
             </div>
             {dom.vitigni.map(v => {
               const giusta = dom.risposta_giusta[v]
@@ -742,6 +754,13 @@ export default function Learning() {
         {/* Abbinamento — feedback */}
         {dom.tipo === 'abbinamento' && feedback && (
           <div style={{ marginBottom: 14 }}>
+            {/* Punteggio abbinamento */}
+            <div style={{ ...card, padding: '10px 14px', marginBottom: 10, background: isOk ? '#F0F9F4' : isParziale ? '#FFF8EC' : '#FDF0EE', border: `1px solid ${isOk ? verde : isParziale ? giallo : rosso}33` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: isOk ? verde : isParziale ? giallo : rosso }}>
+                {isOk ? tx('corretta') : isParziale ? tx('parziale') : tx('sbagliata')}
+              </div>
+              {!isOk && <div style={{ fontSize: 12, color: medio, marginTop: 2 }}>{feedback.parzialeCount} corrette</div>}
+            </div>
             {dom.coppie.map(({ sx, dx }) => {
               const ok = feedback.scelta?.[sx] === dx
               return (
@@ -788,6 +807,13 @@ export default function Learning() {
         {/* Mappa — feedback */}
         {dom.tipo === 'mappa' && feedback && (
           <div style={{ marginBottom: 14 }}>
+            {/* Punteggio mappa */}
+            <div style={{ ...card, padding: '10px 14px', marginBottom: 10, background: isOk ? '#F0F9F4' : isParziale ? '#FFF8EC' : '#FDF0EE', border: `1px solid ${isOk ? verde : isParziale ? giallo : rosso}33` }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: isOk ? verde : isParziale ? giallo : rosso }}>
+                {isOk ? tx('corretta') : isParziale ? tx('parziale') : tx('sbagliata')}
+              </div>
+              {!isOk && <div style={{ fontSize: 12, color: medio, marginTop: 2 }}>{feedback.parzialeCount} corrette</div>}
+            </div>
             {dom.elementi.map(el => {
               const giusta = dom.risposta_giusta[el]
               const ok = feedback.scelta?.[el] === giusta
@@ -812,9 +838,9 @@ export default function Learning() {
 
         {/* Feedback */}
         {fb && dom.tipo !== 'classifica_colore' && dom.tipo !== 'abbinamento' && dom.tipo !== 'mappa' && (
-          <div style={{ ...card, background: isOk ? '#F0F9F4' : '#FDF0EE', border: `1px solid ${isOk ? verde : rosso}33`, marginBottom: 14 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: isOk ? verde : rosso, marginBottom: 12 }}>
-              {isOk ? tx('corretta') : tx('sbagliata')}
+          <div style={{ ...card, background: isOk ? '#F0F9F4' : isParziale ? '#FFF8EC' : '#FDF0EE', border: `1px solid ${isOk ? verde : isParziale ? giallo : rosso}33`, marginBottom: 14 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: isOk ? verde : isParziale ? giallo : rosso, marginBottom: 12 }}>
+              {isOk ? tx('corretta') : isParziale ? tx('parziale') : tx('sbagliata')}
             </div>
 
             {dom.tipo !== 'aperta' && dom.tipo !== 'elenco' && dom.tipo !== 'classifica_colore' && dom.tipo !== 'abbinamento' && dom.tipo !== 'mappa' && !isOk && feedback.giusta && (
@@ -867,6 +893,7 @@ export default function Learning() {
   // ── Risultati ────────────────────────────────────────────────────
   if (vista === 'risultati') {
     const pct = Math.round((nCorrQ / domande.length) * 100)
+    const nCorrDisplay = Number.isInteger(nCorrQ) ? nCorrQ : nCorrQ.toFixed(1)
     const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '📚' : '💪'
     const col = pct >= 80 ? verde : pct >= 60 ? giallo : rosso
     return (
@@ -875,7 +902,7 @@ export default function Learning() {
           <div style={{ fontSize: 52, marginBottom: 12 }}>{emoji}</div>
           <div style={{ fontSize: 13, color: medio, marginBottom: 4 }}>{tx('risultati_titolo')}</div>
           <div style={{ fontSize: 60, fontWeight: 800, color: col, fontFamily: '"DM Sans", sans-serif', lineHeight: 1 }}>{pct}%</div>
-          <div style={{ fontSize: 15, color: scuro, marginTop: 8 }}>{nCorrQ} {tx('corrette_su')} {domande.length}</div>
+          <div style={{ fontSize: 15, color: scuro, marginTop: 8 }}>{nCorrDisplay} {tx('corrette_su')} {domande.length}</div>
         </div>
         <button style={{ ...btnPrimary, marginBottom: 10 }} onClick={() => avvia(sessLivello, sessCategoria)}>{tx('nuova')}</button>
         <button style={btnOutline} onClick={() => setVista('menu')}>{tx('torna')}</button>
