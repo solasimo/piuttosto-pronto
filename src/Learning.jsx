@@ -859,7 +859,7 @@ export default function Learning() {
               </div>
             )}
 
-            {dom.tipo === 'aperta' && (
+            {(dom.tipo === 'aperta' || dom.tipo === 'elenco') && (
               <>
                 {feedback.punti_mancati?.length > 0 && (
                   <div style={{ marginBottom: 10 }}>
