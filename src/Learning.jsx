@@ -200,6 +200,12 @@ export default function Learning() {
   const [sessStart, setSessStart] = useState(0)
   const [progressi, setProgressi] = useState([])
 
+  // Domanda libera
+  const [dlDomanda, setDlDomanda] = useState('')
+  const [dlRisposta, setDlRisposta] = useState('')
+  const [dlFonteEsterna, setDlFonteEsterna] = useState(false)
+  const [dlLoading, setDlLoading] = useState(false)
+
 
   const [classificaRisposte, setClassificaRisposte] = useState({})
   const [abbinamentoRisposte, setAbbinamentoRisposte] = useState({})
@@ -360,9 +366,76 @@ export default function Learning() {
     setLoading(false)
   }
 
+  // ── Domanda libera ───────────────────────────────────────────────
+  async function chiediAI() {
+    if (!dlDomanda.trim()) return
+    setDlLoading(true)
+    setDlRisposta('')
+    setDlFonteEsterna(false)
+    try {
+      const { data: kb } = await supabase.from('learning_kb').select('argomento, contenuto').eq('attivo', true).order('ordine')
+      const kbText = (kb || []).map(r => `=== ${r.argomento} ===\n${r.contenuto}`).join('\n\n')
+      const d = await api('domanda_libera', { domanda: dlDomanda.trim(), kb_context: kbText })
+      setDlRisposta(d.risposta)
+      setDlFonteEsterna(d.fonte_esterna)
+    } catch (e) {
+      setDlRisposta('Errore: ' + e.message)
+    }
+    setDlLoading(false)
+  }
+
   // ════════════════════════════════════════════════════════════════
   // RENDER
   // ════════════════════════════════════════════════════════════════
+
+  // ── Vista domanda libera ─────────────────────────────────────────
+  if (vista === 'domanda_libera') {
+    const cardDL = { background: '#fff', border: `1px solid ${chiaro}`, borderRadius: 14, padding: '12px 14px', marginBottom: 8 }
+    const btnPDL = { width: '100%', padding: '12px 14px', background: terra, color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif' }
+    return (
+      <div style={{ paddingBottom: 40 }}>
+        <button style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', padding: '0 0 16px', fontFamily: '"DM Sans", sans-serif' }}
+          onClick={() => { setVista('menu'); setDlDomanda(''); setDlRisposta('') }}>
+          ← Indietro
+        </button>
+        <div style={{ fontSize: 16, fontWeight: 700, color: scuro, marginBottom: 4 }}>💬 Fammi una domanda</div>
+        <div style={{ fontSize: 12, color: medio, marginBottom: 20, lineHeight: 1.5 }}>
+          Rispondo usando esclusivamente i tuoi appunti ASSP. Se uso fonti esterne, te lo segnalo.
+        </div>
+        <div style={{ ...cardDL, borderColor: terra }}>
+          <textarea value={dlDomanda} onChange={e => setDlDomanda(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); chiediAI() } }}
+            placeholder="Es. Qual è la differenza tra Barolo e Barbaresco? Quante DOCG ha il Veneto?"
+            style={{ width: '100%', border: 'none', outline: 'none', fontSize: 14, color: scuro,
+              background: 'transparent', fontFamily: '"DM Sans",sans-serif',
+              resize: 'none', minHeight: 80, lineHeight: 1.5, boxSizing: 'border-box' }} />
+        </div>
+        <button style={{ ...btnPDL, opacity: dlLoading || !dlDomanda.trim() ? 0.6 : 1 }}
+          onClick={chiediAI} disabled={dlLoading || !dlDomanda.trim()}>
+          {dlLoading ? '⏳ Cerco la risposta…' : 'Chiedi →'}
+        </button>
+        {dlRisposta && (
+          <div style={{ marginTop: 16 }}>
+            {dlFonteEsterna && (
+              <div style={{ ...cardDL, borderColor: '#C77B13', background: '#FFF8EE', marginBottom: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#C77B13', letterSpacing: 1, textTransform: 'uppercase' }}>
+                  ⚠️ Contiene informazioni da fonti esterne agli appunti
+                </div>
+              </div>
+            )}
+            <div style={{ ...cardDL, borderColor: verde }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: verde, marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>Risposta</div>
+              <div style={{ fontSize: 14, color: scuro, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{dlRisposta}</div>
+            </div>
+            <button style={{ ...btnPDL, background: '#fff', color: scuro, border: `1.5px solid ${chiaro}`, marginTop: 4 }}
+              onClick={() => { setDlDomanda(''); setDlRisposta('') }}>
+              Nuova domanda
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   // ── Menu principale ──────────────────────────────────────────────
   if (vista === 'menu') return (
@@ -410,6 +483,16 @@ export default function Learning() {
         <div style={{ textAlign: 'left' }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: scuro }}>{tx('progressi_titolo')}</div>
           <div style={{ fontSize: 12, color: medio }}>Storico e aree da migliorare</div>
+        </div>
+      </button>
+
+      {/* Fammi una domanda */}
+      <button style={{ ...card, display: 'flex', alignItems: 'center', gap: 12, width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}`, marginTop: 4 }}
+        onClick={() => { setDlDomanda(''); setDlRisposta(''); setVista('domanda_libera') }}>
+        <span style={{ fontSize: 24 }}>💬</span>
+        <div style={{ textAlign: 'left' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: scuro }}>Fammi una domanda</div>
+          <div style={{ fontSize: 12, color: medio }}>Chiedi qualsiasi cosa sugli appunti ASSP</div>
         </div>
       </button>
     </div>

@@ -179,7 +179,7 @@ function MappaItalia({ progressi, onSelect, selected }) {
 
 // ── Componente principale ─────────────────────────────────────────────────────
 export default function Atlante() {
-  const [vista, setVista] = useState('mappa')        // mappa | regione | sottozona | esercizio
+  const [vista, setVista] = useState('mappa')        // mappa | regione | sottozona | esercizio | esercizi_regione
   const [regioni, setRegioni] = useState([])
   const [progressi, setProgressi] = useState({})
   const [selected, setSelected] = useState(null)
@@ -188,6 +188,14 @@ export default function Atlante() {
   const [loading, setLoading] = useState(true)
   const [selectedZona, setSelectedZona] = useState(null)
   const [esLoading, setEsLoading] = useState(false)
+
+  // Esercizi regione (AI-powered flash quiz)
+  const [erDomande, setErDomande] = useState([])       // array domande generate
+  const [erIdx, setErIdx] = useState(0)                // domanda corrente
+  const [erRisposta, setErRisposta] = useState(null)   // null | 'a'|'b'|'c'|'d' | true | false
+  const [erFeedback, setErFeedback] = useState(null)   // { ok, spiegazione }
+  const [erLoading, setErLoading] = useState(false)
+  const [erScore, setErScore] = useState({ corr: 0, tot: 0 })
 
   // Esercizio
   const [esMode, setEsMode] = useState('regioni')    // regioni | sottozone
@@ -318,6 +326,218 @@ export default function Atlante() {
   const pill = (color) => ({ display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, margin: '2px', background: color === 'r' ? '#FEF0EE' : color === 'b' ? '#FAFBEA' : color === 'd' ? '#F5EDE0' : '#F0F7F4', color: color === 'r' ? '#7A1F10' : color === 'b' ? '#6B6B0A' : color === 'd' ? '#6B3D0A' : '#1A5C3A', border: `1px solid ${color === 'r' ? '#C4614A33' : color === 'b' ? '#B8B83033' : color === 'd' ? '#D4A56A33' : '#2D6A4F33'}` })
   const btnP = { width: '100%', padding: '12px 14px', background: terra, color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif' }
   const btnO = { ...btnP, background: '#fff', color: scuro, border: `1.5px solid ${chiaro}` }
+
+  // ── Genera esercizi regione (AI) ────────────────────────────────
+  async function generaEsercizi() {
+    if (!regioneData) return
+    setErLoading(true)
+    setErDomande([])
+    setErIdx(0)
+    setErRisposta(null)
+    setErFeedback(null)
+    setErScore({ corr: 0, tot: 0 })
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const regioneCtx = JSON.stringify({
+        nome: regioneData.regione_nome,
+        vitigni_rossi: regioneData.vitigni_rossi,
+        vitigni_bianchi: regioneData.vitigni_bianchi,
+        produzione: regioneData.produzione,
+        sottozone: (regioneData.sottozone || []).map(sz => ({
+          nome: sz.nome,
+          docg: sz.docg,
+          doc: sz.doc,
+          focus_points: sz.focus_points,
+          comuni: sz.comuni,
+        })),
+        focus_points: regioneData.focus_points,
+      })
+      const res = await fetch('/api/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          action: 'genera_esercizi_regione',
+          payload: { regione: regioneCtx, regione_nome: regioneData.regione_nome }
+        })
+      })
+      const d = await res.json()
+      if (!res.ok) throw new Error(d.error || 'Errore generazione')
+      setErDomande(d.domande || [])
+    } catch (e) {
+      setErDomande([{ tipo: 'errore', testo: e.message }])
+    }
+    setErLoading(false)
+  }
+
+  function erRispondi(scelta) {
+    if (erFeedback) return
+    const dom = erDomande[erIdx]
+    let ok = false
+    if (dom.tipo === 'multipla') ok = scelta === dom.corretta
+    else if (dom.tipo === 'vero_falso') ok = scelta === dom.corretta
+    else if (dom.tipo === 'flash') ok = true // self-assessed
+    setErRisposta(scelta)
+    setErFeedback({ ok, spiegazione: dom.spiegazione || '' })
+    setErScore(s => ({ corr: s.corr + (ok ? 1 : 0), tot: s.tot + 1 }))
+  }
+
+  function erProssima() {
+    if (erIdx + 1 >= erDomande.length) {
+      setErIdx(0); setErDomande([]); setErFeedback(null); setErRisposta(null)
+    } else {
+      setErIdx(i => i + 1); setErFeedback(null); setErRisposta(null)
+    }
+  }
+
+  // ── ESERCIZI REGIONE ─────────────────────────────────────────────
+  if (vista === 'esercizi_regione') {
+    const dom = erDomande[erIdx]
+    return (
+      <div style={{ paddingBottom: 40 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <button onClick={() => { setVista('regione'); setErDomande([]); setErFeedback(null); setErRisposta(null) }}
+            style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', padding: 0 }}>
+            ← Indietro
+          </button>
+          <div style={{ fontSize: 14, fontWeight: 700, color: scuro }}>
+            Esercizi — {regioneData?.regione_nome}
+          </div>
+          {erScore.tot > 0 && (
+            <div style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, color: verde }}>
+              {erScore.corr}/{erScore.tot}
+            </div>
+          )}
+        </div>
+
+        {/* Stato: prima generazione */}
+        {!erLoading && erDomande.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '32px 0' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: scuro, marginBottom: 6 }}>
+              Allenamento rapido
+            </div>
+            <div style={{ fontSize: 13, color: medio, marginBottom: 24, lineHeight: 1.5 }}>
+              Domande flash su sottozone, DOCG/DOC, vitigni e curiosità di {regioneData?.regione_nome}.
+            </div>
+            <button style={btnP} onClick={generaEsercizi}>
+              Inizia gli esercizi
+            </button>
+          </div>
+        )}
+
+        {/* Loading */}
+        {erLoading && (
+          <div style={{ textAlign: 'center', padding: '48px 0', color: medio }}>
+            <div style={{ fontSize: 32, marginBottom: 10 }}>⏳</div>
+            <div style={{ fontSize: 13 }}>Preparo le domande…</div>
+          </div>
+        )}
+
+        {/* Domanda corrente */}
+        {!erLoading && dom && dom.tipo !== 'errore' && (
+          <div>
+            {/* Indicatore progresso */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+              {erDomande.map((_, i) => (
+                <div key={i} style={{ flex: 1, height: 3, borderRadius: 2,
+                  background: i < erIdx ? verde : i === erIdx ? terra : chiaro }} />
+              ))}
+            </div>
+
+            {/* Card domanda */}
+            <div style={{ ...card, borderColor: terra, marginBottom: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: terra, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
+                {dom.tipo === 'multipla' ? 'Scelta multipla' : dom.tipo === 'vero_falso' ? 'Vero o Falso' : dom.tipo === 'flash' ? 'Flash card' : dom.tipo === 'abbina' ? 'Abbinamento' : 'Domanda'}
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: scuro, lineHeight: 1.5 }}>
+                {dom.domanda || dom.testo}
+              </div>
+            </div>
+
+            {/* Opzioni multipla */}
+            {dom.tipo === 'multipla' && (dom.opzioni || []).map((op, i) => {
+              const lettera = ['a','b','c','d'][i]
+              const isSelected = erRisposta === lettera
+              const isCorrect = erFeedback && lettera === dom.corretta
+              const isWrong = erFeedback && isSelected && !erFeedback.ok
+              return (
+                <button key={lettera} onClick={() => erRispondi(lettera)}
+                  style={{ ...btnO, marginBottom: 8, textAlign: 'left', display: 'flex', gap: 10, alignItems: 'center',
+                    borderColor: isCorrect ? verde : isWrong ? '#9B2335' : isSelected ? terra : chiaro,
+                    background: isCorrect ? '#F0F9F4' : isWrong ? '#FDF0EE' : isSelected ? '#FBF7F0' : '#fff',
+                    color: scuro, fontWeight: isSelected ? 700 : 500 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: isCorrect ? verde : isWrong ? '#9B2335' : medio,
+                    minWidth: 18, textAlign: 'center' }}>{lettera.toUpperCase()}</span>
+                  <span style={{ fontSize: 14, lineHeight: 1.4 }}>{op}</span>
+                  {erFeedback && isCorrect && <span style={{ marginLeft: 'auto' }}>✓</span>}
+                  {erFeedback && isWrong && <span style={{ marginLeft: 'auto' }}>✗</span>}
+                </button>
+              )
+            })}
+
+            {/* Vero/Falso */}
+            {dom.tipo === 'vero_falso' && (
+              <div style={{ display: 'flex', gap: 8 }}>
+                {[true, false].map(val => {
+                  const isSelected = erRisposta === val
+                  const isCorrect = erFeedback && val === dom.corretta
+                  const isWrong = erFeedback && isSelected && !erFeedback.ok
+                  return (
+                    <button key={String(val)} onClick={() => erRispondi(val)}
+                      style={{ ...btnO, flex: 1, fontWeight: 700,
+                        borderColor: isCorrect ? verde : isWrong ? '#9B2335' : isSelected ? terra : chiaro,
+                        background: isCorrect ? '#F0F9F4' : isWrong ? '#FDF0EE' : isSelected ? '#FBF7F0' : '#fff' }}>
+                      {val ? '✓ Vero' : '✗ Falso'}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Flash card — mostra risposta */}
+            {dom.tipo === 'flash' && !erFeedback && (
+              <button style={btnO} onClick={() => erRispondi('visto')}>
+                Mostra risposta
+              </button>
+            )}
+            {dom.tipo === 'flash' && erFeedback && (
+              <div style={{ ...card, borderColor: verde, background: '#F0F9F4' }}>
+                <div style={{ fontSize: 14, color: scuro, lineHeight: 1.6 }}>{dom.risposta}</div>
+              </div>
+            )}
+
+            {/* Spiegazione dopo risposta */}
+            {erFeedback && dom.tipo !== 'flash' && (
+              <div style={{ ...card, borderColor: erFeedback.ok ? verde : '#9B2335',
+                background: erFeedback.ok ? '#F0F9F4' : '#FDF0EE', marginTop: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: erFeedback.ok ? verde : '#9B2335', marginBottom: 4 }}>
+                  {erFeedback.ok ? '✓ Corretto' : '✗ Sbagliato'}
+                </div>
+                {erFeedback.spiegazione && (
+                  <div style={{ fontSize: 13, color: scuro, lineHeight: 1.5 }}>{erFeedback.spiegazione}</div>
+                )}
+              </div>
+            )}
+
+            {/* Prossima / Nuova serie */}
+            {erFeedback && (
+              <button style={{ ...btnP, marginTop: 12 }} onClick={erProssima}>
+                {erIdx + 1 >= erDomande.length ? '🔄 Nuova serie' : 'Prossima →'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Errore */}
+        {!erLoading && dom?.tipo === 'errore' && (
+          <div style={{ ...card, borderColor: '#9B2335' }}>
+            <div style={{ fontSize: 13, color: '#9B2335' }}>Errore: {dom.testo}</div>
+            <button style={{ ...btnO, marginTop: 8 }} onClick={generaEsercizi}>Riprova</button>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 360, gap: 12 }}>
@@ -663,9 +883,9 @@ export default function Atlante() {
               </div>
             )}
 
-            {/* Pulsante esercizio sottozone */}
-            <button style={{ ...btnO, marginTop: 4 }} onClick={() => { setEsSottoRisposte({}); setEsSottoFeedback(null); setEsSottoCorrette({}); setEsSottoSelected(null); setEsUltimoFeedback(null); setEsMode('sottozone'); setVista('esercizio') }}>
-              🗺️ Esercizio sottozone
+            {/* Pulsante esercizi regione */}
+            <button style={{ ...btnO, marginTop: 4 }} onClick={() => { setVista('esercizi_regione') }}>
+              🎯 Esercizi su questa regione
             </button>
           </>
         )}
@@ -707,10 +927,7 @@ export default function Atlante() {
         <div><div style={{ fontSize: 22, fontWeight: 800, color: scuro }}>{20-nStudiate-nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>Da iniziare</div></div>
       </div>
 
-      {/* Pulsante esercizio regioni */}
-      <button style={btnP} onClick={() => { setEsRegRisposte({}); setEsRegFeedback(null); setEsRegSelected(null); setEsMode('regioni'); setVista('esercizio') }}>
-        🗺️ Esercizio mappa — Regioni Italia
-      </button>
+
     </div>
   )
 }
