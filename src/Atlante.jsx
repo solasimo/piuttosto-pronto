@@ -1,7 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from './supabase'
-import { SVG_W, SVG_H, REGIONS } from './italySvgData'
-import { REGION_MAPS } from './italyRegionMaps'
+import { SVG_W as IT_SVG_W, SVG_H as IT_SVG_H, REGIONS as IT_REGIONS } from './countrymaps/italySvgData'
+import { REGION_MAPS as IT_REGION_MAPS } from './countrymaps/italyRegionMaps'
+import { SVG_W as PT_SVG_W, SVG_H as PT_SVG_H, REGIONS as PT_REGIONS } from './countrymaps/portugalSvgData'
+import { REGION_MAPS as PT_REGION_MAPS } from './countrymaps/portugalRegionMaps'
+
+// Mappa paese -> dati SVG
+const COUNTRY_DATA = {
+  italia:    { SVG_W: IT_SVG_W, SVG_H: IT_SVG_H, REGIONS: IT_REGIONS, REGION_MAPS: IT_REGION_MAPS, label: '🇮🇹 Italia',    totalZones: 20 },
+  portogallo:{ SVG_W: PT_SVG_W, SVG_H: PT_SVG_H, REGIONS: PT_REGIONS, REGION_MAPS: PT_REGION_MAPS, label: '🇵🇹 Portogallo', totalZones: 11 },
+}
 
 
 // Palette colori sottozone (max 8 per regione)
@@ -78,8 +86,8 @@ function BarraProduzione({ produzione, compact = false }) {
 }
 
 // ── Mappa Regione con province colorate per sottozona ────────────────────────
-function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
-  const mapData = REGION_MAPS[regione_id?.toUpperCase()]
+function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona, REGION_MAPS }) {
+  const mapData = REGION_MAPS?.[regione_id?.toUpperCase()]
   if (!mapData) return null
 
   // Costruisce mappa provincia -> indice sottozona
@@ -147,8 +155,10 @@ function MappaRegione({ regione_id, sottozone, onSelectZona, selectedZona }) {
   )
 }
 
-// ── Mappa Italia ─────────────────────────────────────────────────────────────
-function MappaItalia({ progressi, onSelect, selected }) {
+// ── Mappa Paese (generica) ───────────────────────────────────────────────────
+function MappaPaese({ REGIONS, SVG_W, SVG_H, progressi, onSelect, selected, paese }) {
+  const SMALL_IDS = paese === 'italia' ? ['VDA','LIG','MOL','UMB','TAA','FVG','MAR'] : []
+  const MED_IDS   = paese === 'italia' ? ['ABR','BAS','CAL'] : []
   return (
     <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
       <rect width={SVG_W} height={SVG_H} fill={avorio} rx="8"/>
@@ -158,14 +168,13 @@ function MappaItalia({ progressi, onSelect, selected }) {
         const fill = regionColor(livello, isSel)
         const stroke = isSel ? terra : '#fff'
         const sw = isSel ? 1.5 : 0.5
+        const fs = SMALL_IDS.includes(reg.id) ? '5.5' : MED_IDS.includes(reg.id) ? '6' : '7'
         return (
           <g key={reg.id} onClick={() => onSelect(reg.id)} style={{ cursor: 'pointer' }}>
             <path d={reg.path} fill={fill} stroke={stroke} strokeWidth={sw}
               style={{ transition: 'fill 0.2s' }}/>
-            {/* Label per tutte le regioni — font adattivo */}
             <text x={reg.cx} y={reg.cy} textAnchor="middle" dominantBaseline="middle"
-              fontSize={['VDA','LIG','MOL','UMB','TAA','FVG','MAR'].includes(reg.id) ? '5.5' : ['ABR','BAS','CAL'].includes(reg.id) ? '6' : '7'}
-              fontFamily="DM Sans, sans-serif" fontWeight="700"
+              fontSize={fs} fontFamily="DM Sans, sans-serif" fontWeight="700"
               fill={isSel || livello === 2 ? '#fff' : '#333'} pointerEvents="none"
               style={{ textShadow: '0 0 3px rgba(0,0,0,0.3)' }}>
               {reg.label}
@@ -179,6 +188,9 @@ function MappaItalia({ progressi, onSelect, selected }) {
 
 // ── Componente principale ─────────────────────────────────────────────────────
 export default function Atlante() {
+  const [paese, setPaese] = useState('italia')
+  const { SVG_W, SVG_H, REGIONS, REGION_MAPS } = COUNTRY_DATA[paese] || COUNTRY_DATA['italia']
+
   const [vista, setVista] = useState('mappa')        // mappa | regione | sottozona | esercizio | esercizi_regione
   const [regioni, setRegioni] = useState([])
   const [progressi, setProgressi] = useState({})
@@ -210,14 +222,18 @@ export default function Atlante() {
   const [esInput, setEsInput] = useState('')
   const [esUltimoFeedback, setEsUltimoFeedback] = useState(null)
 
-  useEffect(() => { carica() }, [])
+  useEffect(() => {
+    setRegioni([]); setProgressi({}); setSelected(null)
+    setRegioneData(null); setVista('mappa')
+    carica()
+  }, [paese])
 
   async function carica() {
     setLoading(true)
     try {
       const [{ regioni: r }, { progressi: p }] = await Promise.all([
-        apiMappe('get_regioni', { paese: 'italia' }),
-        apiMappe('get_progressi_mappa', { paese: 'italia' }),
+        apiMappe('get_regioni', { paese }),
+        apiMappe('get_progressi_mappa', { paese }),
       ])
       setRegioni(r)
       setProgressi(p)
@@ -232,13 +248,13 @@ export default function Atlante() {
     setSelectedZona(null)
     setVista('regione')
     try {
-      const { regione } = await apiMappe('get_regione', { paese: 'italia', regione_id: reg_id })
+      const { regione } = await apiMappe('get_regione', { paese, regione_id: reg_id })
       setRegioneData(regione)
     } catch (e) { console.error(e) }
   }
 
   async function segnaStudiata(reg_id, livello) {
-    await apiMappe('salva_progresso_mappa', { paese: 'italia', regione_id: reg_id, livello_studio: livello })
+    await apiMappe('salva_progresso_mappa', { paese, regione_id: reg_id, livello_studio: livello })
     setProgressi(p => ({ ...p, [reg_id]: livello }))
   }
 
@@ -561,7 +577,7 @@ export default function Atlante() {
             ← Indietro
           </button>
           <div style={{ fontSize: 14, fontWeight: 700, color: scuro }}>
-            Esercizio — {isRegMode ? 'Regioni Italia' : `Sottozone ${regioneData?.regione_nome}`}
+            Esercizio — {isRegMode ? `Zone ${COUNTRY_DATA[paese]?.label || paese}` : `Sottozone ${regioneData?.regione_nome}`}
           </div>
         </div>
 
@@ -813,6 +829,7 @@ export default function Atlante() {
               <MappaRegione
                 regione_id={regioneData.regione_id}
                 sottozone={regioneData.sottozone}
+                REGION_MAPS={REGION_MAPS}
                 onSelectZona={(zi) => {
                   setSelectedZona(zi === selectedZona ? null : zi)
                   const sz = regioneData.sottozone?.[zi]
@@ -896,16 +913,33 @@ export default function Atlante() {
   // ── MAPPA PRINCIPALE ─────────────────────────────────────────────
   const nStudiate = Object.values(progressi).filter(v => v === 2).length
   const nInCorso = Object.values(progressi).filter(v => v === 1).length
+  const totalZones = COUNTRY_DATA[paese]?.totalZones || 20
 
   return (
     <div style={{ paddingBottom: 40 }}>
+
+      {/* Selettore paese */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+        {Object.entries(COUNTRY_DATA).map(([pid, pd]) => (
+          <button key={pid} onClick={() => setPaese(pid)}
+            style={{ padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              background: paese === pid ? terra : '#fff',
+              color: paese === pid ? '#fff' : scuro,
+              border: `1.5px solid ${paese === pid ? terra : chiaro}`,
+              fontFamily: '"DM Sans",sans-serif' }}>
+            {pd.label}
+          </button>
+        ))}
+      </div>
+
       <div style={{ fontSize: 12, color: medio, marginBottom: 14, lineHeight: 1.5 }}>
-        Clicca su una regione per esplorare zone viticole, DOCG, DOC e vitigni.
+        Clicca su una zona per esplorare denominazioni, vitigni e sotto-zone.
       </div>
 
       {/* Mappa */}
       <div style={{ ...card, padding: 8, marginBottom: 12 }}>
-        <MappaItalia progressi={progressi} onSelect={apriRegione} selected={selected}/>
+        <MappaPaese REGIONS={REGIONS} SVG_W={SVG_W} SVG_H={SVG_H}
+          paese={paese} progressi={progressi} onSelect={apriRegione} selected={selected}/>
       </div>
 
       {/* Legenda */}
@@ -924,7 +958,7 @@ export default function Atlante() {
         <div style={{ width: 1, background: chiaro }}/>
         <div><div style={{ fontSize: 22, fontWeight: 800, color: giallo }}>{nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>In studio</div></div>
         <div style={{ width: 1, background: chiaro }}/>
-        <div><div style={{ fontSize: 22, fontWeight: 800, color: scuro }}>{20-nStudiate-nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>Da iniziare</div></div>
+        <div><div style={{ fontSize: 22, fontWeight: 800, color: scuro }}>{totalZones-nStudiate-nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>Da iniziare</div></div>
       </div>
 
 
