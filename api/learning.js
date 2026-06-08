@@ -174,7 +174,7 @@ Domanda: ${domanda}
 Risposta modello: ${risposta_modello}
 Punti chiave: ${(punti_chiave || []).join(', ')}
 Risposta studente: ${risposta_utente}
-Rispondi SOLO con JSON: {"corretta":true/false,"punteggio":0-3,"feedback":"max 2 frasi","punti_mancati":["..."]}` }],
+Rispondi SOLO con JSON: {"corretta":true/false,"parziale":true/false,"punteggio":0-3,"feedback":"max 2 frasi","punti_mancati":["..."]}. Usa "corretta":true solo se la risposta copre almeno 80% dei punti chiave. Usa "parziale":true (con "corretta":false) se la risposta e incompleta ma dimostra conoscenza parziale (40-79%). "parziale":false se la risposta e gravemente errata o insufficiente (<40%).`  }],
           }),
         })
 
