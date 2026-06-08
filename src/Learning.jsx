@@ -817,7 +817,7 @@ export default function Learning() {
               {isOk ? tx('corretta') : tx('sbagliata')}
             </div>
 
-            {dom.tipo !== 'aperta' && dom.tipo !== 'classifica_colore' && dom.tipo !== 'abbinamento' && dom.tipo !== 'mappa' && !isOk && (
+            {dom.tipo !== 'aperta' && dom.tipo !== 'elenco' && dom.tipo !== 'classifica_colore' && dom.tipo !== 'abbinamento' && dom.tipo !== 'mappa' && !isOk && feedback.giusta && (
               <div style={{ marginBottom: 10 }}>
                 <span style={{ fontSize: 12, color: medio }}>{tx('risposta_giusta')} </span>
                 <span style={{ fontWeight: 700, color: verde }}>
