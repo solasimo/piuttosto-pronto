@@ -34,12 +34,11 @@ export const REGION_MAPS={
     MACONNAIS:{path:'M325.9,219.4L307.7,232.8L291.7,232.9L281.5,222.4L260.3,232.5L226.4,202.0L193.9,200.6L173.8,243.4L167.2,243.1L161.2,227.2L127.0,228.5L123.1,242.1L111.5,246.0L75.2,244.4L62.7,238.7L62.8,229.9L77.0,224.6L76.5,207.7L42.9,196.9L326.0,195.4Z',cx:182.3,cy:213.8}
   }},
   BEAUJOLAIS:{w:340,h:260,comuni_map:[
-    {nome:'Moulin-a-Vent',x:262.8,y:131.5,provincia:'BEAUJOLAIS'},
-    {nome:'Villefranche',x:270.7,y:150.1,provincia:'BEAUJOLAIS'},
+    {nome:'Beaujeu',x:146.9,y:141.1,provincia:'BEAUJOLAIS'},
+    {nome:'Villefranche',x:181.0,y:179.2,provincia:'BEAUJOLAIS'},
   ],provinces:{
-    BEAUJOLAIS:{path:'M149.3,85.4L182.7,14.0L246.0,14.0L246.0,246.0L14.0,246.0L14.0,85.2L32.8,93.8L54.4,86.7L61.7,61.3L125.2,58.9L136.3,88.4Z',cx:138.6,cy:148.2}
-  }},
-  VALLEE_LOIRA:{w:340,h:260,comuni_map:[
+    BEAUJOLAIS:{path:'M300.8,94.1L310.0,232.2L272.1,246.0L14.0,246.0L14.0,14.0L60.4,14.0Z',cx:148.1,cy:145.3}
+  }},  VALLEE_LOIRA:{w:340,h:260,comuni_map:[
     {nome:'Nantes',x:50.9,y:189.2,provincia:'PAYS_NANTAIS'},
     {nome:'Angers',x:112.5,y:167.6,provincia:'ANJOU_SAUMUR'},
     {nome:'Saumur',x:142.2,y:185.7,provincia:'ANJOU_SAUMUR'},
