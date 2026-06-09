@@ -21,19 +21,28 @@ export const REGION_MAPS={
     HAUT_RHIN:{path:'M14.0,189.8L43.8,201.4L42.4,220.8L53.5,222.2L75.6,246.0L97.3,243.9L122.4,224.5L112.3,207.8L127.5,169.8L121.4,149.3L138.4,128.1L14.0,128.1Z',cx:73.5,cy:177.1}
   }},
   BOURGOGNE:{w:340,h:260,comuni_map:[
-    {nome:'Chablis',x:117.3,y:113.9,provincia:'CHABLIS'},
-    {nome:'Gevrey',x:224.9,y:167.6,provincia:'COTE_NUITS'},
-    {nome:'Beaune',x:211.9,y:185.5,provincia:'COTE_BEAUNE'},
-    {nome:'Chalon',x:213.2,y:207.7,provincia:'COTE_CHALONNAISE'},
-    {nome:'Macon',x:211.1,y:241,provincia:'MACONNAIS'},
+    {nome:'Chablis',x:117.2,y:45.0,provincia:'CHABLIS'},
+    {nome:'Gevrey-Chambertin',x:224.9,y:80.0,provincia:'COTE_NUITS'},
+    {nome:'Chambolle-Musigny',x:223.6,y:89.0,provincia:'COTE_NUITS'},
+    {nome:'Vosne-Romanee',x:222.9,y:98.0,provincia:'COTE_NUITS'},
+    {nome:'Nuits-Saint-Georges',x:222.0,y:107.0,provincia:'COTE_NUITS'},
+    {nome:'Beaune',x:211.9,y:125.0,provincia:'COTE_BEAUNE'},
+    {nome:'Pommard',x:208.1,y:132.0,provincia:'COTE_BEAUNE'},
+    {nome:'Meursault',x:205.7,y:140.0,provincia:'COTE_BEAUNE'},
+    {nome:'Puligny-Montrachet',x:204.5,y:148.0,provincia:'COTE_BEAUNE'},
+    {nome:'Givry',x:203.8,y:165.0,provincia:'COTE_CHALONNAISE'},
+    {nome:'Mercurey',x:203.5,y:176.0,provincia:'COTE_CHALONNAISE'},
+    {nome:'Montagny',x:198.8,y:188.0,provincia:'COTE_CHALONNAISE'},
+    {nome:'Macon',x:211.1,y:210.0,provincia:'MACONNAIS'},
+    {nome:'Saint-Veran',x:207.4,y:223.0,provincia:'MACONNAIS'},
+    {nome:'Pouilly-Fuisse',x:202.8,y:235.0,provincia:'MACONNAIS'},
   ],provinces:{
-    CHABLIS:{path:'M14.0,15.9L64.0,16.1L64.2,25.2L101.7,19.2L110.6,25.4L175.4,15.9L184.5,23.3L180.5,27.5L189.1,25.7L200.5,38.4L191.0,43.7L197.3,55.1L223.5,55.7L233.2,68.7L253.6,56.1L287.4,55.2L287.3,38.4L304.5,34.3L319.0,18.4L317.1,23.6L326.0,21.2L326.0,73.4L14.0,73.4Z',cx:145.7,cy:49.1},
-    COTE_NUITS:{path:'M326.0,73.4L326.0,119.4L14.0,119.4L14.0,73.4Z',cx:170.0,cy:96.4},
-    COTE_BEAUNE:{path:'M326.0,119.4L326.0,158.5L14.0,158.5L14.0,119.4Z',cx:170.0,cy:139.0},
-    COTE_CHALONNAISE:{path:'M29.0,171.4L14.0,182.0L14.0,158.5L326.0,158.5L326.0,195.4L44.2,195.4Z',cx:176.2,cy:176.5},
-    MACONNAIS:{path:'M325.9,219.4L307.7,232.8L291.7,232.9L281.5,222.4L260.3,232.5L226.4,202.0L193.9,200.6L173.8,243.4L167.2,243.1L161.2,227.2L127.0,228.5L123.1,242.1L111.5,246.0L75.2,244.4L62.7,238.7L62.8,229.9L77.0,224.6L76.5,207.7L42.9,196.9L326.0,195.4Z',cx:182.3,cy:213.8}
-  }},
-  BEAUJOLAIS:{w:340,h:260,comuni_map:[
+    CHABLIS:{path:'M14.0,14.0L326.0,14.0L326.0,73.0L14.0,73.0Z',cx:170.0,cy:43.5},
+    COTE_NUITS:{path:'M14.0,73.0L326.0,73.0L326.0,119.0L14.0,119.0Z',cx:170.0,cy:96.0},
+    COTE_BEAUNE:{path:'M14.0,119.0L326.0,119.0L326.0,158.0L14.0,158.0Z',cx:170.0,cy:138.5},
+    COTE_CHALONNAISE:{path:'M14.0,158.0L326.0,158.0L326.0,202.0L14.0,202.0Z',cx:170.0,cy:180.0},
+    MACONNAIS:{path:'M14.0,202.0L326.0,202.0L326.0,246.0L14.0,246.0Z',cx:170.0,cy:224.0}
+  }},  BEAUJOLAIS:{w:340,h:260,comuni_map:[
     {nome:'Beaujeu',x:146.9,y:141.1,provincia:'BEAUJOLAIS'},
     {nome:'Villefranche',x:181.0,y:179.2,provincia:'BEAUJOLAIS'},
   ],provinces:{
