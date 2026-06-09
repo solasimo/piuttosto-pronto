@@ -376,7 +376,7 @@ export default function Atlante() {
           docg: sz.docg,
           doc: sz.doc,
           focus_points: sz.focus_points,
-          comuni: sz.comuni,
+          comuni: sz.comuni_label || sz.comuni,
         })),
         focus_points: regioneData.focus_points,
       })
@@ -794,7 +794,7 @@ export default function Atlante() {
             {sottozona.focus_points.map((fp, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < sottozona.focus_points.length - 1 ? 10 : 0 }}>
                 <span style={{ color: terra, fontSize: 14, flexShrink: 0, marginTop: 1 }}>•</span>
-                <span style={{ fontSize: 13, color: scuro, lineHeight: 1.6 }}>{fp.testo}</span>
+                <span style={{ fontSize: 13, color: scuro, lineHeight: 1.6 }}>{typeof fp === 'string' ? fp : fp.testo}</span>
               </div>
             ))}
           </div>
@@ -810,7 +810,7 @@ export default function Atlante() {
       <div style={{ paddingBottom: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <button onClick={() => setVista('mappa')} style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', padding: 0 }}>
-            ← Italia
+            ← {COUNTRY_DATA[paese]?.label || paese}
           </button>
           <div style={{ flex: 1, height: 4, background: chiaro, borderRadius: 2 }}>
             <div style={{ height: '100%', borderRadius: 2, background: livello === 2 ? verde : livello === 1 ? giallo : chiaro, width: livello === 2 ? '100%' : livello === 1 ? '50%' : '0%', transition: 'width 0.4s' }}/>
@@ -906,7 +906,7 @@ export default function Atlante() {
                 {regioneData.focus_points.map((fp, i) => (
                   <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < regioneData.focus_points.length - 1 ? 10 : 0 }}>
                     <span style={{ color: terra, fontSize: 14, flexShrink: 0, marginTop: 1 }}>•</span>
-                    <span style={{ fontSize: 13, color: scuro, lineHeight: 1.6 }}>{fp.testo}</span>
+                    <span style={{ fontSize: 13, color: scuro, lineHeight: 1.6 }}>{typeof fp === 'string' ? fp : fp.testo}</span>
                   </div>
                 ))}
               </div>
