@@ -79,10 +79,10 @@ export const REGION_MAPS={
     SUD_OUEST:{path:'M224.2,241.2L211.0,236.8L204.4,239.9L199.7,233.1L188.4,233.7L183.3,229.0L161.4,224.7L157.7,229.3L159.1,234.8L140.9,232.8L137.1,235.8L130.0,232.0L118.7,235.1L101.2,225.4L86.2,229.5L75.3,218.4L52.3,216.1L42.5,212.5L44.8,209.5L39.9,214.9L34.7,213.8L32.8,211.4L37.8,201.3L29.2,199.2L24.8,201.7L14.0,194.5L25.1,191.2L34.3,178.7L45.9,128.1L326.0,128.1L326.0,200.3L312.2,202.9L300.3,215.4L298.0,234.0L299.6,243.4L304.1,246.0L221.5,246.0Z',cx:183.9,cy:180.7}
   }},
   RODANO:{w:340,h:260,comuni_map:[
-    {nome:'Ampuis (Cote-Rotie)',x:178.3,y:41.5,provincia:'RODANO_NORD'},
-    {nome:'Tain (Hermitage)',x:180.3,y:86.8,provincia:'RODANO_NORD'},
-    {nome:'Chateauneuf-du-Pape',x:179.8,y:192.9,provincia:'RODANO_SUD'},
-    {nome:'Avignon',x:176.8,y:204.2,provincia:'RODANO_SUD'},
+    {nome:'Ampuis (Cote-Rotie)',x:55.0,y:30.0,provincia:'RODANO_NORD'},
+    {nome:'Tain (Hermitage)',x:55.0,y:80.0,provincia:'RODANO_NORD'},
+    {nome:'Chateauneuf-du-Pape',x:60.0,y:175.0,provincia:'RODANO_SUD'},
+    {nome:'Avignon',x:60.0,y:200.0,provincia:'RODANO_SUD'},
   ],provinces:{
     RODANO_NORD:{path:'M137.1,14.0L137.1,130.0L14.0,130.0L14.0,14.0Z',cx:75.6,cy:72.0},
     RODANO_SUD:{path:'M137.1,130.0L136.3,207.5L127.1,207.9L137.1,218.1L137.1,246.0L119.3,233.8L95.0,232.0L96.2,221.4L54.2,232.1L46.3,220.1L32.5,219.6L32.4,226.9L15.6,219.8L14.0,130.0Z',cx:77.4,cy:178.6}
