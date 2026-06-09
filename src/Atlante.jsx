@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { getLingua } from './i18n'
 import { supabase } from './supabase'
 import { SVG_W as IT_SVG_W, SVG_H as IT_SVG_H, REGIONS as IT_REGIONS } from './countrymaps/italySvgData'
 import { REGION_MAPS as IT_REGION_MAPS } from './countrymaps/italyRegionMaps'
@@ -391,7 +392,7 @@ export default function Atlante() {
         produzione: regioneData.produzione,
         sottozone: (regioneData.sottozone || []).map(sz => {
           // Comuni: prefer DB comuni_label, fallback to JS comuni_map by province code
-          const regionMap = REGION_MAPS?.[reg_id?.toUpperCase()]
+          const regionMap = REGION_MAPS?.[selected?.toUpperCase()]
           const mapComuni = (regionMap?.comuni_map || [])
             .filter(c => (sz.province || []).includes(c.provincia))
             .map(c => c.nome)
@@ -414,7 +415,7 @@ export default function Atlante() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({
           action: 'genera_esercizi_regione',
-          payload: { regione: regioneCtx, regione_nome: regioneData.regione_nome }
+          payload: { regione: regioneCtx, regione_nome: regioneData.regione_nome, lingua: getLingua() }
         })
       })
       const d = await res.json()
