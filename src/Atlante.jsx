@@ -357,13 +357,22 @@ export default function Atlante() {
     const mapComuni = (regionMap?.comuni_map || [])
       .filter(c => (sz.province || []).includes(c.provincia))
       .map(c => c.nome)
-    return {
+    console.log('[enrichSz] sz.nome:', sz.nome)
+    console.log('[enrichSz] sz.province:', sz.province)
+    console.log('[enrichSz] sz.comuni_label:', sz.comuni_label)
+    console.log('[enrichSz] sz.grand_cru:', sz.grand_cru)
+    console.log('[enrichSz] selected:', selected)
+    console.log('[enrichSz] regionMap:', regionMap ? 'found' : 'NOT FOUND')
+    console.log('[enrichSz] mapComuni:', mapComuni)
+    const result = {
       ...sz,
       comuni: (sz.comuni_label?.length > 0 ? sz.comuni_label : null) ||
               (sz.comuni?.length > 0 ? sz.comuni : null) ||
               mapComuni,
       grand_cru: sz.grand_cru || [],
     }
+    console.log('[enrichSz] result.comuni:', result.comuni)
+    return result
   }
 
   const card = { background: '#fff', border: `1px solid ${chiaro}`, borderRadius: 14, padding: '12px 14px', marginBottom: 8 }
