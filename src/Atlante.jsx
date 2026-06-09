@@ -357,13 +357,7 @@ export default function Atlante() {
     const mapComuni = (regionMap?.comuni_map || [])
       .filter(c => (sz.province || []).includes(c.provincia))
       .map(c => c.nome)
-    console.log('[enrichSz] sz.nome:', sz.nome)
-    console.log('[enrichSz] sz.province:', sz.province)
-    console.log('[enrichSz] sz.comuni_label:', sz.comuni_label)
-    console.log('[enrichSz] sz.grand_cru:', sz.grand_cru)
-    console.log('[enrichSz] selected:', selected)
-    console.log('[enrichSz] regionMap:', regionMap ? 'found' : 'NOT FOUND')
-    console.log('[enrichSz] mapComuni:', mapComuni)
+
     const result = {
       ...sz,
       comuni: (sz.comuni_label?.length > 0 ? sz.comuni_label : null) ||
@@ -371,7 +365,6 @@ export default function Atlante() {
               mapComuni,
       grand_cru: sz.grand_cru || [],
     }
-    console.log('[enrichSz] result.comuni:', result.comuni)
     return result
   }
 
@@ -937,6 +930,17 @@ export default function Atlante() {
                 <div style={card}>
                   <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: verde, marginBottom: 10 }}>DOC principali</div>
                   <div>{allDoc.map(d => <span key={d} style={pill('g')}>{d}</span>)}</div>
+                </div>
+              ) : null
+            })()}
+
+            {/* Grand Cru (France only) */}
+            {(() => {
+              const allGc = (regioneData.sottozone || []).flatMap(sz => sz.grand_cru || [])
+              return allGc.length > 0 ? (
+                <div style={card}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B6914', marginBottom: 10 }}>⭐ Grand Cru</div>
+                  <div>{allGc.map(d => <span key={d} style={{ ...pill('g'), background: '#FFF8E1', borderColor: '#C9A227', color: '#7A5C00' }}>{d}</span>)}</div>
                 </div>
               ) : null
             })()}
