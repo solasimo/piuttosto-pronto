@@ -371,13 +371,24 @@ export default function Atlante() {
         vitigni_rossi: regioneData.vitigni_rossi,
         vitigni_bianchi: regioneData.vitigni_bianchi,
         produzione: regioneData.produzione,
-        sottozone: (regioneData.sottozone || []).map(sz => ({
-          nome: sz.nome,
-          docg: sz.docg,
-          doc: sz.doc,
-          focus_points: sz.focus_points,
-          comuni: sz.comuni_label || sz.comuni,
-        })),
+        sottozone: (regioneData.sottozone || []).map(sz => {
+          // Comuni: prefer DB comuni_label, fallback to JS comuni_map by province code
+          const regionMap = REGION_MAPS?.[reg_id?.toUpperCase()]
+          const mapComuni = (regionMap?.comuni_map || [])
+            .filter(c => (sz.province || []).includes(c.provincia))
+            .map(c => c.nome)
+          return {
+            nome: sz.nome,
+            docg: sz.docg,
+            doc: sz.doc,
+            grand_cru: sz.grand_cru || [],
+            focus_points: sz.focus_points,
+            produzione: sz.produzione,
+            comuni: (sz.comuni_label?.length > 0 ? sz.comuni_label : null) ||
+                    (sz.comuni?.length > 0 ? sz.comuni : null) ||
+                    mapComuni,
+          }
+        }),
         focus_points: regioneData.focus_points,
       })
       const res = await fetch('/api/learning', {
@@ -770,6 +781,14 @@ export default function Atlante() {
           <div style={card}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: verde, marginBottom: 10 }}>DOC principali</div>
             <div>{sottozona.doc.map(d => <span key={d} style={pill('g')}>{d}</span>)}</div>
+          </div>
+        )}
+
+        {/* Grand Cru (France only) */}
+        {sottozona.grand_cru?.length > 0 && (
+          <div style={card}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B6914', marginBottom: 10 }}>⭐ Grand Cru</div>
+            <div>{sottozona.grand_cru.map(d => <span key={d} style={{ ...pill('g'), background: '#FFF8E1', borderColor: '#C9A227', color: '#7A5C00' }}>{d}</span>)}</div>
           </div>
         )}
 
