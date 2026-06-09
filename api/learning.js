@@ -226,10 +226,12 @@ Rispondi SOLO con JSON: {"corretta":true/false,"parziale":true/false,"punteggio"
       }
 
       case 'genera_esercizi_regione': {
-        const { regione, regione_nome } = payload
+        const { regione, regione_nome, lingua } = payload
+        const linguaLabel = lingua === 'en' ? 'English' : lingua === 'fr' ? 'français' : 'italiano'
 
         const system = `Sei un generatore di esercizi flash per sommelier ASSP.
 Usa ESCLUSIVAMENTE le informazioni della regione fornita. Non aggiungere nozioni esterne.
+Rispondi SEMPRE in ${linguaLabel} — tutte le domande, opzioni e spiegazioni devono essere in ${linguaLabel}.
 
 Genera esattamente 8 domande rapide e azionabili su ${regione_nome}.
 Mix di tipi: 3 multipla, 2 vero_falso, 3 flash (una flash card con domanda e risposta).
