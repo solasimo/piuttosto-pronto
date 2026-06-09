@@ -13,11 +13,12 @@ export const REGION_MAPS={
     COTE_BAR:{path:'M91.7,246.0L65.2,188.0L236.7,188.0Z',cx:131.2,cy:207.3},
   }},
   ALSACE:{w:340,h:260,comuni_map:[
-    {nome:'Strasbourg',x:220.3,y:106.0,provincia:'BAS_RHIN'},
-    {nome:'Colmar',x:181.6,y:155.0,provincia:'HAUT_RHIN'},
+    {nome:'Strasbourg',x:207.0,y:106.0,provincia:'BAS_RHIN'},
+    {nome:'Colmar',x:181.7,y:155.0,provincia:'HAUT_RHIN'},
     {nome:'Mulhouse',x:179.7,y:187.7,provincia:'HAUT_RHIN'},
   ],provinces:{
-    ALSACE:{path:'M116.0,14.5L212.0,32.4L157.6,77.3L144.5,120.6L121.4,149.3L127.5,169.8L112.3,207.8L122.4,224.5L97.3,243.9L75.6,246.0L53.5,222.2L42.4,220.8L43.8,201.4L14.0,189.8L14.0,14.0Z',cx:84.7,cy:109.1}
+    BAS_RHIN:{path:'M144.5,120.6L157.6,77.3L212.0,32.4L116.0,14.5L14.0,14.0L14.0,128.1L138.4,128.1Z',cx:91.4,cy:68.4},
+    HAUT_RHIN:{path:'M14.0,189.8L43.8,201.4L42.4,220.8L53.5,222.2L75.6,246.0L97.3,243.9L122.4,224.5L112.3,207.8L127.5,169.8L121.4,149.3L138.4,128.1L14.0,128.1Z',cx:73.5,cy:177.1}
   }},
   BOURGOGNE:{w:340,h:260,comuni_map:[
     {nome:'Chablis',x:117.3,y:113.9,provincia:'CHABLIS'},
