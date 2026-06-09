@@ -1,5 +1,100 @@
 import { useState, useEffect, useMemo } from 'react'
 import { getLingua } from './i18n'
+
+// ── Traduzioni Atlante ───────────────────────────────────────────────────────
+const ATX = {
+  it: {
+    indietro: '← Indietro',
+    esercizi_titolo: 'Esercizi',
+    esercizi_desc: (nome) => `Domande flash su sottozone, DOCG/DOC, vitigni e curiosità di ${nome}.`,
+    prossima: 'Prossima →',
+    nuova_serie: '🔄 Nuova serie',
+    riprova: 'Riprova',
+    esercizio_titolo: 'Esercizio',
+    corrette: 'corrette',
+    comuni_chiave: 'Comuni chiave',
+    docg_label: 'DOCG',
+    doc_label: 'DOC principali',
+    grand_cru: '⭐ Grand Cru',
+    vitigni_zona: 'Vitigni della zona',
+    vitigni_principali: 'Vitigni principali',
+    focus_esame: '🎯 Focus esame',
+    non_studiata: 'Non studiata',
+    in_studio: 'In studio',
+    studiata: 'Studiata ✓',
+    studiata_label: 'Studiata',
+    in_studio_label: 'In studio',
+    non_studiata_label: 'Non studiata',
+    da_iniziare: 'Da iniziare',
+    produzione: 'Produzione',
+    zone: 'Zone',
+    sottozone_label: 'Sottozone',
+    avvia_esercizi: 'Esercizi su questa regione',
+    corrette_su: 'corrette su',
+  },
+  en: {
+    indietro: '← Back',
+    esercizi_titolo: 'Exercises',
+    esercizi_desc: (nome) => `Flash questions on sub-zones, DOCG/DOC, grape varieties and facts about ${nome}.`,
+    prossima: 'Next →',
+    nuova_serie: '🔄 New series',
+    riprova: 'Retry',
+    esercizio_titolo: 'Exercise',
+    corrette: 'correct',
+    comuni_chiave: 'Key towns',
+    docg_label: 'DOCG',
+    doc_label: 'Main DOC',
+    grand_cru: '⭐ Grand Cru',
+    vitigni_zona: 'Zone grapes',
+    vitigni_principali: 'Main grapes',
+    focus_esame: '🎯 Exam focus',
+    non_studiata: 'Not studied',
+    in_studio: 'Studying',
+    studiata: 'Studied ✓',
+    studiata_label: 'Studied',
+    in_studio_label: 'Studying',
+    non_studiata_label: 'Not studied',
+    da_iniziare: 'To start',
+    produzione: 'Production',
+    zone: 'Zones',
+    sottozone_label: 'Sub-zones',
+    avvia_esercizi: 'Exercises on this region',
+    corrette_su: 'correct out of',
+  },
+  fr: {
+    indietro: '← Retour',
+    esercizi_titolo: 'Exercices',
+    esercizi_desc: (nome) => `Questions flash sur les sous-zones, DOCG/DOC, cépages et curiosités de ${nome}.`,
+    prossima: 'Suivant →',
+    nuova_serie: '🔄 Nouvelle série',
+    riprova: 'Réessayer',
+    esercizio_titolo: 'Exercice',
+    corrette: 'correctes',
+    comuni_chiave: 'Communes clés',
+    docg_label: 'DOCG',
+    doc_label: 'DOC principales',
+    grand_cru: '⭐ Grands Crus',
+    vitigni_zona: 'Cépages de la zone',
+    vitigni_principali: 'Cépages principaux',
+    focus_esame: '🎯 Points clés examen',
+    non_studiata: 'Non étudiée',
+    in_studio: 'En cours',
+    studiata: 'Étudiée ✓',
+    studiata_label: 'Étudiée',
+    in_studio_label: 'En cours',
+    non_studiata_label: 'Non étudiée',
+    da_iniziare: 'À commencer',
+    produzione: 'Production',
+    zone: 'Zones',
+    sottozone_label: 'Sous-zones',
+    avvia_esercizi: 'Exercices sur cette région',
+    corrette_su: 'correctes sur',
+  },
+}
+function atx(key) {
+  const lang = getLingua()
+  return (ATX[lang] || ATX.it)[key] || (ATX.it)[key] || key
+}
 import { supabase } from './supabase'
 import { SVG_W as IT_SVG_W, SVG_H as IT_SVG_H, REGIONS as IT_REGIONS } from './countrymaps/italySvgData'
 import { REGION_MAPS as IT_REGION_MAPS } from './countrymaps/italyRegionMaps'
@@ -79,7 +174,7 @@ function BarraProduzione({ produzione, compact = false }) {
     <div style={{ marginTop: compact ? 6 : 10 }}>
       {!compact && (
         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9A8070', marginBottom: 6 }}>
-          Produzione
+          {atx('produzione')}
         </div>
       )}
       {/* Barra */}
@@ -455,10 +550,10 @@ export default function Atlante() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
           <button onClick={() => { setVista('regione'); setErDomande([]); setErFeedback(null); setErRisposta(null) }}
             style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', padding: 0 }}>
-            ← Indietro
+            {atx('indietro')}
           </button>
           <div style={{ fontSize: 14, fontWeight: 700, color: scuro }}>
-            Esercizi — {regioneData?.regione_nome}
+            {atx('esercizi_titolo')} — {regioneData?.regione_nome}
           </div>
           {erScore.tot > 0 && (
             <div style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, color: verde }}>
@@ -475,7 +570,7 @@ export default function Atlante() {
               Allenamento rapido
             </div>
             <div style={{ fontSize: 13, color: medio, marginBottom: 24, lineHeight: 1.5 }}>
-              Domande flash su sottozone, DOCG/DOC, vitigni e curiosità di {regioneData?.regione_nome}.
+              {atx('esercizi_desc')(regioneData?.regione_nome)}
             </div>
             <button style={btnP} onClick={generaEsercizi}>
               Inizia gli esercizi
@@ -580,7 +675,7 @@ export default function Atlante() {
             {/* Prossima / Nuova serie */}
             {erFeedback && (
               <button style={{ ...btnP, marginTop: 12 }} onClick={erProssima}>
-                {erIdx + 1 >= erDomande.length ? '🔄 Nuova serie' : 'Prossima →'}
+                {erIdx + 1 >= erDomande.length ? atx('nuova_serie') : atx('prossima')}
               </button>
             )}
           </div>
@@ -590,7 +685,7 @@ export default function Atlante() {
         {!erLoading && dom?.tipo === 'errore' && (
           <div style={{ ...card, borderColor: '#9B2335' }}>
             <div style={{ fontSize: 13, color: '#9B2335' }}>Errore: {dom.testo}</div>
-            <button style={{ ...btnO, marginTop: 8 }} onClick={generaEsercizi}>Riprova</button>
+            <button style={{ ...btnO, marginTop: 8 }} onClick={generaEsercizi}>{atx('riprova')}</button>
           </div>
         )}
       </div>
@@ -616,10 +711,10 @@ export default function Atlante() {
       <div style={{ paddingBottom: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
           <button onClick={() => { setVista(isRegMode ? 'mappa' : 'regione'); setEsRegFeedback(null); setEsSottoFeedback(null); setEsRegSelected(null); setEsSottoSelected(null); setEsInput('') }} style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', padding: 0 }}>
-            ← Indietro
+            {atx('indietro')}
           </button>
           <div style={{ fontSize: 14, fontWeight: 700, color: scuro }}>
-            Esercizio — {isRegMode ? `Zone ${COUNTRY_DATA[paese]?.label || paese}` : `Sottozone ${regioneData?.regione_nome}`}
+            {atx('esercizio_titolo')} — {isRegMode ? `${atx('zone')} ${COUNTRY_DATA[paese]?.label || paese}` : `${atx('sottozone_label')} ${regioneData?.regione_nome}`}
           </div>
         </div>
 
@@ -745,9 +840,9 @@ export default function Atlante() {
             <div style={{ ...card, textAlign: 'center', padding: 24, marginTop: 8 }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>{emoji}</div>
               <div style={{ fontSize: 40, fontWeight: 800, color: pct >= 80 ? verde : pct >= 60 ? giallo : terra }}>{pct}%</div>
-              <div style={{ fontSize: 14, color: medio, marginBottom: 16 }}>{fb.nCorr} / {fb.tot} corrette</div>
+              <div style={{ fontSize: 14, color: medio, marginBottom: 16 }}>{fb.nCorr} / {fb.tot} {atx('corrette')}</div>
               <button style={btnP} onClick={isRegMode ? esResetRegioni : () => { setEsSottoRisposte({}); setEsSottoFeedback(null); setEsSottoSelected(null); setEsUltimoFeedback(null) }}>
-                Riprova
+                {atx('riprova')}
               </button>
             </div>
           )
@@ -757,7 +852,7 @@ export default function Atlante() {
         {!esRegFeedback && !esSottoFeedback && (
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: medio, marginTop: 12 }}>
             <span>{nCompilate}/{nTot} compilate</span>
-            <span style={{ color: verde }}>{Object.values(isRegMode ? esRegCorrette : esSottoCorrette).filter(Boolean).length} ✓ corrette</span>
+            <span style={{ color: verde }}>{Object.values(isRegMode ? esRegCorrette : esSottoCorrette).filter(Boolean).length} ✓ {atx('corrette')}</span>
           </div>
         )}
       </div>
@@ -779,7 +874,7 @@ export default function Atlante() {
 
         {/* Comuni chiave */}
         <div style={card}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>Comuni chiave</div>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>{atx('comuni_chiave')}</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {(sottozona.comuni || []).map(c => (
               <span key={c} style={{ padding: '4px 12px', background: '#F5EDE0', borderRadius: 20, fontSize: 12, fontWeight: 600, color: '#6B3D0A' }}>{c}</span>
@@ -790,7 +885,7 @@ export default function Atlante() {
         {/* DOCG */}
         {sottozona.docg?.length > 0 && (
           <div style={card}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>DOCG</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>{atx('docg_label')}</div>
             <div>{sottozona.docg.map(d => <span key={d} style={pill('d')}>{d}</span>)}</div>
           </div>
         )}
@@ -798,7 +893,7 @@ export default function Atlante() {
         {/* DOC */}
         {sottozona.doc?.length > 0 && (
           <div style={card}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: verde, marginBottom: 10 }}>DOC principali</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: verde, marginBottom: 10 }}>{atx('doc_label')}</div>
             <div>{sottozona.doc.map(d => <span key={d} style={pill('g')}>{d}</span>)}</div>
           </div>
         )}
@@ -806,7 +901,7 @@ export default function Atlante() {
         {/* Grand Cru (France only) */}
         {sottozona.grand_cru?.length > 0 && (
           <div style={card}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B6914', marginBottom: 10 }}>⭐ Grand Cru</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B6914', marginBottom: 10 }}>{atx('grand_cru')}</div>
             <div>{sottozona.grand_cru.map(d => <span key={d} style={{ ...pill('g'), background: '#FFF8E1', borderColor: '#C9A227', color: '#7A5C00' }}>{d}</span>)}</div>
           </div>
         )}
@@ -814,7 +909,7 @@ export default function Atlante() {
         {/* Vitigni della sottozona */}
         {regioneData && (regioneData.vitigni_rossi?.length > 0 || regioneData.vitigni_bianchi?.length > 0) && (
           <div style={card}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>Vitigni della zona</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>{atx('vitigni_zona')}</div>
             <div>
               {(regioneData.vitigni_rossi || []).map(v => <span key={v} style={pill('r')}>{v}</span>)}
               {(regioneData.vitigni_bianchi || []).map(v => <span key={v} style={pill('b')}>{v}</span>)}
@@ -827,7 +922,7 @@ export default function Atlante() {
         {sottozona.focus_points?.length > 0 && (
           <div style={{ ...card, background: '#FFFBF5', border: `1px solid ${oro}44` }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: oro, marginBottom: 10 }}>
-              🎯 Focus esame
+              {atx('focus_esame')}
             </div>
             {sottozona.focus_points.map((fp, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < sottozona.focus_points.length - 1 ? 10 : 0 }}>
@@ -868,7 +963,7 @@ export default function Atlante() {
                 {[0,1,2].map(l => (
                   <button key={l} onClick={() => segnaStudiata(regioneData.regione_id, l)}
                     style={{ padding: '5px 12px', borderRadius: 20, border: `1.5px solid ${livello===l ? terra : chiaro}`, background: livello===l ? terra : '#fff', color: livello===l ? '#fff' : medio, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif' }}>
-                    {l===0?'Non studiata':l===1?'In studio':'Studiata ✓'}
+                    {l===0?atx('non_studiata'):l===1?atx('in_studio'):atx('studiata')}
                   </button>
                 ))}
               </div>
@@ -905,7 +1000,7 @@ export default function Atlante() {
 
             {/* Vitigni + barra produzione */}
             <div style={card}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>Vitigni principali</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: terra, marginBottom: 10 }}>{atx('vitigni_principali')}</div>
               <div>
                 {(regioneData.vitigni_rossi || []).map(v => <span key={v} style={pill('r')}>{v}</span>)}
                 {(regioneData.vitigni_bianchi || []).map(v => <span key={v} style={pill('b')}>{v}</span>)}
@@ -918,7 +1013,7 @@ export default function Atlante() {
               const allDocg = (regioneData.sottozone || []).flatMap(sz => sz.docg || [])
               return allDocg.length > 0 ? (
                 <div style={card}>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B3D0A', marginBottom: 10 }}>DOCG</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B3D0A', marginBottom: 10 }}>{atx('docg_label')}</div>
                   <div>{allDocg.map(d => <span key={d} style={pill('d')}>{d}</span>)}</div>
                 </div>
               ) : null
@@ -929,7 +1024,7 @@ export default function Atlante() {
               const allDoc = (regioneData.sottozone || []).flatMap(sz => sz.doc || [])
               return allDoc.length > 0 ? (
                 <div style={card}>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: verde, marginBottom: 10 }}>DOC principali</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: verde, marginBottom: 10 }}>{atx('doc_label')}</div>
                   <div>{allDoc.map(d => <span key={d} style={pill('g')}>{d}</span>)}</div>
                 </div>
               ) : null
@@ -940,7 +1035,7 @@ export default function Atlante() {
               const allGc = (regioneData.sottozone || []).flatMap(sz => sz.grand_cru || [])
               return allGc.length > 0 ? (
                 <div style={card}>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B6914', marginBottom: 10 }}>⭐ Grand Cru</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#8B6914', marginBottom: 10 }}>{atx('grand_cru')}</div>
                   <div>{allGc.map(d => <span key={d} style={{ ...pill('g'), background: '#FFF8E1', borderColor: '#C9A227', color: '#7A5C00' }}>{d}</span>)}</div>
                 </div>
               ) : null
@@ -950,7 +1045,7 @@ export default function Atlante() {
             {regioneData.focus_points?.length > 0 && (
               <div style={{ ...card, background: '#FFFBF5', border: `1px solid ${oro}44` }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: oro, marginBottom: 10 }}>
-                  🎯 Focus esame
+                  {atx('focus_esame')}
                 </div>
                 {regioneData.focus_points.map((fp, i) => (
                   <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < regioneData.focus_points.length - 1 ? 10 : 0 }}>
@@ -1005,7 +1100,7 @@ export default function Atlante() {
 
       {/* Legenda */}
       <div style={{ display: 'flex', gap: 14, marginBottom: 14, flexWrap: 'wrap' }}>
-        {[[verde,'Studiata'],[giallo,'In studio'],['#D6CEBE','Non studiata']].map(([col,lab]) => (
+        {[[verde,atx('studiata_label')],[giallo,atx('in_studio_label')],['#D6CEBE',atx('non_studiata_label')]].map(([col,lab]) => (
           <div key={lab} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: medio }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: col }}/>
             {lab}
@@ -1017,9 +1112,9 @@ export default function Atlante() {
       <div style={{ ...card, display: 'flex', justifyContent: 'space-around', textAlign: 'center', marginBottom: 12 }}>
         <div><div style={{ fontSize: 22, fontWeight: 800, color: verde }}>{nStudiate}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>Studiate</div></div>
         <div style={{ width: 1, background: chiaro }}/>
-        <div><div style={{ fontSize: 22, fontWeight: 800, color: giallo }}>{nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>In studio</div></div>
+        <div><div style={{ fontSize: 22, fontWeight: 800, color: giallo }}>{nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>{atx('in_studio_label')}</div></div>
         <div style={{ width: 1, background: chiaro }}/>
-        <div><div style={{ fontSize: 22, fontWeight: 800, color: scuro }}>{totalZones-nStudiate-nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>Da iniziare</div></div>
+        <div><div style={{ fontSize: 22, fontWeight: 800, color: scuro }}>{totalZones-nStudiate-nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>{atx('da_iniziare')}</div></div>
       </div>
 
 
