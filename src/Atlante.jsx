@@ -350,6 +350,22 @@ export default function Atlante() {
     setEsSottoFeedback({ feedback, nCorr, tot: sz.length })
   }
 
+  // Arricchisce una sottozona grezza del DB con comuni (da comuni_map JS) e grand_cru
+  function enrichSz(sz) {
+    if (!sz) return sz
+    const regionMap = REGION_MAPS?.[selected?.toUpperCase()]
+    const mapComuni = (regionMap?.comuni_map || [])
+      .filter(c => (sz.province || []).includes(c.provincia))
+      .map(c => c.nome)
+    return {
+      ...sz,
+      comuni: (sz.comuni_label?.length > 0 ? sz.comuni_label : null) ||
+              (sz.comuni?.length > 0 ? sz.comuni : null) ||
+              mapComuni,
+      grand_cru: sz.grand_cru || [],
+    }
+  }
+
   const card = { background: '#fff', border: `1px solid ${chiaro}`, borderRadius: 14, padding: '12px 14px', marginBottom: 8 }
   const pill = (color) => ({ display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, margin: '2px', background: color === 'r' ? '#FEF0EE' : color === 'b' ? '#FAFBEA' : color === 'd' ? '#F5EDE0' : '#F0F7F4', color: color === 'r' ? '#7A1F10' : color === 'b' ? '#6B6B0A' : color === 'd' ? '#6B3D0A' : '#1A5C3A', border: `1px solid ${color === 'r' ? '#C4614A33' : color === 'b' ? '#B8B83033' : color === 'd' ? '#D4A56A33' : '#2D6A4F33'}` })
   const btnP = { width: '100%', padding: '12px 14px', background: terra, color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif' }
@@ -864,7 +880,7 @@ export default function Atlante() {
                 onSelectZona={(zi) => {
                   setSelectedZona(zi === selectedZona ? null : zi)
                   const sz = regioneData.sottozone?.[zi]
-                  if (sz) { setSottozona(sz); setVista('sottozona') }
+                  if (sz) { setSottozona(enrichSz(sz)); setVista('sottozona') }
                 }}
                 selectedZona={selectedZona}
               />
@@ -875,7 +891,7 @@ export default function Atlante() {
               {(regioneData.sottozone || []).map((sz, i) => {
                 const col = ZONA_COLORS[i % ZONA_COLORS.length]
                 return (
-                  <div key={i} onClick={() => { setSottozona(sz); setVista('sottozona') }}
+                  <div key={i} onClick={() => { setSottozona(enrichSz(sz)); setVista('sottozona') }}
                     style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 20, background: col.fill, border: `1px solid ${col.stroke}`, cursor: 'pointer' }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.stroke, flexShrink: 0 }}/>
                     <span style={{ fontSize: 11, fontWeight: 600, color: col.label }}>{sz.nome}</span>
