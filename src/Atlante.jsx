@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useNavigate as useRouterNavigate } from 'react-router-dom'
 import { getLingua } from './i18n'
 
 // ── Traduzioni Atlante ───────────────────────────────────────────────────────
@@ -295,8 +296,20 @@ function MappaPaese({ REGIONS, SVG_W, SVG_H, progressi, onSelect, selected, paes
 }
 
 // ── Componente principale ─────────────────────────────────────────────────────
-export default function Atlante() {
-  const [paese, setPaese] = useState('italia')
+export default function Atlante({ initialPaese }) {
+  const routerNavigate = useRouterNavigate()
+  const [paese, setPaeseState] = useState(() => {
+    const validPaesi = Object.keys(COUNTRY_DATA)
+    return (initialPaese && validPaesi.includes(initialPaese)) ? initialPaese : 'italia'
+  })
+  // Sync paese if URL changes externally
+  useEffect(() => {
+    if (initialPaese && COUNTRY_DATA[initialPaese]) setPaeseState(initialPaese)
+  }, [initialPaese])
+  const setPaese = (p) => {
+    setPaeseState(p)
+    routerNavigate('/atlante/' + p, { replace: true })
+  }
   const { SVG_W, SVG_H, REGIONS, REGION_MAPS } = COUNTRY_DATA[paese] || COUNTRY_DATA['italia']
 
   const [vista, setVista] = useState('mappa')        // mappa | regione | sottozona | esercizio | esercizi_regione

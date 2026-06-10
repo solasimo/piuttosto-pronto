@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase, seedIfEmpty, getBottiglie, addBottiglia, updateBottiglia, deleteBottiglia, getSchede, addScheda, deleteScheda, updateScheda, getProfilo, aggiornaLastSeen, getGruppo, creaGruppo, creaInvitoGruppo, uniscitiGruppo, lasciaGruppo, aggiornaLingua } from './supabase'
 import { t, setLingua, getLingua, LINGUE, tPaese } from './i18n'
 import { useT } from './useT'
@@ -666,7 +667,29 @@ export default function App() {
   const [showFab, setShowFab] = useState(false)
   const [modalitaSommelier, setModalitaSommelier] = useState(true)
   const [benchmarkScheda, setBenchmarkScheda] = useState(null)
-  const [tab, setTab] = useState('libreria')
+  const navigate = useNavigate()
+  const location = useLocation()
+  // Derive tab from URL path
+  const pathToTab = (p) => {
+    if (p === '/' || p === '') return 'libreria'
+    const seg = p.replace(/^\//, '').split('/')[0]
+    const map = { libreria:'libreria', statistiche:'statistiche', chef:'abbinamento',
+                  learning:'learning', atlante:'atlante', schede:'schede', aggiungi:'aggiungi-bottiglia' }
+    return map[seg] || 'libreria'
+  }
+  // Extract paese from /atlante/:paese
+  const urlPaese = (() => {
+    const parts = location.pathname.replace(/^\//, '').split('/')
+    if (parts[0] === 'atlante' && parts[1]) return parts[1]
+    return null
+  })()
+  const tab = pathToTab(location.pathname)
+  const setTab = (id) => {
+    const map = { libreria:'/', statistiche:'/statistiche', abbinamento:'/chef',
+                  learning:'/learning', atlante:'/atlante', schede:'/schede',
+                  'aggiungi-bottiglia':'/aggiungi' }
+    navigate(map[id] || '/')
+  }
   const [cantina, setCantina] = useState([])
   const [archivio, setArchivio] = useState([])
   const [loading, setLoading] = useState(true)
@@ -852,7 +875,7 @@ export default function App() {
           {tab==='statistiche' && <div style={{padding:'16px 14px 0'}}><Statistiche cantina={cantina} onBottigliaClick={b=>{setDettaglioBottiglia(b);setModalitaBottiglia('detail')}} /></div>}
           {tab==='abbinamento' && <div style={{padding:'16px 14px 0'}}><AIChef cantina={cantina} /></div>}
           {tab==='learning' && <div style={{padding:'16px 14px 0'}}><Learning /></div>}
-          {tab==='atlante' && <div style={{padding:'16px 14px 0'}}><Atlante /></div>}
+          {tab==='atlante' && <div style={{padding:'16px 14px 0'}}><Atlante initialPaese={urlPaese} /></div>}
           {tab==='schede' && <div style={{padding:'16px 14px 0'}}><SchedeASPI archivio={archivio} onNuova={()=>{setAspiBottiglia(null);setAspiLibera(true)}} onElimina={handleDeleteScheda} onOpen={scheda=>setEditScheda(scheda)} onUpdateScheda={updated=>setArchivio(prev=>prev.map(s=>s.id===updated.id?updated:s))} onBenchmark={setBenchmarkScheda} /></div>}
         </>}
       </div>
@@ -890,7 +913,7 @@ export default function App() {
                 <span style={{ fontSize:20 }}>📓</span>
               </button>
             )}
-            <button onClick={()=>{setShowFab(false);setTab('aggiungi-bottiglia')}}
+            <button onClick={()=>{setShowFab(false);navigate('/aggiungi')}}
               style={{ display:'flex', alignItems:'center', gap:12, background:'#EAE2D6', border:'1px solid #D6CEBE', borderRadius:12, padding:'13px 18px', cursor:'pointer', boxShadow:'0 4px 20px rgba(0,0,0,0.4)' }}>
               <span style={{ fontSize:13, color:'#2C1A0E', fontWeight:500, fontFamily:'DM Sans, sans-serif' }}>{T('fab.nuova_bottiglia')}</span>
               <span style={{ fontSize:20 }}>🍾</span>
@@ -900,7 +923,7 @@ export default function App() {
       )}
 
       {/* Sheet aggiungi bottiglia */}
-      <Sheet open={tab==='aggiungi-bottiglia'} onClose={()=>setTab('libreria')} title={t('fab.nuova_bottiglia')}>
+      <Sheet open={location.pathname==='/aggiungi'} onClose={()=>navigate('/')} title={t('fab.nuova_bottiglia')}>
         <AggiungiForm onAdd={handleAdd} showToast={showToast} />
       </Sheet>
 
