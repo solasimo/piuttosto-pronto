@@ -109,6 +109,8 @@ import { SVG_W as AT_SVG_W, SVG_H as AT_SVG_H, REGIONS as AT_REGIONS } from './c
 import { REGION_MAPS as AT_REGION_MAPS } from './countrymaps/austriaRegionMaps'
 import { SVG_W as ES_SVG_W, SVG_H as ES_SVG_H, REGIONS as ES_REGIONS } from './countrymaps/spagnaSvgData'
 import { REGION_MAPS as ES_REGION_MAPS } from './countrymaps/spagnaRegionMaps'
+import { SVG_W as CH_SVG_W, SVG_H as CH_SVG_H, REGIONS as CH_REGIONS } from './countrymaps/svizzeraSvgData'
+import { REGION_MAPS as CH_REGION_MAPS } from './countrymaps/svizzeraRegionMaps'
 
 // Mappa paese -> dati SVG
 const COUNTRY_DATA = {
@@ -118,6 +120,7 @@ const COUNTRY_DATA = {
   austria:   { SVG_W: AT_SVG_W, SVG_H: AT_SVG_H, REGIONS: AT_REGIONS, REGION_MAPS: AT_REGION_MAPS, label: '🇦🇹 Austria',   totalZones: 6  },
   spagna:    { SVG_W: ES_SVG_W, SVG_H: ES_SVG_H, REGIONS: ES_REGIONS, REGION_MAPS: ES_REGION_MAPS, label: '🇪🇸 Spagna',    totalZones: 11 },
   portogallo:{ SVG_W: PT_SVG_W, SVG_H: PT_SVG_H, REGIONS: PT_REGIONS, REGION_MAPS: PT_REGION_MAPS, label: '🇵🇹 Portogallo',totalZones: 11 },
+  svizzera:  { SVG_W: CH_SVG_W, SVG_H: CH_SVG_H, REGIONS: CH_REGIONS, REGION_MAPS: CH_REGION_MAPS, label: '🇨🇭 Svizzera',  totalZones: 6  },
 }
 
 
