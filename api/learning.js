@@ -279,6 +279,46 @@ Rispondi SOLO con JSON valido, nessun testo extra:
         return res.json(parsed)
       }
 
+
+      case 'get_swiss_quiz': {
+        const { regione_id, lingua } = payload
+        // Estrae domande random dalla KB fissa, almeno 1 per tipo, totale 15
+        const tipi = ['multipla','vero_falso','aperta','elenco','classifica_colore','abbinamento','comuni']
+        let domande = []
+        // 1 domanda garantita per ogni tipo
+        for (const tipo of tipi) {
+          const { data: pool } = await supabase
+            .from('swiss_quiz_kb')
+            .select('*')
+            .eq('regione_id', regione_id)
+            .eq('tipo', tipo)
+          if (pool && pool.length > 0) {
+            const random = pool[Math.floor(Math.random() * pool.length)]
+            domande.push(random)
+          }
+        }
+        // Aggiungi domande random fino a 15 (preferibilmente multipla e vero_falso)
+        const { data: extra } = await supabase
+          .from('swiss_quiz_kb')
+          .select('*')
+          .eq('regione_id', regione_id)
+          .order('RANDOM()')
+          .limit(30)
+        if (extra) {
+          const usedIds = new Set(domande.map(d => d.id))
+          for (const d of extra) {
+            if (domande.length >= 15) break
+            if (!usedIds.has(d.id)) {
+              domande.push(d)
+              usedIds.add(d.id)
+            }
+          }
+        }
+        // Shuffle
+        domande = domande.sort(() => Math.random() - 0.5)
+        return res.json({ domande })
+      }
+
       case 'genera_esercizi_regione': {
         const { regione, regione_nome, lingua } = payload
         const linguaLabel = lingua === 'en' ? 'English' : lingua === 'fr' ? 'français' : 'italiano'

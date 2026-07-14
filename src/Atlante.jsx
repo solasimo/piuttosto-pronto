@@ -341,6 +341,10 @@ export default function Atlante({ initialPaese }) {
   const [erFeedback, setErFeedback] = useState(null)   // { ok, spiegazione }
   const [erLoading, setErLoading] = useState(false)
   const [erScore, setErScore] = useState({ corr: 0, tot: 0 })
+  const [erInputAperta, setErInputAperta] = useState('')
+  const [erApertaLoading, setErApertaLoading] = useState(false)
+  const [erClassifica, setErClassifica] = useState({})
+  const [erAbbinamento, setErAbbinamento] = useState({})
 
   // Esercizio
   const [esMode, setEsMode] = useState('regioni')    // regioni | sottozone
@@ -530,13 +534,16 @@ export default function Atlante({ initialPaese }) {
         }),
         focus_points: regioneData.focus_points,
       })
+      // Svizzera: usa KB fissa. Altri paesi: genera con AI
+      const isSwiss = paese === 'svizzera'
+      const action = isSwiss ? 'get_swiss_quiz' : 'genera_esercizi_regione'
+      const payload = isSwiss
+        ? { regione_id: reg_id?.toUpperCase(), lingua: getLingua() }
+        : { regione: regioneCtx, regione_nome: regioneData.regione_nome, lingua: getLingua() }
       const res = await fetch('/api/learning', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({
-          action: 'genera_esercizi_regione',
-          payload: { regione: regioneCtx, regione_nome: regioneData.regione_nome, lingua: getLingua() }
-        })
+        body: JSON.stringify({ action, payload })
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Errore generazione')
@@ -545,6 +552,53 @@ export default function Atlante({ initialPaese }) {
       setErDomande([{ tipo: 'errore', testo: e.message }])
     }
     setErLoading(false)
+  }
+
+  async function erCorreggiAperta(dom, testo) {
+    if (!testo?.trim()) return
+    setErApertaLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'correggi_aperta', payload: {
+          domanda: dom.domanda, risposta_utente: testo.trim(),
+          risposta_modello: dom.risposta_modello || dom.corretta,
+          punti_chiave: [], lingua: getLingua()
+        }})
+      })
+      const d = await res.json()
+      const ok = d.corretta || false
+      const parziale = !ok && d.parziale
+      setErFeedback({ ok, parziale, spiegazione: d.feedback || dom.spiegazione || '' })
+      setErScore(s => ({ corr: s.corr + (ok ? 1 : parziale ? 0.5 : 0), tot: s.tot + 1 }))
+    } catch (e) {
+      setErFeedback({ ok: false, spiegazione: 'Errore correzione: ' + e.message })
+    }
+    setErApertaLoading(false)
+  }
+
+  function erConfermaClassifica(dom) {
+    const corretta = typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta
+    const elementi = dom.elementi || []
+    let nCorr = 0
+    elementi.forEach(v => { if ((erClassifica[v]) === corretta[v]) nCorr++ })
+    const ok = nCorr === elementi.length
+    const parziale = !ok && nCorr > 0
+    setErFeedback({ ok, parziale, spiegazione: dom.spiegazione || `${nCorr}/${elementi.length} corretti` })
+    setErScore(s => ({ corr: s.corr + (ok ? 1 : parziale ? 0.5 : 0), tot: s.tot + 1 }))
+  }
+
+  function erConfermaAbbinamento(dom) {
+    const corretta = typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta
+    const sx = dom.elementi?.sx || []
+    let nCorr = 0
+    sx.forEach(k => { if ((erAbbinamento[k]) === corretta[k]) nCorr++ })
+    const ok = nCorr === sx.length
+    const parziale = !ok && nCorr > 0
+    setErFeedback({ ok, parziale, spiegazione: dom.spiegazione || `${nCorr}/${sx.length} corretti` })
+    setErScore(s => ({ corr: s.corr + (ok ? 1 : parziale ? 0.5 : 0), tot: s.tot + 1 }))
   }
 
   function erRispondi(scelta) {
@@ -561,9 +615,9 @@ export default function Atlante({ initialPaese }) {
 
   function erProssima() {
     if (erIdx + 1 >= erDomande.length) {
-      setErIdx(0); setErDomande([]); setErFeedback(null); setErRisposta(null)
+      setErIdx(0); setErDomande([]); setErFeedback(null); setErRisposta(null); setErInputAperta(''); setErClassifica({}); setErAbbinamento({})
     } else {
-      setErIdx(i => i + 1); setErFeedback(null); setErRisposta(null)
+      setErIdx(i => i + 1); setErFeedback(null); setErRisposta(null); setErInputAperta(''); setErClassifica({}); setErAbbinamento({})
     }
   }
 
@@ -672,16 +726,17 @@ export default function Atlante({ initialPaese }) {
             {/* Card domanda */}
             <div style={{ ...card, borderColor: terra, marginBottom: 12 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: terra, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
-                {dom.tipo === 'multipla' ? 'Scelta multipla' : dom.tipo === 'vero_falso' ? 'Vero o Falso' : dom.tipo === 'flash' ? 'Flash card' : dom.tipo === 'abbina' ? 'Abbinamento' : 'Domanda'}
+                {dom.tipo === 'multipla' ? 'Scelta multipla' : dom.tipo === 'vero_falso' ? 'Vero o Falso' : dom.tipo === 'flash' ? 'Flash card' : dom.tipo === 'abbinamento' ? 'Abbinamento' : dom.tipo === 'classifica_colore' ? 'Classifica vitigni' : dom.tipo === 'aperta' ? 'Risposta aperta' : dom.tipo === 'elenco' ? 'Elenco' : dom.tipo === 'comuni' ? 'Comuni' : 'Domanda'}
               </div>
               <div style={{ fontSize: 15, fontWeight: 600, color: scuro, lineHeight: 1.5 }}>
                 {dom.domanda || dom.testo}
               </div>
             </div>
 
-            {/* Opzioni multipla */}
-            {dom.tipo === 'multipla' && (dom.opzioni || []).map((op, i) => {
-              const lettera = ['a','b','c','d'][i]
+            {/* Opzioni multipla — supporta sia array che dict {a,b,c,d} */}
+            {dom.tipo === 'multipla' && ['a','b','c','d'].map(lettera => {
+              const op = Array.isArray(dom.opzioni) ? dom.opzioni[['a','b','c','d'].indexOf(lettera)] : dom.opzioni?.[lettera]
+              if (!op) return null
               const isSelected = erRisposta === lettera
               const isCorrect = erFeedback && lettera === dom.corretta
               const isWrong = erFeedback && isSelected && !erFeedback.ok
@@ -728,6 +783,115 @@ export default function Atlante({ initialPaese }) {
             {dom.tipo === 'flash' && erFeedback && (
               <div style={{ ...card, borderColor: verde, background: '#F0F9F4' }}>
                 <div style={{ fontSize: 14, color: scuro, lineHeight: 1.6 }}>{dom.risposta}</div>
+              </div>
+            )}
+
+            {/* Aperta / Elenco / Comuni — input testuale + correzione AI */}
+            {(dom.tipo === 'aperta' || dom.tipo === 'elenco' || dom.tipo === 'comuni') && !erFeedback && (
+              <div>
+                <textarea
+                  style={{ width: '100%', minHeight: 90, padding: 10, borderRadius: 8, border: `1.5px solid ${chiaro}`,
+                    fontFamily: '"DM Sans",sans-serif', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }}
+                  placeholder={dom.tipo === 'elenco' ? 'Elenca gli elementi...' : dom.tipo === 'comuni' ? 'Scrivi il comune/la risposta...' : 'Scrivi la tua risposta...'}
+                  value={erInputAperta || ''}
+                  onChange={e => setErInputAperta(e.target.value)}
+                />
+                <button style={{ ...btnP, marginTop: 8 }}
+                  onClick={() => erCorreggiAperta(dom, erInputAperta)}>
+                  Invia risposta
+                </button>
+              </div>
+            )}
+
+            {/* Classifica colore */}
+            {dom.tipo === 'classifica_colore' && !erFeedback && (
+              <div>
+                {(dom.elementi || []).map(vitigno => (
+                  <div key={vitigno} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    ...card, padding: '10px 14px', marginBottom: 8 }}>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>{vitigno}</span>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      {['Bianco','Rosso'].map(col => {
+                        const sel = (erClassifica || {})[vitigno]
+                        const isSel = sel === col
+                        return (
+                          <button key={col} onClick={() => setErClassifica(c => ({...c, [vitigno]: col}))}
+                            style={{ padding: '5px 14px', borderRadius: 16, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                              fontFamily: '"DM Sans",sans-serif',
+                              background: isSel ? (col === 'Bianco' ? '#FFF8DC' : '#FDECEA') : '#fff',
+                              border: `1.5px solid ${isSel ? (col === 'Bianco' ? '#C9A227' : '#9B2335') : chiaro}`,
+                              color: isSel ? (col === 'Bianco' ? '#7A5C00' : '#9B2335') : medio }}>
+                            {col === 'Bianco' ? '⬜ Bianco' : '🟥 Rosso'}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+                <button style={{ ...btnP, marginTop: 4 }}
+                  onClick={() => erConfermaClassifica(dom)}>
+                  Conferma
+                </button>
+              </div>
+            )}
+            {dom.tipo === 'classifica_colore' && erFeedback && (
+              <div>
+                {(dom.elementi || []).map(vitigno => {
+                  const corretta_val = (typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta)?.[vitigno]
+                  const scelta_val = (erClassifica || {})[vitigno]
+                  const ok = scelta_val === corretta_val
+                  return (
+                    <div key={vitigno} style={{ ...card, padding: '10px 14px', marginBottom: 8,
+                      background: ok ? '#F0F9F4' : '#FDF0EE', borderColor: ok ? verde : '#9B2335' }}>
+                      <span style={{ fontWeight: 600 }}>{vitigno}</span>
+                      <span style={{ float: 'right', color: ok ? verde : '#9B2335', fontWeight: 700 }}>
+                        {ok ? `✓ ${scelta_val}` : `✗ → ${corretta_val}`}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Abbinamento */}
+            {dom.tipo === 'abbinamento' && !erFeedback && (
+              <div>
+                {(dom.elementi?.sx || []).map(sx => (
+                  <div key={sx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, minWidth: 120, flexShrink: 0, color: scuro }}>{sx}</span>
+                    <select
+                      value={(erAbbinamento || {})[sx] || ''}
+                      onChange={e => setErAbbinamento(a => ({...a, [sx]: e.target.value}))}
+                      style={{ flex: 1, padding: '8px', borderRadius: 8, border: `1.5px solid ${chiaro}`,
+                        fontFamily: '"DM Sans",sans-serif', fontSize: 12, background: '#fff' }}>
+                      <option value=''>— scegli —</option>
+                      {(dom.elementi?.dx || []).map(dx => (
+                        <option key={dx} value={dx}>{dx}</option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+                <button style={{ ...btnP, marginTop: 4 }}
+                  onClick={() => erConfermaAbbinamento(dom)}>
+                  Conferma
+                </button>
+              </div>
+            )}
+            {dom.tipo === 'abbinamento' && erFeedback && (
+              <div>
+                {(dom.elementi?.sx || []).map(sx => {
+                  const corretta_map = typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta
+                  const ok = (erAbbinamento || {})[sx] === corretta_map?.[sx]
+                  return (
+                    <div key={sx} style={{ ...card, padding: '10px 14px', marginBottom: 8,
+                      background: ok ? '#F0F9F4' : '#FDF0EE', borderColor: ok ? verde : '#9B2335' }}>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{sx}</div>
+                      <div style={{ fontSize: 12, color: ok ? verde : '#9B2335', marginTop: 4 }}>
+                        {ok ? `✓ ${corretta_map?.[sx]}` : `✗ → ${corretta_map?.[sx]}`}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
 
