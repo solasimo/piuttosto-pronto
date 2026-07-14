@@ -43,7 +43,7 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Il Vallese ha esattamente 10 AOC Grand Cru, tra cui Visperterminen, Chamoson, Vétroz, Sion, Sierre, Salquenen e altre.'),
 
 ('VALLESE', 'multipla',
- 'Il Vin des Glaciers è prodotto nella Val d\'Anniviers con quale tecnica di affinamento?',
+ 'Il Vin des Glaciers è prodotto nella Val d''Anniviers con quale tecnica di affinamento?',
  '{"a":"Metodo classico","b":"Sistema Solera","c":"Macerazione carbonica","d":"Appassimento"}', '"b"',
  'Il Vin des Glaciers usa un sistema equivalente alla Solera spagnola: il vino evaporato viene reintegrato con vino più giovane, conservato in botti di larice.'),
 
@@ -53,9 +53,9 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'La Petite Arvine è il vitigno bianco nobile per eccellenza del Vallese, spesso vinificata in versione dolce o da uve appassite per il Grain Noble ConfidenCiel.'),
 
 ('VALLESE', 'multipla',
- 'Dove si trovano i vigneti più alti d\'Europa nel Vallese?',
+ 'Dove si trovano i vigneti più alti d''Europa nel Vallese?',
  '{"a":"Sierre","b":"Visperterminen","c":"Sion","d":"Martigny"}', '"b"',
- 'Visperterminen ospita vigneti fino a 1.100 m s.l.m., tra i più alti d\'Europa. Ha anche la propria AOC Grand Cru.'),
+ 'Visperterminen ospita vigneti fino a 1.100 m s.l.m., tra i più alti d''Europa. Ha anche la propria AOC Grand Cru.'),
 
 ('VALLESE', 'multipla',
  'La Dole Blanche è ottenuta da quali uve vinificate in bianco?',
@@ -74,9 +74,9 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Falso. Il Johannisberg è prodotto al 100% da uve Sylvaner, non Riesling. È una denominazione protetta esclusiva del Vallese.'),
 
 ('VALLESE', 'vero_falso',
- 'Il Grain Noble ConfidenCiel è un\'etichetta di qualità per vini dolci da uve appassite, riservata esclusivamente ai vitigni autoctoni del Vallese.',
+ 'Il Grain Noble ConfidenCiel è un''etichetta di qualità per vini dolci da uve appassite, riservata esclusivamente ai vitigni autoctoni del Vallese.',
  NULL, 'true',
- 'Vero. Creato nel 1996 da circa 30 produttori, prevede l\'uso esclusivo di varietà tradizionali del Vallese (Petite Arvine, Ermitage, Amigne, Paien, Malvoisie, Johannisberg) con minimo 130 gradi Oechslé e invecchiamento in legno.'),
+ 'Vero. Creato nel 1996 da circa 30 produttori, prevede l''uso esclusivo di varietà tradizionali del Vallese (Petite Arvine, Ermitage, Amigne, Paien, Malvoisie, Johannisberg) con minimo 130 gradi Oechslé e invecchiamento in legno.'),
 
 ('VALLESE', 'vero_falso',
  'La Dole AOC può essere prodotta con qualsiasi assemblaggio di uve rosse del Vallese.',
@@ -84,22 +84,22 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Falso. La Dole è un AOC del Vallese che richiede almeno il 51% di Pinot Noir e Gamay, con dominanza del Pinot Noir.'),
 
 ('VALLESE', 'vero_falso',
- 'La Petite Arvine è un vitigno autoctono esclusivo del Vallese, presente anche nelle Valli d\'Aosta e in Savoia.',
+ 'La Petite Arvine è un vitigno autoctono esclusivo del Vallese, presente anche nelle Valli d''Aosta e in Savoia.',
  NULL, 'true',
- 'Vero. Originaria del Vallese, la Petite Arvine è coltivata anche in Valle d\'Aosta (dove si chiama Prié Blanc in alcuni casi) e in piccole quantità in Savoia, ma il Vallese rimane la sua patria principale.'),
+ 'Vero. Originaria del Vallese, la Petite Arvine è coltivata anche in Valle d''Aosta (dove si chiama Prié Blanc in alcuni casi) e in piccole quantità in Savoia, ma il Vallese rimane la sua patria principale.'),
 
 -- APERTA
 ('VALLESE', 'aperta',
  'Descrivi le caratteristiche climatiche principali del Vallese e il loro impatto sulla viticoltura.',
  NULL, NULL,
- 'Clima continentale protetto dalle Alpi. Circa 650 mm di pioggia (il più secco della Svizzera). Massima insolazione: 2.500 ore/anno. Vento Föhn che accelera la maturazione. Rischio di gelate. Viticoltura eroica su terrazze (tablar) con meccanizzazione quasi impossibile. I vini risultano concentrati e strutturati grazie all\'irraggiamento e alla siccità.',
+ 'Clima continentale protetto dalle Alpi. Circa 650 mm di pioggia (il più secco della Svizzera). Massima insolazione: 2.500 ore/anno. Vento Föhn che accelera la maturazione. Rischio di gelate. Viticoltura eroica su terrazze (tablar) con meccanizzazione quasi impossibile. I vini risultano concentrati e strutturati grazie all''irraggiamento e alla siccità.',
  'Clima continentale protetto dalle Alpi con circa 650 mm di precipitazioni, 2.500 ore di sole, vento Föhn che accelera la maturazione, viticoltura eroica su terrazze (tablar) meccanizzabili quasi impossibili.'),
 
 ('VALLESE', 'aperta',
- 'Cos\'è il Vin des Glaciers del Vallese e quale tecnica produttiva lo caratterizza?',
+ 'Cos''è il Vin des Glaciers del Vallese e quale tecnica produttiva lo caratterizza?',
  NULL, NULL,
- 'Vino bianco ossidativo della Val d\'Anniviers. Assemblaggio di vitigni autoctoni (Rèze, Ermitage/Marsanne, Malvoisie/Pinot Gris, Païen/Heida). Conservato in botti di larice con sistema Solera equivalente a quello spagnolo: il vino che evapora o viene consumato viene rimpiazzato con vino più giovane. Produce un vino di carattere ossidativo unico.',
- 'Vino bianco ossidativo della Val d\'Anniviers, conservato in botti di larice con sistema Solera (il vino evaporato viene reintegrato con vino più giovane). Assemblaggio di vitigni autoctoni tra cui Rèze, Ermitage, Malvoisie, Païen.'),
+ 'Vino bianco ossidativo della Val d''Anniviers. Assemblaggio di vitigni autoctoni (Rèze, Ermitage/Marsanne, Malvoisie/Pinot Gris, Païen/Heida). Conservato in botti di larice con sistema Solera equivalente a quello spagnolo: il vino che evapora o viene consumato viene rimpiazzato con vino più giovane. Produce un vino di carattere ossidativo unico.',
+ 'Vino bianco ossidativo della Val d''Anniviers, conservato in botti di larice con sistema Solera (il vino evaporato viene reintegrato con vino più giovane). Assemblaggio di vitigni autoctoni tra cui Rèze, Ermitage, Malvoisie, Païen.'),
 
 -- ELENCO
 ('VALLESE', 'elenco',
@@ -133,13 +133,13 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, elementi, corretta, spiega
 -- COMUNI
 INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegazione) VALUES
 ('VALLESE', 'comuni',
- 'Quale comune del Vallese è noto per l\'Amigne, vitigno autoctono coltivato quasi esclusivamente su morena glaciale e scisto nero?',
+ 'Quale comune del Vallese è noto per l''Amigne, vitigno autoctono coltivato quasi esclusivamente su morena glaciale e scisto nero?',
  '{"a":"Sierre","b":"Vétroz","c":"Martigny","d":"Visp"}', '"b"',
- 'Vétroz è il comune per eccellenza dell\'Amigne nel Vallese, con suoli di morena glaciale e scisto nero che danno al vitigno autoctono il suo carattere unico.'),
+ 'Vétroz è il comune per eccellenza dell''Amigne nel Vallese, con suoli di morena glaciale e scisto nero che danno al vitigno autoctono il suo carattere unico.'),
 
 ('VALLESE', 'comuni',
  'Chamoson nel Vallese è noto per essere:',
- '{"a":"Il comune con i vigneti più alti della Svizzera","b":"La più grande regione vinicola del Vallese e secondo comune viticolo svizzero per estensione","c":"Il principale produttore di Vin des Glaciers","d":"L\'unico comune con AOC per il Cornalin"}', '"b"',
+ '{"a":"Il comune con i vigneti più alti della Svizzera","b":"La più grande regione vinicola del Vallese e secondo comune viticolo svizzero per estensione","c":"Il principale produttore di Vin des Glaciers","d":"L''unico comune con AOC per il Cornalin"}', '"b"',
  'Con circa 400 ha, Chamoson è la più grande regione vinicola del Vallese ed è anche il secondo comune viticolo svizzero per estensione, dopo Satigny nel cantone di Ginevra.');
 
 -- ================================================================
@@ -148,14 +148,14 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
 INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegazione) VALUES
 
 ('VAUD', 'multipla',
- 'Quale zona del Vaud è Patrimonio UNESCO ed è celebre per l\'effetto dei "tre soli"?',
+ 'Quale zona del Vaud è Patrimonio UNESCO ed è celebre per l''effetto dei "tre soli"?',
  '{"a":"La Côte","b":"Chablais","c":"Lavaux","d":"Nord Vaudois"}', '"c"',
  'Il Lavaux è Patrimonio UNESCO dal 2007. I "tre soli" sono: il sole diretto, il riflesso sul Lago Lemano e il calore rilasciato dai muri a secco delle terrazze.'),
 
 ('VAUD', 'multipla',
  'Qual è il Grand Cru più celebre del Lavaux, noto per la roccia "poudingue" che produce vini longevi fino a 20-30 anni?',
  '{"a":"Calamin","b":"Dézaley","c":"Dorin","d":"Salvagnin"}', '"b"',
- 'Dézaley è il Grand Cru più prestigioso del Lavaux, su roccia poudingue (conglomerato) e marne. Produce Chasselas opulenti e minerali con note di tostato e cera d\'api, longevi 20-30 anni.'),
+ 'Dézaley è il Grand Cru più prestigioso del Lavaux, su roccia poudingue (conglomerato) e marne. Produce Chasselas opulenti e minerali con note di tostato e cera d''api, longevi 20-30 anni.'),
 
 ('VAUD', 'multipla',
  'Quale è il vitigno principale del Vaud in termini di superficie vitata?',
@@ -163,14 +163,14 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Il Chasselas copre circa il 60% della superficie vitata del Vaud. È il vitigno simbolo del cantone, chiamato anche Dorin nella tradizione locale.'),
 
 ('VAUD', 'multipla',
- 'Cos\'è il "Servagnin de Morges" nel Vaud?',
+ 'Cos''è il "Servagnin de Morges" nel Vaud?',
  '{"a":"Un bianco autoctono simile al Chasselas","b":"Una denominazione storica per Pinot Noir con regole su resa e invecchiamento","c":"Un Gamay rosato tipico della zona","d":"Una cooperativa vitivinicola del Vaud"}', '"b"',
  'Il Servagnin de Morges è una denominazione storica riservata al Servagnin (antico clone locale di Pinot Nero protetto a Morges), con regole su resa per ettaro e invecchiamento.'),
 
 ('VAUD', 'multipla',
  'Quante AOC regionali ha il cantone Vaud?',
  '{"a":"3","b":"4","c":"5","d":"6"}', '"d"',
- 'Il Vaud ha 6 AOC regionali: Lavaux, La Côte, Chablais, Côtes-de-l\'Orbe, Bonvillars e Vully (condivisa con Friburgo).'),
+ 'Il Vaud ha 6 AOC regionali: Lavaux, La Côte, Chablais, Côtes-de-l''Orbe, Bonvillars e Vully (condivisa con Friburgo).'),
 
 ('VAUD', 'vero_falso',
  'Il Dézaley è un Grand Cru del Vaud prodotto esclusivamente da Chasselas.',
@@ -183,14 +183,14 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Falso. Il Doral è un vitigno bianco autoctono del Vaud (incrocio Chasselas x Chardonnay). I vitigni rossi autoctoni del Vaud sono Plant Robert e Servagnin.'),
 
 ('VAUD', 'vero_falso',
- 'Il "Lauriers d\'Or Terravin" è un\'etichetta di qualità della Federazione dei Viticoltori del Vaud assegnata tramite degustazione da esperti.',
+ 'Il "Lauriers d''Or Terravin" è un''etichetta di qualità della Federazione dei Viticoltori del Vaud assegnata tramite degustazione da esperti.',
  NULL, 'true',
- 'Vero. Il Lauriers d\'Or Terravin è un marchio di qualità riservato ai migliori vini del Vaud selezionati da una commissione di degustatori esperti.'),
+ 'Vero. Il Lauriers d''Or Terravin è un marchio di qualità riservato ai migliori vini del Vaud selezionati da una commissione di degustatori esperti.'),
 
 ('VAUD', 'aperta',
  'Descrivi il fenomeno dei "tre soli" nel Lavaux e il suo impatto sulla viticoltura.',
  NULL, NULL,
- 'Il Lavaux (Vaud) beneficia di tre fonti di calore: 1) il sole diretto sulle viti; 2) il riflesso del sole sul Lago Lemano che amplifica l\'irraggiamento; 3) il calore accumulato dai muri a secco delle terrazze che viene rilasciato di notte alle viti. Questo microclima eccezionale permette al Chasselas di maturare perfettamente e produce i Grand Cru Dézaley e Calamin di grande struttura.',
+ 'Il Lavaux (Vaud) beneficia di tre fonti di calore: 1) il sole diretto sulle viti; 2) il riflesso del sole sul Lago Lemano che amplifica l''irraggiamento; 3) il calore accumulato dai muri a secco delle terrazze che viene rilasciato di notte alle viti. Questo microclima eccezionale permette al Chasselas di maturare perfettamente e produce i Grand Cru Dézaley e Calamin di grande struttura.',
  'Tre fonti di calore: sole diretto, riflesso sul lago Lemano, e calore rilasciato dai muri a secco delle terrazze di notte. Questo microclima eccezionale permette al Chasselas di raggiungere piena maturazione nei Grand Cru Dézaley e Calamin.');
 
 INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, elementi, corretta, spiegazione) VALUES
@@ -203,8 +203,8 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, elementi, corretta, spiega
 
 ('VAUD', 'abbinamento',
  'Abbina ogni sottozona del Vaud alla sua caratteristica principale:',
- '{"sx":["Lavaux","La Côte","Chablais","Nord Vaudois (Bonvillars, Côtes-de-l\'Orbe)"],"dx":["Patrimonio UNESCO, effetto tre soli, Grand Cru Dézaley e Calamin","La più grande zona vitivinicola del Vaud per superficie","Confine con il Vallese, influenza del föhn","Zone più fresche vicino al Giura, Chasselas leggero"]}',
- '{"Lavaux":"Patrimonio UNESCO, effetto tre soli, Grand Cru Dézaley e Calamin","La Côte":"La più grande zona vitivinicola del Vaud per superficie","Chablais":"Confine con il Vallese, influenza del föhn","Nord Vaudois (Bonvillars, Côtes-de-l\'Orbe)":"Zone più fresche vicino al Giura, Chasselas leggero"}',
+ '{"sx":["Lavaux","La Côte","Chablais","Nord Vaudois (Bonvillars, Côtes-de-l''Orbe)"],"dx":["Patrimonio UNESCO, effetto tre soli, Grand Cru Dézaley e Calamin","La più grande zona vitivinicola del Vaud per superficie","Confine con il Vallese, influenza del föhn","Zone più fresche vicino al Giura, Chasselas leggero"]}',
+ '{"Lavaux":"Patrimonio UNESCO, effetto tre soli, Grand Cru Dézaley e Calamin","La Côte":"La più grande zona vitivinicola del Vaud per superficie","Chablais":"Confine con il Vallese, influenza del föhn","Nord Vaudois (Bonvillars, Côtes-de-l''Orbe)":"Zone più fresche vicino al Giura, Chasselas leggero"}',
  'Ogni sottozona del Vaud ha caratteristiche pedoclimatiche distinte: Lavaux con i tre soli, La Côte la più grande, Chablais con il Föhn, Nord Vaudois più fresco.'),
 
 ('VAUD', 'elenco',
@@ -235,9 +235,9 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Il cantone di Ginevra produce il 56% di vini rossi e il 44% di bianchi. Il Gamay (20%) e il Chasselas (19%) sono i vitigni più piantati.'),
 
 ('GINEVRA', 'multipla',
- 'Cos\'è l\'"Esprit de Genève"?',
+ 'Cos''è l''"Esprit de Genève"?',
  '{"a":"Un vino dolce tipico di Ginevra","b":"Una menzione per blend con almeno 50% Gamay e max 20% altri vitigni non Gamay/Gamaret/Garanoir","c":"Il nome locale del Chasselas di Ginevra","d":"Un Grand Cru della riva sinistra del Rodano"}', '"b"',
- 'L\'Esprit de Genève è una menzione speciale per vini rossi con almeno 50% Gamay e massimo 20% di altri vitigni (esclusi Gamay, Gamaret, Garanoir). Prevede vincoli di qualità su resa e grado alcolico, con assaggio da commissione.'),
+ 'L''Esprit de Genève è una menzione speciale per vini rossi con almeno 50% Gamay e massimo 20% di altri vitigni (esclusi Gamay, Gamaret, Garanoir). Prevede vincoli di qualità su resa e grado alcolico, con assaggio da commissione.'),
 
 ('GINEVRA', 'vero_falso',
  'Il cantone di Ginevra ha vitigni autoctoni locali.',
@@ -283,7 +283,7 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
 ('TRE_LAGHI', 'multipla',
  'Quali sono i tre laghi che danno il nome alla regione Trois Lacs?',
  '{"a":"Lemano, Maggiore, Lugano","b":"Neuchâtel, Bienna, Morat","c":"Costanza, Zurigo, Zugo","d":"Thun, Brienz, Lucerna"}', '"b"',
- 'La regione Trois Lacs (Tre Laghi) prende il nome dai laghi di Neuchâtel, Bienna (Bienne) e Morat (Murten). Il clima è moderato dall\'influenza di questi tre laghi.'),
+ 'La regione Trois Lacs (Tre Laghi) prende il nome dai laghi di Neuchâtel, Bienna (Bienne) e Morat (Murten). Il clima è moderato dall''influenza di questi tre laghi.'),
 
 ('TRE_LAGHI', 'multipla',
  'Come si chiama il vento freddo tipico del cantone Neuchâtel che obbliga ad allevare le viti con fili di sostegno?',
@@ -291,9 +291,9 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Il "Joran" è un vento forte e freddo dal Giura tipico del Neuchâtel. Il rischio di freddo che ne deriva obbliga i viticoltori ad usare fili di sostegno per proteggere le viti.'),
 
 ('TRE_LAGHI', 'multipla',
- 'L\'Oeil de Perdrix è una specialità di Neuchâtel. Di cosa si tratta?',
+ 'L''Oeil de Perdrix è una specialità di Neuchâtel. Di cosa si tratta?',
  '{"a":"Un Chasselas non filtrato","b":"Un rosato da Pinot Noir con macerazione breve","c":"Un Pinot Noir vinificato in bianco","d":"Un vino dolce da uve botritizzate"}', '"b"',
- 'L\'Oeil de Perdrix è un rosato tipico di Neuchâtel prodotto da Pinot Nero con macerazione breve. Il nome (occhio di pernice) descrive il caratteristico colore rosa tenue.'),
+ 'L''Oeil de Perdrix è un rosato tipico di Neuchâtel prodotto da Pinot Nero con macerazione breve. Il nome (occhio di pernice) descrive il caratteristico colore rosa tenue.'),
 
 ('TRE_LAGHI', 'multipla',
  'Il "Non Filtré" di Neuchâtel è commercializzato ogni anno a partire da quando?',
@@ -313,21 +313,21 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
 ('TRE_LAGHI', 'aperta',
  'Descrivi le specialità enologiche della regione di Neuchâtel (almeno 3).',
  NULL, NULL,
- '1. Oeil de Perdrix: rosato da Pinot Nero con macerazione breve, colore rosa tenue. 2. Perdrix Blanche: Pinot Nero vinificato in bianco (blanc de noirs), etichetta protetta. 3. Non Filtré: Chasselas non filtrato, commercializzato dal 3° mercoledì di gennaio. 4. Gerle d\'Or: marchio per i migliori Chasselas AOC selezionati per qualità.',
- 'Tre specialità principali: Oeil de Perdrix (rosato da Pinot Nero), Perdrix Blanche (Pinot Nero in bianco), Non Filtré (Chasselas non filtrato da gennaio). Bonus: Gerle d\'Or come etichetta di qualità per i migliori Chasselas.');
+ '1. Oeil de Perdrix: rosato da Pinot Nero con macerazione breve, colore rosa tenue. 2. Perdrix Blanche: Pinot Nero vinificato in bianco (blanc de noirs), etichetta protetta. 3. Non Filtré: Chasselas non filtrato, commercializzato dal 3° mercoledì di gennaio. 4. Gerle d''Or: marchio per i migliori Chasselas AOC selezionati per qualità.',
+ 'Tre specialità principali: Oeil de Perdrix (rosato da Pinot Nero), Perdrix Blanche (Pinot Nero in bianco), Non Filtré (Chasselas non filtrato da gennaio). Bonus: Gerle d''Or come etichetta di qualità per i migliori Chasselas.');
 
 INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, elementi, corretta, spiegazione) VALUES
 ('TRE_LAGHI', 'abbinamento',
  'Abbina ogni cantone/zona dei Tre Laghi alla sua AOC principale:',
  '{"sx":["Canton Neuchâtel","Canton Berna","Canton Friburgo (zona Vully)","Canton Friburgo (zona Cheyres)"],"dx":["AOC Neuchâtel","AOC Lac de Bienne","AOC Vully","AOC Cheyres"]}',
  '{"Canton Neuchâtel":"AOC Neuchâtel","Canton Berna":"AOC Lac de Bienne","Canton Friburgo (zona Vully)":"AOC Vully","Canton Friburgo (zona Cheyres)":"AOC Cheyres"}',
- 'I Tre Laghi si estendono su tre cantoni principali: Neuchâtel (AOC Neuchâtel), Berna (AOC Lac de Bienne) e Friburgo (AOC Vully e AOC Cheyres). L\'AOC Vully è condivisa con il Vaud.');
+ 'I Tre Laghi si estendono su tre cantoni principali: Neuchâtel (AOC Neuchâtel), Berna (AOC Lac de Bienne) e Friburgo (AOC Vully e AOC Cheyres). L''AOC Vully è condivisa con il Vaud.');
 
 INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegazione) VALUES
 ('TRE_LAGHI', 'comuni',
- 'In quale città si trova la principale area vinicola del Cantone di Neuchâtel, famosa per l\'Oeil de Perdrix?',
+ 'In quale città si trova la principale area vinicola del Cantone di Neuchâtel, famosa per l''Oeil de Perdrix?',
  '{"a":"Fribourg","b":"Biel/Bienne","c":"Neuchâtel","d":"Murten"}', '"c"',
- 'La città di Neuchâtel è il centro della regione vinicola omonima. Le vigne si estendono sulle rive del lago, con esposizione favorevole e clima mitigato dall\'acqua.');
+ 'La città di Neuchâtel è il centro della regione vinicola omonima. Le vigne si estendono sulle rive del lago, con esposizione favorevole e clima mitigato dall''acqua.');
 
 -- ================================================================
 -- TICINO
@@ -335,9 +335,9 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
 INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegazione) VALUES
 
 ('TICINO', 'multipla',
- 'Qual è il vitigno dominante in Ticino che rappresenta circa l\'80% della produzione?',
+ 'Qual è il vitigno dominante in Ticino che rappresenta circa l''80% della produzione?',
  '{"a":"Bondola","b":"Pinot Nero","c":"Merlot","d":"Cabernet Sauvignon"}', '"c"',
- 'Il Merlot copre circa l\'80% della superficie vitata del Ticino, rendendolo il cantone svizzero più monograficamente legato a un vitigno internazionale.'),
+ 'Il Merlot copre circa l''80% della superficie vitata del Ticino, rendendolo il cantone svizzero più monograficamente legato a un vitigno internazionale.'),
 
 ('TICINO', 'multipla',
  'Come è diviso il Ticino dalla montagna del Monte Ceneri?',
@@ -345,14 +345,14 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Il Monte Ceneri divide il Ticino in Sopraceneri (fondovalle e valli alpine, suoli granitici e gneis) e Sottoceneri (colline e Lugano, suoli morenichi con argilla e calcare).'),
 
 ('TICINO', 'multipla',
- 'Cos\'è il Merlot Bianco ticinese?',
+ 'Cos''è il Merlot Bianco ticinese?',
  '{"a":"Un Merlot rosato prodotto con macerazione brevissima","b":"Un blanc de noirs da Merlot, specialità emblematica del Ticino","c":"Un incrocio locale tra Merlot e Pinot Grigio","d":"Un Merlot dolce da uve appassite"}', '"b"',
  'Il Merlot Bianco (blanc de noirs da Merlot) è una specialità emblematica del Ticino. Le uve rosse del Merlot vengono pressate senza macerazione, producendo un vino bianco con profumi del Merlot.'),
 
 ('TICINO', 'multipla',
- 'Cosa prevede la menzione "Riserva" dell\'AOC Ticino per i vini rossi?',
+ 'Cosa prevede la menzione "Riserva" dell''AOC Ticino per i vini rossi?',
  '{"a":"Almeno 6 mesi in legno","b":"Millesimo obbligatorio e minimo 18 mesi di invecchiamento","c":"Solo da uve di singola vigna","d":"Almeno 12 mesi in barrique nuova"}', '"b"',
- 'La menzione Riserva nell\'AOC Ticino prevede millesimo obbligatorio e invecchiamento minimo di 18 mesi per i rossi (12 mesi per i bianchi).'),
+ 'La menzione Riserva nell''AOC Ticino prevede millesimo obbligatorio e invecchiamento minimo di 18 mesi per i rossi (12 mesi per i bianchi).'),
 
 ('TICINO', 'vero_falso',
  'Il Ticino ha circa 2.200 ore di sole annue, il che lo rende il "solarium della Svizzera".',
@@ -362,18 +362,18 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
 ('TICINO', 'vero_falso',
  'La Bondola è il principale vitigno autoctono rosso del Ticino.',
  NULL, 'true',
- 'Vero. La Bondola è l\'unico vitigno autoctono rosso del Ticino. In passato molto diffusa, oggi è quasi scomparsa a favore del Merlot, ma alcuni produttori la coltivano ancora.'),
+ 'Vero. La Bondola è l''unico vitigno autoctono rosso del Ticino. In passato molto diffusa, oggi è quasi scomparsa a favore del Merlot, ma alcuni produttori la coltivano ancora.'),
 
 ('TICINO', 'aperta',
  'Descrivi le differenze tra Sopraceneri e Sottoceneri in Ticino dal punto di vista pedologico.',
  NULL, NULL,
- 'Sopraceneri (Bellinzona, Locarno, Vallemaggia): suoli di origine glaciale e fluviale, ricchi di granito, gneiss, rocce cristalline, sabbia e ghiaia. Suoli più acidi e poveri. Sottoceneri (Lugano, Mendrisiotto, Malcantone): suoli di origine morenica con argilla, sabbia, ghiaia e calcari. Suoli più fertili e diversificati. Entrambe le zone producono prevalentemente Merlot nell\'unica AOC regionale (Ticino DOC).',
- 'Sopraceneri: suoli glaciali e fluviali, granito, gneiss, rocce cristalline. Sottoceneri: suoli morenichi con argilla, sabbia, ghiaia e calcari. Entrambe producono Merlot nell\'unica AOC Ticino DOC.'),
+ 'Sopraceneri (Bellinzona, Locarno, Vallemaggia): suoli di origine glaciale e fluviale, ricchi di granito, gneiss, rocce cristalline, sabbia e ghiaia. Suoli più acidi e poveri. Sottoceneri (Lugano, Mendrisiotto, Malcantone): suoli di origine morenica con argilla, sabbia, ghiaia e calcari. Suoli più fertili e diversificati. Entrambe le zone producono prevalentemente Merlot nell''unica AOC regionale (Ticino DOC).',
+ 'Sopraceneri: suoli glaciali e fluviali, granito, gneiss, rocce cristalline. Sottoceneri: suoli morenichi con argilla, sabbia, ghiaia e calcari. Entrambe producono Merlot nell''unica AOC Ticino DOC.'),
 
 ('TICINO', 'elenco',
- 'Elenca le tipologie di vini che rientrano nell\'AOC Ticino (Ticino DOC).',
+ 'Elenca le tipologie di vini che rientrano nell''AOC Ticino (Ticino DOC).',
  NULL, NULL,
- 'Ticino DOC include: Rosso – Bianco – Rosato – del Ticino/Ticinese. La menzione del vitigno è consentita solo se >10%, l\'indicazione esclusiva del vitigno solo se >90%. La menzione Riserva richiede millesimo e invecchiamento minimo (18 mesi rossi, 12 bianchi).',
+ 'Ticino DOC include: Rosso – Bianco – Rosato – del Ticino/Ticinese. La menzione del vitigno è consentita solo se >10%, l''indicazione esclusiva del vitigno solo se >90%. La menzione Riserva richiede millesimo e invecchiamento minimo (18 mesi rossi, 12 bianchi).',
  'Rosso, Bianco, Rosato, del Ticino/Ticinese. Menzione vitigno possibile se >10%, indicazione esclusiva se >90%. Menzione Riserva con millesimo e invecchiamento minimo.');
 
 INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, elementi, corretta, spiegazione) VALUES
@@ -425,9 +425,9 @@ INSERT INTO swiss_quiz_kb (regione_id, tipo, domanda, opzioni, corretta, spiegaz
  'Falso. La Svizzera Tedesca comprende ben 17 cantoni viticoli, tra cui Zurigo, Grigioni, Sciaffusa, Argovia, Turgovia, Basilea, San Gallo e altri.'),
 
 ('SVIZZERA_TEDESCA', 'vero_falso',
- 'Il Föhn viene chiamato "Traubenkocher" (cuocitore d\'uva) nella Svizzera Tedesca per il suo effetto positivo sulla maturazione delle uve.',
+ 'Il Föhn viene chiamato "Traubenkocher" (cuocitore d''uva) nella Svizzera Tedesca per il suo effetto positivo sulla maturazione delle uve.',
  NULL, 'true',
- 'Vero. Il Föhn (vento caldo e secco dall\'Alpi) è chiamato colloquialmente "Traubenkocher" perché accelera la maturazione delle uve in un clima altrimenti fresco e umido. È fondamentale per raggiungere la maturazione ottimale nei cantoni più settentrionali.'),
+ 'Vero. Il Föhn (vento caldo e secco dall''Alpi) è chiamato colloquialmente "Traubenkocher" perché accelera la maturazione delle uve in un clima altrimenti fresco e umido. È fondamentale per raggiungere la maturazione ottimale nei cantoni più settentrionali.'),
 
 ('SVIZZERA_TEDESCA', 'aperta',
  'Descrivi le caratteristiche del Müller-Thurgau e il suo nome tradizionale in Svizzera.',
