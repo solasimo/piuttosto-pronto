@@ -225,6 +225,60 @@ Rispondi SOLO con JSON: {"corretta":true/false,"parziale":true/false,"punteggio"
         return res.json({ progressi: data || [] })
       }
 
+
+      case 'genera_mega_quiz': {
+        const { paese, paese_nome, lingua } = payload
+        const linguaLabel = lingua === 'en' ? 'English' : lingua === 'fr' ? 'français' : 'italiano'
+
+        const system = `Sei un esaminatore ASSP per l'esame di sommelier professionista.
+Genera esattamente 25 domande in ${linguaLabel} su TUTTA la viticoltura di ${paese_nome}.
+Le domande devono coprire TUTTE le principali regioni/zone del paese, non solo una.
+Mix obbligatorio: 12 multipla, 8 vero_falso, 5 flash (curiosità o fatti chiave).
+Varia le regioni: ogni regione principale deve avere almeno 1-2 domande.
+Le domande devono testare: DOCG/DOC, vitigni autoctoni, stili, classificazioni, produttori iconici, curiosità storiche, abbinamenti, tecniche produttive.
+Livello: esame ASSP (difficoltà media-alta).
+
+Rispondi SOLO con JSON valido, nessun testo extra:
+{
+  "domande": [
+    {
+      "tipo": "multipla",
+      "regione": "nome della regione/zona",
+      "domanda": "testo domanda",
+      "opzioni": { "a": "...", "b": "...", "c": "...", "d": "..." },
+      "corretta": "a",
+      "spiegazione": "breve spiegazione"
+    },
+    {
+      "tipo": "vero_falso",
+      "regione": "nome regione",
+      "domanda": "affermazione vera o falsa",
+      "corretta": true,
+      "spiegazione": "breve spiegazione"
+    },
+    {
+      "tipo": "flash",
+      "regione": "nome regione",
+      "domanda": "domanda/concetto chiave",
+      "risposta": "risposta completa"
+    }
+  ]
+}`
+
+        const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01' },
+          body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 6000,
+            system, messages: [{ role: 'user', content: `Genera 25 domande di esame ASSP su ${paese_nome}. Mix di tutte le principali regioni vinicole.` }] })
+        })
+        const aiData = await aiRes.json()
+        const text = aiData.content?.[0]?.text || ''
+        const clean = text.replace(/```json|```/g, '').trim()
+        const parsed = JSON.parse(clean)
+        return res.json(parsed)
+      }
+
       case 'genera_esercizi_regione': {
         const { regione, regione_nome, lingua } = payload
         const linguaLabel = lingua === 'en' ? 'English' : lingua === 'fr' ? 'français' : 'italiano'

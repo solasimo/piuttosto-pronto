@@ -315,7 +315,7 @@ export default function Atlante({ initialPaese }) {
   }
   const { SVG_W, SVG_H, REGIONS, REGION_MAPS } = COUNTRY_DATA[paese] || COUNTRY_DATA['italia']
 
-  const [vista, setVista] = useState('mappa')        // mappa | regione | sottozona | esercizio | esercizi_regione
+  const [vista, setVista] = useState('mappa')        // mappa | regione | sottozona | esercizio | esercizi_regione | mega_quiz
   const [regioni, setRegioni] = useState([])
   const [progressi, setProgressi] = useState({})
   const [selected, setSelected] = useState(null)
@@ -324,6 +324,15 @@ export default function Atlante({ initialPaese }) {
   const [loading, setLoading] = useState(true)
   const [selectedZona, setSelectedZona] = useState(null)
   const [esLoading, setEsLoading] = useState(false)
+
+  // Mega Quiz paese
+  const [mqDomande, setMqDomande] = useState([])
+  const [mqIdx, setMqIdx] = useState(0)
+  const [mqRisposta, setMqRisposta] = useState(null)
+  const [mqFeedback, setMqFeedback] = useState(null)
+  const [mqLoading, setMqLoading] = useState(false)
+  const [mqScore, setMqScore] = useState({ corr: 0, tot: 0 })
+  const [mqFinished, setMqFinished] = useState(false)
 
   // Esercizi regione (AI-powered flash quiz)
   const [erDomande, setErDomande] = useState([])       // array domande generate
@@ -555,6 +564,53 @@ export default function Atlante({ initialPaese }) {
       setErIdx(0); setErDomande([]); setErFeedback(null); setErRisposta(null)
     } else {
       setErIdx(i => i + 1); setErFeedback(null); setErRisposta(null)
+    }
+  }
+
+  // ── MEGA QUIZ PAESE ──────────────────────────────────────────────
+  async function avviaMegaQuiz() {
+    setMqDomande([]); setMqIdx(0); setMqFeedback(null); setMqRisposta(null)
+    setMqScore({ corr: 0, tot: 0 }); setMqFinished(false)
+    setMqLoading(true)
+    setVista('mega_quiz')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const paeseLabel = COUNTRY_DATA[paese]?.label || paese
+      const res = await fetch('/api/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          action: 'genera_mega_quiz',
+          payload: { paese, paese_nome: paeseLabel, lingua: getLingua() }
+        })
+      })
+      const d = await res.json()
+      if (!res.ok) throw new Error(d.error || 'Errore generazione')
+      setMqDomande(d.domande || [])
+    } catch (e) {
+      setMqDomande([{ tipo: 'errore', testo: e.message }])
+    }
+    setMqLoading(false)
+  }
+
+  function mqRispondi(scelta) {
+    if (mqFeedback) return
+    const dom = mqDomande[mqIdx]
+    let ok = false
+    if (dom.tipo === 'multipla') ok = scelta === dom.corretta
+    else if (dom.tipo === 'vero_falso') ok = scelta === dom.corretta
+    else if (dom.tipo === 'flash') ok = true
+    setMqRisposta(scelta)
+    setMqFeedback({ ok, spiegazione: dom.spiegazione || '' })
+    setMqScore(s => ({ corr: s.corr + (ok ? 1 : 0), tot: s.tot + 1 }))
+  }
+
+  function mqProssima() {
+    const isLast = mqIdx + 1 >= mqDomande.length
+    if (isLast) {
+      setMqFinished(true)
+    } else {
+      setMqIdx(i => i + 1); setMqFeedback(null); setMqRisposta(null)
     }
   }
 
@@ -1082,6 +1138,151 @@ export default function Atlante({ initialPaese }) {
     )
   }
 
+  // ── MEGA QUIZ VIEW ───────────────────────────────────────────────
+  if (vista === 'mega_quiz') {
+    const dom = mqDomande[mqIdx]
+    const paeseLabel = COUNTRY_DATA[paese]?.label || paese
+    const pct = mqScore.tot > 0 ? Math.round(mqScore.corr / mqScore.tot * 100) : 0
+    const giudizio = pct >= 80 ? '🏆 Eccellente' : pct >= 65 ? '✅ Sufficiente' : pct >= 50 ? '⚠️ Da rivedere' : '❌ Insufficiente'
+    return (
+      <div style={{ paddingBottom: 40 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+          <button onClick={() => { setVista('mappa'); setMqDomande([]); setMqFinished(false) }}
+            style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', padding: 0 }}>
+            {atx('indietro')}
+          </button>
+          <div style={{ flex: 1, height: 4, background: chiaro, borderRadius: 2 }}>
+            {mqDomande.length > 0 && <div style={{ height: '100%', borderRadius: 2, background: terra,
+              width: `${Math.round((mqIdx / mqDomande.length) * 100)}%`, transition: 'width 0.3s' }}/>}
+          </div>
+          {mqScore.tot > 0 && <span style={{ fontSize: 12, color: verde, fontWeight: 700 }}>{mqScore.corr}/{mqScore.tot} ✓</span>}
+        </div>
+
+        <div style={{ ...card, background: '#FFF8F0', border: `1px solid ${oro}44`, marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: oro, marginBottom: 4 }}>
+            🌍 Mega Quiz — {paeseLabel}
+          </div>
+          <div style={{ fontSize: 12, color: medio }}>
+            {mqDomande.length > 0 ? `Domanda ${mqIdx + 1} di ${mqDomande.length}` : 'Generazione in corso...'}
+          </div>
+        </div>
+
+        {/* Schermata risultati finali */}
+        {mqFinished && (
+          <div style={{ ...card, textAlign: 'center', padding: 28 }}>
+            <div style={{ fontSize: 48, marginBottom: 8 }}>{pct >= 80 ? '🏆' : pct >= 65 ? '✅' : pct >= 50 ? '⚠️' : '📚'}</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: pct >= 65 ? verde : pct >= 50 ? giallo : rosso, marginBottom: 4 }}>{pct}%</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: scuro, marginBottom: 8 }}>{giudizio}</div>
+            <div style={{ fontSize: 14, color: medio, marginBottom: 20 }}>{mqScore.corr} corrette su {mqScore.tot} domande</div>
+            <div style={{ fontSize: 12, color: medio, marginBottom: 20 }}>
+              {pct >= 80 ? 'Ottima preparazione su ' + paeseLabel + '!' :
+               pct >= 65 ? 'Buona base, continua a studiare le aree più deboli.' :
+               pct >= 50 ? 'Ripassa le regioni e le sottozone principali.' :
+               'Torna all\u2019Atlante e studia sistematicamente ogni regione.'}
+            </div>
+            <button style={{ ...btnP, marginBottom: 10 }} onClick={avviaMegaQuiz}>🔄 Nuovo quiz</button>
+            <button style={{ ...btnO }} onClick={() => { setVista('mappa'); setMqDomande([]); setMqFinished(false) }}>← Torna alla mappa</button>
+          </div>
+        )}
+
+        {/* Loading */}
+        {mqLoading && (
+          <div style={{ ...card, textAlign: 'center', padding: 32, color: medio }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
+            <div>Generazione mega quiz in corso...</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>L'AI sta preparando 25 domande su {paeseLabel}</div>
+          </div>
+        )}
+
+        {/* Domanda attiva */}
+        {!mqLoading && !mqFinished && dom && dom.tipo !== 'errore' && (
+          <div>
+            <div style={{ ...card, marginBottom: 12 }}>
+              {dom.regione && <div style={{ fontSize: 10, color: oro, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>📍 {dom.regione}</div>}
+              <div style={{ fontSize: 15, fontWeight: 600, color: scuro, lineHeight: 1.5 }}>{dom.domanda || dom.testo}</div>
+            </div>
+
+            {/* Multipla */}
+            {dom.tipo === 'multipla' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+                {['a','b','c','d'].map(lettera => {
+                  const isSelected = mqRisposta === lettera
+                  const isCorrect = mqFeedback && lettera === dom.corretta
+                  const isWrong = mqFeedback && isSelected && !mqFeedback.ok
+                  return (
+                    <button key={lettera} onClick={() => mqRispondi(lettera)}
+                      style={{ textAlign: 'left', padding: '12px 14px', borderRadius: 10, fontSize: 13, cursor: mqFeedback ? 'default' : 'pointer', fontFamily: '"DM Sans",sans-serif',
+                        background: isCorrect ? '#E8F5E9' : isWrong ? '#FDECEA' : isSelected ? '#FFF3E0' : '#fff',
+                        border: `1.5px solid ${isCorrect ? verde : isWrong ? rosso : isSelected ? oro : chiaro}`,
+                        color: scuro, fontWeight: isSelected ? 700 : 400 }}>
+                      <span style={{ color: oro, fontWeight: 700, marginRight: 8 }}>{lettera.toUpperCase()}.</span>
+                      {dom.opzioni?.[lettera]}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Vero/Falso */}
+            {dom.tipo === 'vero_falso' && (
+              <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+                {[true, false].map(val => {
+                  const isSelected = mqRisposta === val
+                  const isCorrect = mqFeedback && val === dom.corretta
+                  const isWrong = mqFeedback && isSelected && !mqFeedback.ok
+                  return (
+                    <button key={String(val)} onClick={() => mqRispondi(val)}
+                      style={{ flex: 1, padding: '14px', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: mqFeedback ? 'default' : 'pointer', fontFamily: '"DM Sans",sans-serif',
+                        background: isCorrect ? '#E8F5E9' : isWrong ? '#FDECEA' : isSelected ? '#FFF3E0' : '#fff',
+                        border: `1.5px solid ${isCorrect ? verde : isWrong ? rosso : isSelected ? oro : chiaro}`, color: scuro }}>
+                      {val ? '✓ Vero' : '✗ Falso'}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Flash */}
+            {dom.tipo === 'flash' && !mqFeedback && (
+              <div style={{ ...card, background: '#FFFBF5', border: `1px solid ${oro}44`, marginBottom: 12 }}>
+                <div style={{ fontSize: 13, color: medio, marginBottom: 8 }}>Risposta:</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: scuro }}>{dom.risposta}</div>
+              </div>
+            )}
+
+            {/* Feedback */}
+            {mqFeedback && (
+              <div style={{ ...card, background: mqFeedback.ok ? '#F0F9F4' : dom.tipo === 'flash' ? '#F0F9F4' : '#FDF0EE',
+                border: `1px solid ${mqFeedback.ok || dom.tipo === 'flash' ? verde : rosso}33`, marginBottom: 12 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: mqFeedback.ok || dom.tipo === 'flash' ? verde : rosso, marginBottom: mqFeedback.spiegazione ? 8 : 0 }}>
+                  {dom.tipo === 'flash' ? '💡 Segna come vista' : mqFeedback.ok ? '✓ Corretto!' : '✗ Sbagliato'}
+                </div>
+                {mqFeedback.spiegazione && <div style={{ fontSize: 12, color: scuro, lineHeight: 1.6 }}>{mqFeedback.spiegazione}</div>}
+              </div>
+            )}
+
+            {mqFeedback && (
+              <button style={btnP} onClick={mqProssima}>
+                {mqIdx + 1 >= mqDomande.length ? '📊 Vedi risultati' : 'Prossima →'}
+              </button>
+            )}
+            {dom.tipo === 'flash' && !mqFeedback && (
+              <button style={btnP} onClick={() => mqRispondi('flash_ok')}>Ho capito →</button>
+            )}
+          </div>
+        )}
+
+        {/* Errore */}
+        {!mqLoading && dom?.tipo === 'errore' && (
+          <div style={{ ...card, background: '#FDF0EE', color: rosso, marginBottom: 12 }}>
+            Errore: {dom.testo}
+            <button style={{ ...btnO, marginTop: 10 }} onClick={avviaMegaQuiz}>{atx('riprova')}</button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   // ── MAPPA PRINCIPALE ─────────────────────────────────────────────
   const nStudiate = Object.values(progressi).filter(v => v === 2).length
   const nInCorso = Object.values(progressi).filter(v => v === 1).length
@@ -1133,6 +1334,11 @@ export default function Atlante({ initialPaese }) {
         <div><div style={{ fontSize: 22, fontWeight: 800, color: scuro }}>{totalZones-nStudiate-nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>{atx('da_iniziare')}</div></div>
       </div>
 
+      {/* Mega Quiz Paese */}
+      <button style={{ ...btnP, marginTop: 8, width: '100%', fontSize: 14, padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+        onClick={avviaMegaQuiz}>
+        🎓 Mega Quiz — {COUNTRY_DATA[paese]?.label || paese}
+      </button>
 
     </div>
   )
