@@ -931,13 +931,25 @@ export default function Atlante({ initialPaese }) {
 
             {/* Spiegazione dopo risposta */}
             {erFeedback && dom.tipo !== 'flash' && (
-              <div style={{ ...card, borderColor: erFeedback.ok ? verde : '#9B2335',
-                background: erFeedback.ok ? '#F0F9F4' : '#FDF0EE', marginTop: 8 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: erFeedback.ok ? verde : '#9B2335', marginBottom: 4 }}>
-                  {erFeedback.ok ? '✓ Corretto' : '✗ Sbagliato'}
+              <div style={{ ...card,
+                borderColor: erFeedback.ok ? verde : erFeedback.parziale ? '#C77B13' : '#9B2335',
+                background: erFeedback.ok ? '#F0F9F4' : erFeedback.parziale ? '#FFF8E1' : '#FDF0EE',
+                marginTop: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700,
+                  color: erFeedback.ok ? verde : erFeedback.parziale ? '#C77B13' : '#9B2335',
+                  marginBottom: 4 }}>
+                  {erFeedback.ok ? '✓ Corretto' : erFeedback.parziale ? '◑ Parzialmente corretto' : '✗ Sbagliato'}
                 </div>
                 {erFeedback.spiegazione && (
                   <div style={{ fontSize: 13, color: scuro, lineHeight: 1.5 }}>{erFeedback.spiegazione}</div>
+                )}
+                {(erFeedback.ok || erFeedback.parziale) && erFeedback.suggerimenti?.length > 0 && (
+                  <div style={{ marginTop: 8, padding: '8px 10px', background: '#FFFBF0', borderRadius: 8, border: '1px solid #E8D5A0' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#7A5C00', marginBottom: 4 }}>💡 Per approfondire:</div>
+                    {erFeedback.suggerimenti.map((s, i) => (
+                      <div key={i} style={{ fontSize: 11, color: scuro, lineHeight: 1.5 }}>• {s}</div>
+                    ))}
+                  </div>
                 )}
               </div>
             )}

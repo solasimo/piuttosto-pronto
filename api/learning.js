@@ -172,9 +172,16 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
             messages: [{ role: 'user', content: `Sei un esaminatore ASSP. Valuta questa risposta in ${linguaLabel}.
 Domanda: ${domanda}
 Risposta modello: ${risposta_modello}
-Punti chiave: ${(punti_chiave || []).join(', ')}
 Risposta studente: ${risposta_utente}
-Rispondi SOLO con JSON: {"corretta":true/false,"parziale":true/false,"punteggio":0-3,"feedback":"max 2 frasi","punti_mancati":["..."]}. Usa "corretta":true solo se la risposta copre almeno 80% dei punti chiave. Usa "parziale":true (con "corretta":false) se la risposta e incompleta ma dimostra conoscenza parziale (40-79%). "parziale":false se la risposta e gravemente errata o insufficiente (<40%).`  }],
+
+REGOLE DI VALUTAZIONE:
+- "corretta":true → la risposta soddisfa i requisiti espliciti della domanda (es. se chiede "almeno 4" e lo studente ne dà 4, è corretta anche se mancano dettagli extra)
+- "corretta":false + "parziale":true → la risposta è parzialmente giusta: soddisfa alcuni requisiti ma manca elementi importanti richiesti esplicitamente
+- "corretta":false + "parziale":false → la risposta è gravemente sbagliata o dimostra incomprensione del tema
+NON marcare sbagliato per mancanza di dettagli aggiuntivi non richiesti esplicitamente dalla domanda.
+Il feedback deve indicare cosa era giusto e (solo se parziale/sbagliato) cosa mancava specificatamente.
+
+Rispondi SOLO con JSON: {"corretta":true/false,"parziale":true/false,"punteggio":0-3,"feedback":"max 2 frasi","suggerimenti":["approfondimento facoltativo se corretta o parziale"]}`  }],
           }),
         })
 
