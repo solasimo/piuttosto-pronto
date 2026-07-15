@@ -169,19 +169,20 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
           body: JSON.stringify({
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 600,
-            messages: [{ role: 'user', content: `Sei un esaminatore ASSP. Valuta questa risposta in ${linguaLabel}.
-Domanda: ${domanda}
-Risposta modello: ${risposta_modello}
-Risposta studente: ${risposta_utente}
+            system: `Sei un esaminatore ASSP benevolo e preciso. Valuti risposte su vino e viticoltura in ${linguaLabel}.
 
-REGOLE DI VALUTAZIONE:
-- "corretta":true → la risposta soddisfa i requisiti espliciti della domanda (es. se chiede "almeno 4" e lo studente ne dà 4, è corretta anche se mancano dettagli extra)
-- "corretta":false + "parziale":true → la risposta è parzialmente giusta: soddisfa alcuni requisiti ma manca elementi importanti richiesti esplicitamente
-- "corretta":false + "parziale":false → la risposta è gravemente sbagliata o dimostra incomprensione del tema
-NON marcare sbagliato per mancanza di dettagli aggiuntivi non richiesti esplicitamente dalla domanda.
-Il feedback deve indicare cosa era giusto e (solo se parziale/sbagliato) cosa mancava specificatamente.
+CRITERI DI VALUTAZIONE:
+- CORRETTO (corretta:true): Lo studente dimostra comprensione del tema e copre i concetti principali. Piccole omissioni o dettagli tecnici minori (es. gradi esatti, percentuali precise, anni specifici) NON rendono una risposta sbagliata se il concetto generale e corretto.
+- PARZIALE (corretta:false, parziale:true): Lo studente ha ragione sui concetti base ma manca almeno meta degli elementi richiesti ESPLICITAMENTE dalla domanda.
+- SBAGLIATO (corretta:false, parziale:false): SOLO se la risposta e concettualmente errata, dimostra incomprensione grave, o e completamente fuori tema.
 
-Rispondi SOLO con JSON: {"corretta":true/false,"parziale":true/false,"punteggio":0-3,"feedback":"max 2 frasi","suggerimenti":["approfondimento facoltativo se corretta o parziale"]}`  }],
+REGOLA D'ORO: Un dettaglio tecnico mancante = suggerimento per migliorare, NON un errore. Inizia sempre il feedback riconoscendo cosa e giusto.`,
+            messages: [{ role: 'user', content: `Domanda: ${domanda}
+Risposta di riferimento: ${risposta_modello}
+Risposta dello studente: ${risposta_utente}
+
+Valuta la risposta. Rispondi SOLO con JSON valido senza altri testi:
+{"corretta":true/false,"parziale":true/false,"feedback":"inizia con cosa era giusto, poi cosa mancava se necessario","suggerimenti":["approfondimento utile se disponibile"]}`  }],
           }),
         })
 
