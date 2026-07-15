@@ -290,17 +290,13 @@ Rispondi SOLO con JSON valido, nessun testo extra:
 
 
       case 'get_swiss_mega_quiz': {
-        // 25 domande random da tutta la KB svizzera
-        // Solo tipi compatibili col renderer del mega quiz: multipla, vero_falso, comuni
-        const tipiMega = ['multipla','vero_falso','comuni']
+        // 25 domande random da tutta la KB svizzera - tutte le tipologie
         let domande = []
         // Almeno 1 per regione (6 regioni) garantita
         const regioni = ['VALLESE','VAUD','GINEVRA','TRE_LAGHI','TICINO','SVIZZERA_TEDESCA']
         for (const regione_id of regioni) {
           const { data: pool } = await supabase
-            .from('swiss_quiz_kb').select('*')
-            .eq('regione_id', regione_id)
-            .in('tipo', tipiMega)
+            .from('swiss_quiz_kb').select('*').eq('regione_id', regione_id)
           if (pool && pool.length > 0) {
             const r = pool[Math.floor(Math.random() * pool.length)]
             domande.push({ ...r, regione: r.regione_id })
@@ -308,9 +304,7 @@ Rispondi SOLO con JSON valido, nessun testo extra:
         }
         // Riempi fino a 25 con domande random miste da tutta la KB
         const { data: extra } = await supabase
-          .from('swiss_quiz_kb').select('*')
-          .in('tipo', tipiMega)
-          .limit(120)
+          .from('swiss_quiz_kb').select('*').limit(180)
         if (extra) {
           const shuffled = extra.sort(() => Math.random() - 0.5)
           const usedIds = new Set(domande.map(d => d.id))

@@ -333,6 +333,10 @@ export default function Atlante({ initialPaese }) {
   const [mqLoading, setMqLoading] = useState(false)
   const [mqScore, setMqScore] = useState({ corr: 0, tot: 0 })
   const [mqFinished, setMqFinished] = useState(false)
+  const [mqInputAperta, setMqInputAperta] = useState('')
+  const [mqApertaLoading, setMqApertaLoading] = useState(false)
+  const [mqClassifica, setMqClassifica] = useState({})
+  const [mqAbbinamento, setMqAbbinamento] = useState({})
 
   // Esercizi regione (AI-powered flash quiz)
   const [erDomande, setErDomande] = useState([])       // array domande generate
@@ -661,12 +665,62 @@ export default function Atlante({ initialPaese }) {
     setMqScore(s => ({ corr: s.corr + (ok ? 1 : 0), tot: s.tot + 1 }))
   }
 
+  async function mqCorreggiAperta(dom, testo) {
+    if (!testo?.trim()) return
+    setMqApertaLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'correggi_aperta', payload: {
+          domanda: dom.domanda, risposta_utente: testo.trim(),
+          risposta_modello: dom.risposta_modello || '',
+          punti_chiave: [], lingua: getLingua()
+        }})
+      })
+      const d = await res.json()
+      const ok = d.corretta || false
+      const parziale = !ok && d.parziale
+      setMqFeedback({ ok, parziale, spiegazione: d.feedback || dom.spiegazione || '', suggerimenti: d.suggerimenti || [] })
+      setMqScore(s => ({ corr: s.corr + (ok ? 1 : parziale ? 0.5 : 0), tot: s.tot + 1 }))
+    } catch (e) {
+      setMqFeedback({ ok: false, spiegazione: 'Errore correzione: ' + e.message })
+    }
+    setMqApertaLoading(false)
+  }
+
+  function mqConfermaClassifica(dom) {
+    const corretta = typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta
+    const elementiRaw = dom.elementi
+    const voci = Array.isArray(elementiRaw) ? elementiRaw : (elementiRaw?.voci || elementiRaw?.elementi || [])
+    let nCorr = 0
+    voci.forEach(v => { if (mqClassifica[v] === corretta[v]) nCorr++ })
+    const ok = nCorr === voci.length
+    const parziale = !ok && nCorr > 0
+    setMqFeedback({ ok, parziale, spiegazione: dom.spiegazione || `${nCorr}/${voci.length} corretti` })
+    setMqScore(s => ({ corr: s.corr + (ok ? 1 : parziale ? 0.5 : 0), tot: s.tot + 1 }))
+  }
+
+  function mqConfermaAbbinamento(dom) {
+    const corretta = typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta
+    const sx = dom.elementi?.sx || []
+    let nCorr = 0
+    sx.forEach(k => { if (mqAbbinamento[k] === corretta[k]) nCorr++ })
+    const ok = nCorr === sx.length
+    const parziale = !ok && nCorr > 0
+    setMqFeedback({ ok, parziale, spiegazione: dom.spiegazione || `${nCorr}/${sx.length} corretti` })
+    setMqScore(s => ({ corr: s.corr + (ok ? 1 : parziale ? 0.5 : 0), tot: s.tot + 1 }))
+  }
+
   function mqProssima() {
     const isLast = mqIdx + 1 >= mqDomande.length
     if (isLast) {
       setMqFinished(true)
     } else {
-      setMqIdx(i => i + 1); setMqFeedback(null); setMqRisposta(null)
+      setMqIdx(i => i + 1)
+      setMqFeedback(null); setMqRisposta(null)
+      setMqInputAperta(''); setMqClassifica({}); setMqAbbinamento({})
     }
   }
 
@@ -1460,14 +1514,139 @@ export default function Atlante({ initialPaese }) {
               </div>
             )}
 
+            {/* Aperta / Elenco */}
+            {(dom.tipo === 'aperta' || dom.tipo === 'elenco') && !mqFeedback && (
+              <div>
+                <textarea
+                  style={{ width: '100%', minHeight: 90, padding: 10, borderRadius: 8,
+                    border: `1.5px solid ${chiaro}`, fontFamily: '"DM Sans",sans-serif',
+                    fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }}
+                  placeholder={dom.tipo === 'elenco' ? 'Elenca gli elementi...' : 'Scrivi la tua risposta...'}
+                  value={mqInputAperta || ''}
+                  onChange={e => setMqInputAperta(e.target.value)}
+                />
+                <button style={{ ...btnP, marginTop: 8 }} disabled={mqApertaLoading}
+                  onClick={() => mqCorreggiAperta(dom, mqInputAperta)}>
+                  {mqApertaLoading ? '⏳ Correzione...' : 'Invia risposta'}
+                </button>
+              </div>
+            )}
+
+            {/* Classifica colore */}
+            {dom.tipo === 'classifica_colore' && !mqFeedback && (() => {
+              const elementiRaw = dom.elementi
+              let voci = Array.isArray(elementiRaw) ? elementiRaw : (elementiRaw?.voci || [])
+              let opzioniClassifica = elementiRaw?.opzioni || ['Bianco','Rosso']
+              const colori = { 'Bianco': { bg:'#FFF8DC', border:'#C9A227', text:'#7A5C00', emoji:'⬜' },
+                               'Rosso': { bg:'#FDECEA', border:'#9B2335', text:'#9B2335', emoji:'🟥' },
+                               'Menzione/Denominazione': { bg:'#EEF2FF', border:'#4F5BD5', text:'#2D3A8C', emoji:'📋' } }
+              const getS = (c) => colori[c] || { bg:'#F5F5F5', border:'#9E9E9E', text:'#424242', emoji:'•' }
+              return (
+                <div>
+                  {voci.map(voce => (
+                    <div key={voce} style={{ display:'flex', alignItems:'center', justifyContent:'space-between',
+                      ...card, padding:'10px 14px', marginBottom:8 }}>
+                      <span style={{ fontSize:14, fontWeight:600 }}>{voce}</span>
+                      <div style={{ display:'flex', gap:6, flexWrap:'wrap', justifyContent:'flex-end' }}>
+                        {opzioniClassifica.map(col => {
+                          const isSel = mqClassifica[voce] === col
+                          const s = getS(col)
+                          return (
+                            <button key={col} onClick={() => setMqClassifica(c => ({...c, [voce]: col}))}
+                              style={{ padding:'5px 10px', borderRadius:16, fontSize:11, fontWeight:700,
+                                cursor:'pointer', fontFamily:'"DM Sans",sans-serif',
+                                background: isSel ? s.bg : '#fff',
+                                border:`1.5px solid ${isSel ? s.border : chiaro}`,
+                                color: isSel ? s.text : medio }}>
+                              {s.emoji} {col}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  <button style={{ ...btnP, marginTop:4 }} onClick={() => mqConfermaClassifica(dom)}>Conferma</button>
+                </div>
+              )
+            })()}
+            {dom.tipo === 'classifica_colore' && mqFeedback && (() => {
+              const elementiRaw = dom.elementi
+              const voci = Array.isArray(elementiRaw) ? elementiRaw : (elementiRaw?.voci || [])
+              const correttaMap = typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta
+              return (
+                <div>
+                  {voci.map(voce => {
+                    const ok = mqClassifica[voce] === correttaMap?.[voce]
+                    return (
+                      <div key={voce} style={{ ...card, padding:'10px 14px', marginBottom:8,
+                        background: ok ? '#F0F9F4' : '#FDF0EE', borderColor: ok ? verde : rosso }}>
+                        <span style={{ fontWeight:600 }}>{voce}</span>
+                        <span style={{ float:'right', color: ok ? verde : rosso, fontWeight:700 }}>
+                          {ok ? `✓ ${mqClassifica[voce]}` : `✗ → ${correttaMap?.[voce]}`}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
+
+            {/* Abbinamento */}
+            {dom.tipo === 'abbinamento' && !mqFeedback && (
+              <div>
+                {(dom.elementi?.sx || []).map(sx => (
+                  <div key={sx} style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+                    <span style={{ fontSize:13, fontWeight:600, minWidth:120, flexShrink:0 }}>{sx}</span>
+                    <select value={mqAbbinamento[sx] || ''} onChange={e => setMqAbbinamento(a => ({...a, [sx]: e.target.value}))}
+                      style={{ flex:1, padding:'8px', borderRadius:8, border:`1.5px solid ${chiaro}`,
+                        fontFamily:'"DM Sans",sans-serif', fontSize:12, background:'#fff' }}>
+                      <option value=''>— scegli —</option>
+                      {(dom.elementi?.dx || []).map(dx => <option key={dx} value={dx}>{dx}</option>)}
+                    </select>
+                  </div>
+                ))}
+                <button style={{ ...btnP, marginTop:4 }} onClick={() => mqConfermaAbbinamento(dom)}>Conferma</button>
+              </div>
+            )}
+            {dom.tipo === 'abbinamento' && mqFeedback && (
+              <div>
+                {(dom.elementi?.sx || []).map(sx => {
+                  const correttaMap = typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta
+                  const ok = mqAbbinamento[sx] === correttaMap?.[sx]
+                  return (
+                    <div key={sx} style={{ ...card, padding:'10px 14px', marginBottom:8,
+                      background: ok ? '#F0F9F4' : '#FDF0EE', borderColor: ok ? verde : rosso }}>
+                      <div style={{ fontWeight:600, fontSize:13 }}>{sx}</div>
+                      <div style={{ fontSize:12, color: ok ? verde : rosso, marginTop:4 }}>
+                        {ok ? `✓ ${correttaMap?.[sx]}` : `✗ → ${correttaMap?.[sx]}`}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
             {/* Feedback */}
             {mqFeedback && (
-              <div style={{ ...card, background: mqFeedback.ok ? '#F0F9F4' : dom.tipo === 'flash' ? '#F0F9F4' : '#FDF0EE',
-                border: `1px solid ${mqFeedback.ok || dom.tipo === 'flash' ? verde : rosso}33`, marginBottom: 12 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: mqFeedback.ok || dom.tipo === 'flash' ? verde : rosso, marginBottom: mqFeedback.spiegazione ? 8 : 0 }}>
-                  {dom.tipo === 'flash' ? '💡 Segna come vista' : mqFeedback.ok ? '✓ Corretto!' : '✗ Sbagliato'}
+              <div style={{ ...card,
+                background: mqFeedback.ok ? '#F0F9F4' : mqFeedback.parziale ? '#FFF8E1' : dom.tipo === 'flash' ? '#F0F9F4' : '#FDF0EE',
+                border: `1px solid ${mqFeedback.ok ? verde : mqFeedback.parziale ? '#C77B13' : dom.tipo === 'flash' ? verde : rosso}33`,
+                marginBottom: 12 }}>
+                <div style={{ fontSize: 14, fontWeight: 700,
+                  color: mqFeedback.ok ? verde : mqFeedback.parziale ? '#C77B13' : dom.tipo === 'flash' ? verde : rosso,
+                  marginBottom: mqFeedback.spiegazione ? 8 : 0 }}>
+                  {dom.tipo === 'flash' ? '💡 Segna come vista'
+                    : mqFeedback.ok ? '✓ Corretto!'
+                    : mqFeedback.parziale ? '◑ Parzialmente corretto'
+                    : '✗ Sbagliato'}
                 </div>
                 {mqFeedback.spiegazione && <div style={{ fontSize: 12, color: scuro, lineHeight: 1.6 }}>{mqFeedback.spiegazione}</div>}
+                {(mqFeedback.ok || mqFeedback.parziale) && mqFeedback.suggerimenti?.length > 0 && (
+                  <div style={{ marginTop:8, padding:'8px 10px', background:'#FFFBF0', borderRadius:8, border:'1px solid #E8D5A0' }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#7A5C00', marginBottom:4 }}>💡 Per approfondire:</div>
+                    {mqFeedback.suggerimenti.map((s,i) => <div key={i} style={{ fontSize:11, color:scuro, lineHeight:1.5 }}>• {s}</div>)}
+                  </div>
+                )}
               </div>
             )}
 
