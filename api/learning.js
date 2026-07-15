@@ -280,6 +280,36 @@ Rispondi SOLO con JSON valido, nessun testo extra:
       }
 
 
+
+      case 'get_swiss_mega_quiz': {
+        // 25 domande random da tutta la KB svizzera, almeno 1 per tipo
+        const tipi = ['multipla','vero_falso','aperta','elenco','classifica_colore','abbinamento','comuni']
+        let domande = []
+        for (const tipo of tipi) {
+          const { data: pool } = await supabase
+            .from('swiss_quiz_kb').select('*').eq('tipo', tipo)
+          if (pool && pool.length > 0) {
+            const r = pool[Math.floor(Math.random() * pool.length)]
+            domande.push({ ...r, regione: r.regione_id })
+          }
+        }
+        // Riempi fino a 25 con domande random miste
+        const { data: extra } = await supabase
+          .from('swiss_quiz_kb').select('*').order('RANDOM()').limit(50)
+        if (extra) {
+          const usedIds = new Set(domande.map(d => d.id))
+          for (const d of extra) {
+            if (domande.length >= 25) break
+            if (!usedIds.has(d.id)) {
+              domande.push({ ...d, regione: d.regione_id })
+              usedIds.add(d.id)
+            }
+          }
+        }
+        domande = domande.sort(() => Math.random() - 0.5)
+        return res.json({ domande })
+      }
+
       case 'get_swiss_quiz': {
         const { regione_id, lingua } = payload
         // Estrae domande random dalla KB fissa, almeno 1 per tipo, totale 15

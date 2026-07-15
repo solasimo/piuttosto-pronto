@@ -538,7 +538,7 @@ export default function Atlante({ initialPaese }) {
       const isSwiss = paese === 'svizzera'
       const action = isSwiss ? 'get_swiss_quiz' : 'genera_esercizi_regione'
       const payload = isSwiss
-        ? { regione_id: reg_id?.toUpperCase(), lingua: getLingua() }
+        ? { regione_id: selected?.toUpperCase(), lingua: getLingua() }
         : { regione: regioneCtx, regione_nome: regioneData.regione_nome, lingua: getLingua() }
       const res = await fetch('/api/learning', {
         method: 'POST',
@@ -630,13 +630,15 @@ export default function Atlante({ initialPaese }) {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const paeseLabel = COUNTRY_DATA[paese]?.label || paese
+      const isSvizzeraMega = paese === 'svizzera'
+      const megaAction = isSvizzeraMega ? 'get_swiss_mega_quiz' : 'genera_mega_quiz'
+      const megaPayload = isSvizzeraMega
+        ? { lingua: getLingua() }
+        : { paese, paese_nome: paeseLabel, lingua: getLingua() }
       const res = await fetch('/api/learning', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({
-          action: 'genera_mega_quiz',
-          payload: { paese, paese_nome: paeseLabel, lingua: getLingua() }
-        })
+        body: JSON.stringify({ action: megaAction, payload: megaPayload })
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Errore generazione')
