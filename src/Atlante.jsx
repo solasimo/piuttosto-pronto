@@ -605,7 +605,7 @@ export default function Atlante({ initialPaese }) {
     if (erFeedback) return
     const dom = erDomande[erIdx]
     let ok = false
-    if (dom.tipo === 'multipla') ok = scelta === dom.corretta
+    if (dom.tipo === 'multipla' || dom.tipo === 'comuni') ok = scelta === dom.corretta
     else if (dom.tipo === 'vero_falso') ok = scelta === dom.corretta
     else if (dom.tipo === 'flash') ok = true // self-assessed
     setErRisposta(scelta)
@@ -736,7 +736,7 @@ export default function Atlante({ initialPaese }) {
             </div>
 
             {/* Opzioni multipla — supporta sia array che dict {a,b,c,d} */}
-            {dom.tipo === 'multipla' && ['a','b','c','d'].map(lettera => {
+            {(dom.tipo === 'multipla' || dom.tipo === 'comuni') && ['a','b','c','d'].map(lettera => {
               const op = Array.isArray(dom.opzioni) ? dom.opzioni[['a','b','c','d'].indexOf(lettera)] : dom.opzioni?.[lettera]
               if (!op) return null
               const isSelected = erRisposta === lettera
@@ -789,12 +789,12 @@ export default function Atlante({ initialPaese }) {
             )}
 
             {/* Aperta / Elenco / Comuni — input testuale + correzione AI */}
-            {(dom.tipo === 'aperta' || dom.tipo === 'elenco' || dom.tipo === 'comuni') && !erFeedback && (
+            {(dom.tipo === 'aperta' || dom.tipo === 'elenco') && !erFeedback && (
               <div>
                 <textarea
                   style={{ width: '100%', minHeight: 90, padding: 10, borderRadius: 8, border: `1.5px solid ${chiaro}`,
                     fontFamily: '"DM Sans",sans-serif', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }}
-                  placeholder={dom.tipo === 'elenco' ? 'Elenca gli elementi...' : dom.tipo === 'comuni' ? 'Scrivi il comune/la risposta...' : 'Scrivi la tua risposta...'}
+                  placeholder={dom.tipo === 'elenco' ? 'Elenca gli elementi...' : 'Scrivi la tua risposta...'}
                   value={erInputAperta || ''}
                   onChange={e => setErInputAperta(e.target.value)}
                 />
