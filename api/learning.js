@@ -290,23 +290,31 @@ Rispondi SOLO con JSON valido, nessun testo extra:
 
 
       case 'get_swiss_mega_quiz': {
-        // 25 domande random da tutta la KB svizzera, almeno 1 per tipo
-        const tipi = ['multipla','vero_falso','aperta','elenco','classifica_colore','abbinamento','comuni']
+        // 25 domande random da tutta la KB svizzera
+        // Solo tipi compatibili col renderer del mega quiz: multipla, vero_falso, comuni
+        const tipiMega = ['multipla','vero_falso','comuni']
         let domande = []
-        for (const tipo of tipi) {
+        // Almeno 1 per regione (6 regioni) garantita
+        const regioni = ['VALLESE','VAUD','GINEVRA','TRE_LAGHI','TICINO','SVIZZERA_TEDESCA']
+        for (const regione_id of regioni) {
           const { data: pool } = await supabase
-            .from('swiss_quiz_kb').select('*').eq('tipo', tipo)
+            .from('swiss_quiz_kb').select('*')
+            .eq('regione_id', regione_id)
+            .in('tipo', tipiMega)
           if (pool && pool.length > 0) {
             const r = pool[Math.floor(Math.random() * pool.length)]
             domande.push({ ...r, regione: r.regione_id })
           }
         }
-        // Riempi fino a 25 con domande random miste
+        // Riempi fino a 25 con domande random miste da tutta la KB
         const { data: extra } = await supabase
-          .from('swiss_quiz_kb').select('*').order('RANDOM()').limit(50)
+          .from('swiss_quiz_kb').select('*')
+          .in('tipo', tipiMega)
+          .limit(120)
         if (extra) {
+          const shuffled = extra.sort(() => Math.random() - 0.5)
           const usedIds = new Set(domande.map(d => d.id))
-          for (const d of extra) {
+          for (const d of shuffled) {
             if (domande.length >= 25) break
             if (!usedIds.has(d.id)) {
               domande.push({ ...d, regione: d.regione_id })

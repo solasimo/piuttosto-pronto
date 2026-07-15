@@ -653,7 +653,7 @@ export default function Atlante({ initialPaese }) {
     if (mqFeedback) return
     const dom = mqDomande[mqIdx]
     let ok = false
-    if (dom.tipo === 'multipla') ok = scelta === dom.corretta
+    if (dom.tipo === 'multipla' || dom.tipo === 'comuni') ok = scelta === dom.corretta
     else if (dom.tipo === 'vero_falso') ok = scelta === dom.corretta
     else if (dom.tipo === 'flash') ok = true
     setMqRisposta(scelta)
@@ -1399,8 +1399,8 @@ export default function Atlante({ initialPaese }) {
         {mqLoading && (
           <div style={{ ...card, textAlign: 'center', padding: 32, color: medio }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
-            <div>Generazione mega quiz in corso...</div>
-            <div style={{ fontSize: 12, marginTop: 4 }}>L'AI sta preparando 25 domande su {paeseLabel}</div>
+            <div>Caricamento mega quiz in corso...</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>Preparando 25 domande su {paeseLabel}...</div>
           </div>
         )}
 
@@ -1412,8 +1412,8 @@ export default function Atlante({ initialPaese }) {
               <div style={{ fontSize: 15, fontWeight: 600, color: scuro, lineHeight: 1.5 }}>{dom.domanda || dom.testo}</div>
             </div>
 
-            {/* Multipla */}
-            {dom.tipo === 'multipla' && (
+            {/* Multipla + Comuni */}
+            {(dom.tipo === 'multipla' || dom.tipo === 'comuni') && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
                 {['a','b','c','d'].map(lettera => {
                   const isSelected = mqRisposta === lettera
