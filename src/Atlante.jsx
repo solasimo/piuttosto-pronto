@@ -1392,8 +1392,13 @@ export default function Atlante({ initialPaese }) {
               </div>
             )}
 
-            {/* Pulsante esercizi regione */}
-            <button style={{ ...btnO, marginTop: 4 }} onClick={() => { setVista('esercizi_regione') }}>
+            {/* Pulsante mappa interattiva sottozone */}
+            <button style={{ ...btnO, marginTop: 4 }} onClick={() => { setEsMode('sottozone'); setEsSottoRisposte({}); setEsSottoFeedback(null); setEsSottoSelected(null); setEsInput(''); setVista('esercizio') }}>
+              🗺️ Mappa interattiva — sottozone
+            </button>
+
+            {/* Pulsante esercizi AI/KB */}
+            <button style={{ ...btnP, marginTop: 8 }} onClick={() => { setVista('esercizi_regione') }}>
               🎯 Esercizi su questa regione
             </button>
           </>
@@ -1722,6 +1727,12 @@ export default function Atlante({ initialPaese }) {
         <div style={{ width: 1, background: chiaro }}/>
         <div><div style={{ fontSize: 22, fontWeight: 800, color: scuro }}>{totalZones-nStudiate-nInCorso}</div><div style={{ fontSize: 10, color: medio, textTransform: 'uppercase', letterSpacing: 1 }}>{atx('da_iniziare')}</div></div>
       </div>
+
+      {/* Mappa interattiva regioni */}
+      <button style={{ ...btnO, marginTop: 8, width: '100%', fontSize: 14, padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+        onClick={() => { setEsMode('regioni'); setEsRegRisposte({}); setEsRegFeedback(null); setEsRegSelected(null); setEsInput(''); setVista('esercizio') }}>
+        🗺️ Mappa interattiva — regioni
+      </button>
 
       {/* Mega Quiz Paese */}
       <button style={{ ...btnP, marginTop: 8, width: '100%', fontSize: 14, padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
