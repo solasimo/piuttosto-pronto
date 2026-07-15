@@ -806,54 +806,86 @@ export default function Atlante({ initialPaese }) {
             )}
 
             {/* Classifica colore */}
-            {dom.tipo === 'classifica_colore' && !erFeedback && (
-              <div>
-                {(dom.elementi || []).map(vitigno => (
-                  <div key={vitigno} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    ...card, padding: '10px 14px', marginBottom: 8 }}>
-                    <span style={{ fontSize: 14, fontWeight: 600 }}>{vitigno}</span>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      {['Bianco','Rosso'].map(col => {
-                        const sel = (erClassifica || {})[vitigno]
-                        const isSel = sel === col
-                        return (
-                          <button key={col} onClick={() => setErClassifica(c => ({...c, [vitigno]: col}))}
-                            style={{ padding: '5px 14px', borderRadius: 16, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                              fontFamily: '"DM Sans",sans-serif',
-                              background: isSel ? (col === 'Bianco' ? '#FFF8DC' : '#FDECEA') : '#fff',
-                              border: `1.5px solid ${isSel ? (col === 'Bianco' ? '#C9A227' : '#9B2335') : chiaro}`,
-                              color: isSel ? (col === 'Bianco' ? '#7A5C00' : '#9B2335') : medio }}>
-                            {col === 'Bianco' ? '⬜ Bianco' : '🟥 Rosso'}
-                          </button>
-                        )
-                      })}
+            {dom.tipo === 'classifica_colore' && !erFeedback && (() => {
+              // Opzioni dinamiche: dal campo elementi.opzioni, oppure default Bianco/Rosso
+              const elementiRaw = dom.elementi
+              let voci = []
+              let opzioniClassifica = ['Bianco','Rosso']
+              if (Array.isArray(elementiRaw)) {
+                voci = elementiRaw
+              } else if (elementiRaw && typeof elementiRaw === 'object') {
+                voci = elementiRaw.voci || elementiRaw.elementi || []
+                if (elementiRaw.opzioni) opzioniClassifica = elementiRaw.opzioni
+              }
+              const colori = { 'Bianco': { bg: '#FFF8DC', border: '#C9A227', text: '#7A5C00', emoji: '⬜' },
+                               'Rosso': { bg: '#FDECEA', border: '#9B2335', text: '#9B2335', emoji: '🟥' },
+                               'Menzione/Denominazione': { bg: '#EEF2FF', border: '#4F5BD5', text: '#2D3A8C', emoji: '📋' },
+                               'Altro (vento)': { bg: '#E8F5E9', border: '#2E7D32', text: '#1B5E20', emoji: '💨' },
+                               'Altro (comune)': { bg: '#FFF3E0', border: '#E65100', text: '#BF360C', emoji: '🏘️' },
+                               'Altro (zona geografica)': { bg: '#F3E5F5', border: '#6A1B9A', text: '#4A148C', emoji: '🗺️' },
+                               'Specialità (rosato)': { bg: '#FCE4EC', border: '#C2185B', text: '#880E4F', emoji: '🌸' },
+                               'Specialità (blanc de noirs)': { bg: '#F3E5F5', border: '#7B1FA2', text: '#4A148C', emoji: '⚪' },
+                               'Specialità (Chasselas giovane)': { bg: '#FFFDE7', border: '#F9A825', text: '#F57F17', emoji: '🍾' },
+                               'Specialità (etichetta qualità)': { bg: '#E8F5E9', border: '#388E3C', text: '#1B5E20', emoji: '🏅' },
+                               'Specialità (vino giovane)': { bg: '#FFFDE7', border: '#F9A825', text: '#F57F17', emoji: '🍾' },
+                               'Specialità (blank de noirs)': { bg: '#F3E5F5', border: '#7B1FA2', text: '#4A148C', emoji: '⚪' },
+                               'Specialità (AOC)': { bg: '#E3F2FD', border: '#1565C0', text: '#0D47A1', emoji: '📜' },
+                             }
+              const getStyle = (col) => colori[col] || { bg: '#F5F5F5', border: '#9E9E9E', text: '#424242', emoji: '•' }
+              return (
+                <div>
+                  {voci.map(voce => (
+                    <div key={voce} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      ...card, padding: '10px 14px', marginBottom: 8 }}>
+                      <span style={{ fontSize: 14, fontWeight: 600 }}>{voce}</span>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        {opzioniClassifica.map(col => {
+                          const sel = (erClassifica || {})[voce]
+                          const isSel = sel === col
+                          const s = getStyle(col)
+                          return (
+                            <button key={col} onClick={() => setErClassifica(c => ({...c, [voce]: col}))}
+                              style={{ padding: '5px 10px', borderRadius: 16, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                                fontFamily: '"DM Sans",sans-serif',
+                                background: isSel ? s.bg : '#fff',
+                                border: `1.5px solid ${isSel ? s.border : chiaro}`,
+                                color: isSel ? s.text : medio }}>
+                              {s.emoji} {col}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
-                <button style={{ ...btnP, marginTop: 4 }}
-                  onClick={() => erConfermaClassifica(dom)}>
-                  Conferma
-                </button>
-              </div>
-            )}
-            {dom.tipo === 'classifica_colore' && erFeedback && (
-              <div>
-                {(dom.elementi || []).map(vitigno => {
-                  const corretta_val = (typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta)?.[vitigno]
-                  const scelta_val = (erClassifica || {})[vitigno]
-                  const ok = scelta_val === corretta_val
-                  return (
-                    <div key={vitigno} style={{ ...card, padding: '10px 14px', marginBottom: 8,
-                      background: ok ? '#F0F9F4' : '#FDF0EE', borderColor: ok ? verde : '#9B2335' }}>
-                      <span style={{ fontWeight: 600 }}>{vitigno}</span>
-                      <span style={{ float: 'right', color: ok ? verde : '#9B2335', fontWeight: 700 }}>
-                        {ok ? `✓ ${scelta_val}` : `✗ → ${corretta_val}`}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+                  ))}
+                  <button style={{ ...btnP, marginTop: 4 }} onClick={() => erConfermaClassifica(dom)}>
+                    Conferma
+                  </button>
+                </div>
+              )
+            })()}
+            {dom.tipo === 'classifica_colore' && erFeedback && (() => {
+              const elementiRaw = dom.elementi
+              const voci = Array.isArray(elementiRaw) ? elementiRaw : (elementiRaw?.voci || elementiRaw?.elementi || [])
+              const correttaMap = typeof dom.corretta === 'string' ? JSON.parse(dom.corretta) : dom.corretta
+              return (
+                <div>
+                  {voci.map(voce => {
+                    const corretta_val = correttaMap?.[voce]
+                    const scelta_val = (erClassifica || {})[voce]
+                    const ok = scelta_val === corretta_val
+                    return (
+                      <div key={voce} style={{ ...card, padding: '10px 14px', marginBottom: 8,
+                        background: ok ? '#F0F9F4' : '#FDF0EE', borderColor: ok ? verde : '#9B2335' }}>
+                        <span style={{ fontWeight: 600 }}>{voce}</span>
+                        <span style={{ float: 'right', color: ok ? verde : '#9B2335', fontWeight: 700 }}>
+                          {ok ? `✓ ${scelta_val}` : `✗ → ${corretta_val}`}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
 
             {/* Abbinamento */}
             {dom.tipo === 'abbinamento' && !erFeedback && (
