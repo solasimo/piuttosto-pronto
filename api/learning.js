@@ -20,6 +20,82 @@ export default async function handler(req, res) {
   try {
     switch (action) {
 
+
+      case 'get_kb_domande': {
+        const { sottocategoria, n = 15, lingua } = payload
+        const tipi = ['multipla','vero_falso','aperta','elenco','classifica_colore','abbinamento']
+        let domande = []
+        // Almeno 1 per tipo garantita
+        for (const tipo of tipi) {
+          const { data: pool } = await supabase
+            .from('learning_kb')
+            .select('*')
+            .eq('livello', 1)
+            .eq('categoria', 'vino')
+            .eq('sottocategoria', sottocategoria)
+            .eq('tipo', tipo)
+          if (pool && pool.length > 0) {
+            const r = pool[Math.floor(Math.random() * pool.length)]
+            domande.push(r)
+          }
+        }
+        // Riempi fino a n con domande random
+        const { data: extra } = await supabase
+          .from('learning_kb')
+          .select('*')
+          .eq('livello', 1)
+          .eq('categoria', 'vino')
+          .eq('sottocategoria', sottocategoria)
+          .limit(200)
+        if (extra) {
+          const shuffled = extra.sort(() => Math.random() - 0.5)
+          const usedIds = new Set(domande.map(d => d.id))
+          for (const d of shuffled) {
+            if (domande.length >= n) break
+            if (!usedIds.has(d.id)) { domande.push(d); usedIds.add(d.id) }
+          }
+        }
+        domande = domande.sort(() => Math.random() - 0.5)
+
+        // Normalizza al formato atteso dal frontend
+        const normalized = domande.map((d, i) => {
+          // Converti opzioni da {a,b,c,d} a {A,B,C,D}
+          let opzioni = null
+          if (d.opzioni) {
+            const o = typeof d.opzioni === 'string' ? JSON.parse(d.opzioni) : d.opzioni
+            if (o.a !== undefined) opzioni = { A: o.a, B: o.b, C: o.c, D: o.d }
+            else opzioni = o
+          }
+          // Normalizza risposta corretta
+          let risposta_giusta = d.corretta
+          if (typeof risposta_giusta === 'string') {
+            risposta_giusta = risposta_giusta.replace(/^"|"$/g,'')
+            if (risposta_giusta === 'true') risposta_giusta = 'V'
+            if (risposta_giusta === 'false') risposta_giusta = 'F'
+            if (risposta_giusta.length === 1 && 'abcd'.includes(risposta_giusta)) risposta_giusta = risposta_giusta.toUpperCase()
+          }
+          // Normalizza tipo
+          let tipo = d.tipo
+          if (tipo === 'vero_falso') tipo = 'vero_falso'
+          // Elementi per classifica_colore e abbinamento
+          let elementi = d.elementi
+          if (elementi && typeof elementi === 'string') elementi = JSON.parse(elementi)
+
+          return {
+            id: i + 1,
+            tipo,
+            argomento: d.argomento || d.sottocategoria,
+            domanda: d.domanda,
+            opzioni,
+            risposta_giusta,
+            risposta_modello: d.risposta_modello,
+            elementi,
+            spiegazione: d.spiegazione,
+          }
+        })
+        return res.json({ domande: normalized, sessione_id: null })
+      }
+
       case 'genera_domande': {
         const { livello, categoria, lingua } = payload
 

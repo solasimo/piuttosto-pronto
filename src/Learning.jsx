@@ -36,7 +36,7 @@ const TX = {
     tutto: 'Tutto', tuttosub: 'Tutti i livelli',
     progressi_btn: '📊 I tuoi progressi',
     scegli_cat: 'Scegli argomento',
-    cat_vino: '🍷 Vino', cat_birra: '🍺 Birra', cat_dist: '🥃 Distillati', cat_tutto: '🎯 Tutto il livello',
+    cat_vino: '🍷 Vino', cat_birra: '🍺 Birra', cat_dist: '🥃 Distillati', cat_tutto: '🎯 Tutto il livello', scegli_subcat: 'Scegli un argomento', sub_viticoltura: '🌿 Viticoltura', sub_enologia: '⚗️ Enologia', sub_degustazione: '👅 Degustazione', sub_tutto_vino: '🍷 Tutto il vino',
     scegli_cat_l2: 'Scegli paese',
     cat_italia: '🇮🇹 Italia',
     cat_francia: '🇫🇷 Francia',
@@ -86,7 +86,7 @@ const TX = {
     tutto: 'Everything', tuttosub: 'All levels',
     progressi_btn: '📊 Your progress',
     scegli_cat: 'Choose topic',
-    cat_vino: '🍷 Wine', cat_birra: '🍺 Beer', cat_dist: '🥃 Spirits', cat_tutto: '🎯 Entire level',
+    cat_vino: '🍷 Wine', cat_birra: '🍺 Beer', cat_dist: '🥃 Spirits', cat_tutto: '🎯 Entire level', scegli_subcat: 'Choose a topic', sub_viticoltura: '🌿 Viticulture', sub_enologia: '⚗️ Enology', sub_degustazione: '👅 Tasting', sub_tutto_vino: '🍷 All wine',
     scegli_cat_l2: 'Choose country',
     cat_italia: '🇮🇹 Italy',
     cat_francia: '🇫🇷 France',
@@ -136,7 +136,7 @@ const TX = {
     tutto: 'Tout', tuttosub: 'Tous les niveaux',
     progressi_btn: '📊 Vos progrès',
     scegli_cat: 'Choisir le sujet',
-    cat_vino: '🍷 Vin', cat_birra: '🍺 Bière', cat_dist: '🥃 Spiritueux', cat_tutto: '🎯 Tout le niveau',
+    cat_vino: '🍷 Vin', scegli_subcat: 'Choisir un sujet', sub_viticoltura: '🌿 Viticulture', sub_enologia: '⚗️ Œnologie', sub_degustazione: '👅 Dégustation', sub_tutto_vino: '🍷 Tout le vin', cat_birra: '🍺 Bière', cat_dist: '🥃 Spiritueux', cat_tutto: '🎯 Tout le niveau',
     scegli_cat_l2: 'Choisir le pays',
     cat_italia: '🇮🇹 Italie',
     cat_francia: '🇫🇷 France',
@@ -197,6 +197,7 @@ export default function Learning() {
   const [sessId, setSessId] = useState(null)
   const [sessLivello, setSessLivello] = useState(null)
   const [sessCategoria, setSessCategoria] = useState(null)
+  const [sessSottocat, setSessSottocat] = useState(null)
   const [domande, setDomande] = useState([])
   const [idx, setIdx] = useState(0)
   const [feedback, setFeedback] = useState(null)
@@ -220,15 +221,22 @@ export default function Learning() {
   const dom = domande[idx] || null
 
   // ── Avvia sessione ───────────────────────────────────────────────
-  async function avvia(livello, categoria) {
+  async function avvia(livello, categoria, sottocat = null) {
     setLoading(true)
     setErrore('')
     setVista('loading')
     try {
-      const d = await api('genera_domande', { livello, categoria, lingua: getLingua() })
+      // Livello 1 vino con sottocategoria → usa KB fissa
+      const useKB = livello === 1 && categoria === 'vino' && sottocat && sottocat !== 'tutto'
+      const action = useKB ? 'get_kb_domande' : 'genera_domande'
+      const apiPayload = useKB
+        ? { sottocategoria: sottocat, n: 15, lingua: getLingua() }
+        : { livello, categoria, lingua: getLingua() }
+      const d = await api(action, apiPayload)
       setSessId(d.sessione_id)
       setSessLivello(livello)
       setSessCategoria(categoria)
+      setSessSottocat(sottocat)
       setDomande(d.domande)
       setIdx(0)
       setNCorrQ(0)
@@ -558,7 +566,31 @@ export default function Learning() {
       ].map(({ label, cat }) => (
         <button key={label}
           style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
-          onClick={() => avvia(cat ? 1 : null, cat)}>
+          onClick={() => cat === 'vino' ? setVista('subcat_vino') : avvia(cat ? 1 : null, cat)}>
+          <span style={{ fontSize: 15, fontWeight: 600, color: scuro }}>{label}</span>
+          <span style={{ color: oro }}>→</span>
+        </button>
+      ))}
+    </div>
+  )
+
+  // ── Sottocategorie Vino L1 ──────────────────────────────────────
+  if (vista === 'subcat_vino') return (
+    <div style={{ paddingBottom: 40 }}>
+      <button style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', padding: '0 0 16px', fontFamily: '"DM Sans", sans-serif' }}
+        onClick={() => setVista('categorie')}>{tx('indietro')}</button>
+
+      <span style={label10}>{tx('scegli_subcat')}</span>
+
+      {[
+        { label: tx('sub_viticoltura'), sub: 'viticoltura' },
+        { label: tx('sub_enologia'),    sub: 'enologia' },
+        { label: tx('sub_degustazione'), sub: 'degustazione' },
+        { label: tx('sub_tutto_vino'),  sub: 'tutto' },
+      ].map(({ label, sub }) => (
+        <button key={sub}
+          style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}`, marginBottom: 8 }}
+          onClick={() => avvia(1, 'vino', sub)}>
           <span style={{ fontSize: 15, fontWeight: 600, color: scuro }}>{label}</span>
           <span style={{ color: oro }}>→</span>
         </button>
@@ -908,7 +940,7 @@ export default function Learning() {
           <div style={{ fontSize: 60, fontWeight: 800, color: col, fontFamily: '"DM Sans", sans-serif', lineHeight: 1 }}>{pct}%</div>
           <div style={{ fontSize: 15, color: scuro, marginTop: 8 }}>{nCorrDisplay} {tx('corrette_su')} {domande.length}</div>
         </div>
-        <button style={{ ...btnPrimary, marginBottom: 10 }} onClick={() => avvia(sessLivello, sessCategoria)}>{tx('nuova')}</button>
+        <button style={{ ...btnPrimary, marginBottom: 10 }} onClick={() => avvia(sessLivello, sessCategoria, sessSottocat)}>{tx('nuova')}</button>
         <button style={btnOutline} onClick={() => setVista('menu')}>{tx('torna')}</button>
       </div>
     )
