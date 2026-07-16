@@ -57,6 +57,16 @@ export default async function handler(req, res) {
         }
         domande = domande.sort(() => Math.random() - 0.5)
 
+        // Crea una sessione in learning_sessioni per tracciare i progressi
+        let sessione_id = null
+        try {
+          const { data: sess } = await supabase.from('learning_sessioni').insert({
+            user_id: user.id, livello: 1, categoria: 'vino',
+            n_domande: domande.length, completata: false,
+          }).select('id').single()
+          sessione_id = sess?.id || null
+        } catch (_) {}
+
         // Normalizza al formato atteso dal frontend
         const normalized = domande.map((d, i) => {
           // Converti opzioni da {a,b,c,d} a {A,B,C,D}
@@ -93,7 +103,7 @@ export default async function handler(req, res) {
             spiegazione: d.spiegazione,
           }
         })
-        return res.json({ domande: normalized, sessione_id: null })
+        return res.json({ domande: normalized, sessione_id })
       }
 
       case 'genera_domande': {
