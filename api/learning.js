@@ -21,6 +21,22 @@ export default async function handler(req, res) {
     switch (action) {
 
 
+      case 'debug_kb': {
+        // Debug: conta le righe trovate
+        const { sottocategoria } = payload
+        const { data, count, error } = await supabase
+          .from('learning_kb')
+          .select('livello, categoria, sottocategoria, tipo', { count: 'exact' })
+          .limit(5)
+        const { data: d2 } = await supabase
+          .from('learning_kb')
+          .select('livello, categoria, sottocategoria, tipo', { count: 'exact' })
+          .eq('livello', 1)
+          .eq('categoria', 'vino')
+          .eq('sottocategoria', sottocategoria || 'viticoltura')
+        return res.json({ sample: data, filtered: d2, error: error?.message })
+      }
+
       case 'get_kb_domande': {
         const { sottocategoria, n = 15, lingua } = payload
         const tipi = ['multipla','vero_falso','aperta','elenco','classifica_colore','abbinamento']
