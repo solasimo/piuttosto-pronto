@@ -107,6 +107,32 @@ export default async function handler(req, res) {
           let elementi = d.elementi
           if (elementi && typeof elementi === 'string') elementi = JSON.parse(elementi)
 
+          // Normalizza classifica_colore: elementi array → vitigni + risposta_giusta come oggetto
+          let vitigni = null
+          let coppie = null
+          if (tipo === 'classifica_colore') {
+            // elementi può essere array ["Chardonnay","Merlot"] o {voci:[...], opzioni:[...]}
+            const voci = Array.isArray(elementi) ? elementi : (elementi?.voci || elementi?.elementi || [])
+            vitigni = voci
+            const correttaObj = typeof risposta_giusta === 'string' ? JSON.parse(risposta_giusta) : risposta_giusta
+            risposta_giusta = correttaObj
+          }
+
+          // Normalizza abbinamento: elementi {sx,dx} → coppie array
+          if (tipo === 'abbinamento') {
+            const sxArr = elementi?.sx || []
+            const dxArr = elementi?.dx || []
+            const correttaObj = typeof risposta_giusta === 'string' ? JSON.parse(risposta_giusta) : risposta_giusta
+            coppie = sxArr.map(sx => ({ sx, dx: correttaObj?.[sx] || '' }))
+            // shuffle le opzioni dx per il select
+            const dxShuffled = [...dxArr].sort(() => Math.random() - 0.5)
+            coppie = sxArr.map((sx, i) => ({ sx, dx: dxShuffled[i] || '' }))
+            risposta_giusta = correttaObj
+          }
+
+          // Normalizza elenco: come aperta con risposta_modello
+          // (già ok, usa lo stesso renderer dell'aperta)
+
           return {
             id: i + 1,
             tipo,
@@ -114,8 +140,12 @@ export default async function handler(req, res) {
             domanda: d.domanda,
             opzioni,
             risposta_giusta,
-            risposta_modello: d.risposta_modello,
+            risposta_modello: d.risposta_modello || d.spiegazione,
             elementi,
+            vitigni,
+            coppie,
+            istruzione_sx: elementi?.sx ? 'Abbina' : null,
+            istruzione_dx: elementi?.dx ? 'alla descrizione' : null,
             spiegazione: d.spiegazione,
           }
         })

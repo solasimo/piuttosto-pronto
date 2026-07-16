@@ -699,11 +699,11 @@ export default function Learning() {
             <div style={{ fontSize: 12, color: medio, marginBottom: 12, lineHeight: 1.5 }}>
               {tx('classifica_istr')}
             </div>
-            {dom.vitigni.map(v => (
+            {(dom.vitigni || (Array.isArray(dom.elementi) ? dom.elementi : dom.elementi?.voci || [])).map(v => (
               <div key={v} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...card, padding: '10px 14px', marginBottom: 8 }}>
                 <span style={{ fontSize: 14, fontWeight: 600, color: scuro }}>{v}</span>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {['bianco', 'rosso'].map(col => {
+                  {(dom.elementi?.opzioni || ['bianco', 'rosso']).map(col => {
                     const sel = (classificaRisposte[v] === col)
                     return (
                       <button key={col} onClick={() => setClassificaRisposte(prev => ({ ...prev, [v]: col }))}
@@ -715,7 +715,7 @@ export default function Learning() {
                 </div>
               </div>
             ))}
-            <button style={{ ...btnPrimary, marginTop: 10, opacity: Object.keys(classificaRisposte).length === dom.vitigni.length ? 1 : 0.5 }}
+            <button style={{ ...btnPrimary, marginTop: 10, opacity: Object.keys(classificaRisposte).length === (dom.vitigni || dom.elementi?.voci || dom.elementi || []).length ? 1 : 0.5 }}
               disabled={Object.keys(classificaRisposte).length !== dom.vitigni.length}
               onClick={() => correggiClassifica()}>
               {tx('conferma')}
@@ -733,7 +733,7 @@ export default function Learning() {
               </div>
               {!isOk && <div style={{ fontSize: 12, color: medio, marginTop: 2 }}>{feedback.parzialeCount} corrette</div>}
             </div>
-            {dom.vitigni.map(v => {
+            {(dom.vitigni || (Array.isArray(dom.elementi) ? dom.elementi : dom.elementi?.voci || [])).map(v => {
               const giusta = dom.risposta_giusta[v]
               const ok = feedback.scelta?.[v] === giusta
               // Extract per-vitigno note from the global spiegazione (sentence containing the vitigno name)
@@ -767,7 +767,7 @@ export default function Learning() {
             <div style={{ fontSize: 12, color: medio, marginBottom: 10 }}>
               <span style={{ fontWeight: 700 }}>{dom.istruzione_sx}</span> → <span style={{ fontWeight: 700 }}>{dom.istruzione_dx}</span>
             </div>
-            {dom.coppie.map(({ sx }, i) => (
+            {(dom.coppie || []).map(({ sx }, i) => (
               <div key={sx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <div style={{ flex: '0 0 40%', ...card, padding: '8px 12px', margin: 0, fontSize: 13, fontWeight: 600, color: scuro }}>{sx}</div>
                 <span style={{ color: medio }}>→</span>
@@ -775,11 +775,11 @@ export default function Learning() {
                   onChange={e => setAbbinamentoRisposte(prev => ({ ...prev, [sx]: e.target.value }))}
                   style={{ flex: 1, padding: '8px 10px', border: `1.5px solid ${chiaro}`, borderRadius: 10, fontSize: 13, color: scuro, background: '#fff', fontFamily: '"DM Sans", sans-serif' }}>
                   <option value=''>—</option>
-                  {dom.coppie.map(({ dx }) => <option key={dx} value={dx}>{dx}</option>)}
+                  {(dom.coppie || []).map(({ dx }) => <option key={dx} value={dx}>{dx}</option>)}
                 </select>
               </div>
             ))}
-            <button style={{ ...btnPrimary, marginTop: 10, opacity: Object.keys(abbinamentoRisposte).length === dom.coppie.length ? 1 : 0.5 }}
+            <button style={{ ...btnPrimary, marginTop: 10, opacity: Object.keys(abbinamentoRisposte).length === (dom.coppie || []).length ? 1 : 0.5 }}
               disabled={Object.keys(abbinamentoRisposte).length !== dom.coppie.length}
               onClick={() => correggiAbbinamento()}>
               {tx('conferma')}
