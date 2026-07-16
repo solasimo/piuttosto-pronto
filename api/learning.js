@@ -94,7 +94,10 @@ export default async function handler(req, res) {
           }
           // Normalizza risposta corretta
           let risposta_giusta = d.corretta
-          if (typeof risposta_giusta === 'string') {
+          // corretta arriva da JSONB: può essere booleano, stringa con virgolette, stringa pura
+          if (typeof risposta_giusta === 'boolean') {
+            risposta_giusta = risposta_giusta ? 'V' : 'F'
+          } else if (typeof risposta_giusta === 'string') {
             risposta_giusta = risposta_giusta.replace(/^"|"$/g,'')
             if (risposta_giusta === 'true') risposta_giusta = 'V'
             if (risposta_giusta === 'false') risposta_giusta = 'F'

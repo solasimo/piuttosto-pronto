@@ -219,6 +219,11 @@ export default function Learning() {
   const [mappaRisposte, setMappaRisposte] = useState({})
 
   const dom = domande[idx] || null
+  // Safety: se dom è null o il tipo non è riconosciuto, vai avanti automaticamente
+  if (vista === 'gioco' && !feedback && dom && !['multipla','vero_falso','aperta','elenco','classifica_colore','abbinamento','mappa'].includes(dom.tipo)) {
+    if (idx < domande.length - 1) { setIdx(i => i + 1); setFeedback(null); setTesto(''); setClassificaRisposte({}); setAbbinamentoRisposte({}) }
+    else setVista('fine')
+  }
 
   // ── Avvia sessione ───────────────────────────────────────────────
   async function avvia(livello, categoria, sottocat = null) {
@@ -261,7 +266,7 @@ export default function Learning() {
     if (feedback) return
     const giuste = dom.risposta_giusta
     let nCorr = 0
-    Object.keys(giuste).forEach(v => { if (classificaRisposte[v] === giuste[v]) nCorr++ })
+    Object.keys(giuste).forEach(v => { if ((classificaRisposte[v]||'').toLowerCase() === (giuste[v]||'').toLowerCase()) nCorr++ })
     const tot = Object.keys(giuste).length
     const ok = nCorr === tot
     const isParz = !ok && nCorr > 0
@@ -282,8 +287,8 @@ export default function Learning() {
   async function correggiAbbinamento() {
     if (feedback) return
     let nCorr = 0
-    dom.coppie.forEach(({ sx, dx }) => { if (abbinamentoRisposte[sx] === dx) nCorr++ })
-    const tot = dom.coppie.length
+    ;(dom.coppie || []).forEach(({ sx, dx }) => { if ((abbinamentoRisposte[sx]||'').toLowerCase() === (dx||'').toLowerCase()) nCorr++ })
+    const tot = (dom.coppie || []).length
     const ok = nCorr === tot
     const isParz = !ok && nCorr > 0
     if (ok) setNCorrQ(n => n + 1)
@@ -703,7 +708,7 @@ export default function Learning() {
               <div key={v} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...card, padding: '10px 14px', marginBottom: 8 }}>
                 <span style={{ fontSize: 14, fontWeight: 600, color: scuro }}>{v}</span>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {(dom.elementi?.opzioni || ['bianco', 'rosso']).map(col => {
+                  {(dom.elementi?.opzioni || (dom.risposta_giusta && typeof dom.risposta_giusta === 'object' ? Object.values(dom.risposta_giusta).filter((v,i,a)=>a.indexOf(v)===i) : ['bianco','rosso'])).map(col => {
                     const sel = (classificaRisposte[v] === col)
                     return (
                       <button key={col} onClick={() => setClassificaRisposte(prev => ({ ...prev, [v]: col }))}
@@ -735,7 +740,7 @@ export default function Learning() {
             </div>
             {(dom.vitigni || (Array.isArray(dom.elementi) ? dom.elementi : dom.elementi?.voci || [])).map(v => {
               const giusta = dom.risposta_giusta[v]
-              const ok = feedback.scelta?.[v] === giusta
+              const ok = (feedback.scelta?.[v]||'').toLowerCase() === (giusta||'').toLowerCase()
               // Extract per-vitigno note from the global spiegazione (sentence containing the vitigno name)
               const spiegazione = dom.spiegazione || ''
               const frasi = spiegazione.split(/(?<=[.!?])\s+/)
@@ -797,7 +802,7 @@ export default function Learning() {
               </div>
               {!isOk && <div style={{ fontSize: 12, color: medio, marginTop: 2 }}>{feedback.parzialeCount} corrette</div>}
             </div>
-            {dom.coppie.map(({ sx, dx }) => {
+            {(dom.coppie || []).map(({ sx, dx }) => {
               const ok = feedback.scelta?.[sx] === dx
               return (
                 <div key={sx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
