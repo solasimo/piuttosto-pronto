@@ -38,7 +38,8 @@ export default async function handler(req, res) {
       }
 
       case 'get_kb_domande': {
-        const { sottocategoria, n = 15, lingua } = payload
+        const { sottocategoria, n = 15, lingua, categoria: catPayload } = payload
+        const categoria = catPayload || 'vino'
         const tipi = ['multipla','vero_falso','aperta','elenco','classifica_colore','abbinamento']
         let domande = []
         // Almeno 1 per tipo garantita
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
             .from('learning_kb')
             .select('*')
             .eq('livello', 1)
-            .eq('categoria', 'vino')
+            .eq('categoria', categoria)
             .eq('sottocategoria', sottocategoria)
             .eq('tipo', tipo)
           if (pool && pool.length > 0) {
@@ -60,7 +61,7 @@ export default async function handler(req, res) {
           .from('learning_kb')
           .select('*')
           .eq('livello', 1)
-          .eq('categoria', 'vino')
+          .eq('categoria', categoria)
           .eq('sottocategoria', sottocategoria)
           .limit(200)
         if (extra) {
