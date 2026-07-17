@@ -36,7 +36,7 @@ const TX = {
     tutto: 'Tutto', tuttosub: 'Tutti i livelli',
     progressi_btn: '📊 I tuoi progressi',
     scegli_cat: 'Scegli argomento',
-    cat_vino: '🍷 Vino', cat_birra: '🍺 Birra', cat_dist: '🥃 Distillati', cat_tutto: '🎯 Tutto il livello', scegli_subcat: 'Scegli un argomento', sub_viticoltura: '🌿 Viticoltura', sub_enologia: '⚗️ Enologia', sub_degustazione: '👅 Degustazione', sub_tutto_vino: '🍷 Tutto il vino', sub_birra: '🍺 Birra',
+    cat_vino: '🍷 Vino', cat_birra: '🍺 Birra', cat_dist: '🥃 Distillati', cat_tutto: '🎯 Tutto il livello', scegli_subcat: 'Scegli un argomento', sub_viticoltura: '🌿 Viticoltura', sub_enologia: '⚗️ Enologia', sub_degustazione: '👅 Degustazione', sub_tutto_vino: '🍷 Tutto il vino', sub_birra: '🍺 Birra', sub_distillati: '🥃 Distillati e Liquori',
     scegli_cat_l2: 'Scegli paese',
     cat_italia: '🇮🇹 Italia',
     cat_francia: '🇫🇷 Francia',
@@ -86,7 +86,7 @@ const TX = {
     tutto: 'Everything', tuttosub: 'All levels',
     progressi_btn: '📊 Your progress',
     scegli_cat: 'Choose topic',
-    cat_vino: '🍷 Wine', cat_birra: '🍺 Beer', cat_dist: '🥃 Spirits', cat_tutto: '🎯 Entire level', scegli_subcat: 'Choose a topic', sub_viticoltura: '🌿 Viticulture', sub_enologia: '⚗️ Enology', sub_degustazione: '👅 Tasting', sub_tutto_vino: '🍷 All wine', sub_birra: '🍺 Beer',
+    cat_vino: '🍷 Wine', cat_birra: '🍺 Beer', cat_dist: '🥃 Spirits', cat_tutto: '🎯 Entire level', scegli_subcat: 'Choose a topic', sub_viticoltura: '🌿 Viticulture', sub_enologia: '⚗️ Enology', sub_degustazione: '👅 Tasting', sub_tutto_vino: '🍷 All wine', sub_birra: '🍺 Beer', sub_distillati: '🥃 Spirits & Liqueurs',
     scegli_cat_l2: 'Choose country',
     cat_italia: '🇮🇹 Italy',
     cat_francia: '🇫🇷 France',
@@ -136,7 +136,7 @@ const TX = {
     tutto: 'Tout', tuttosub: 'Tous les niveaux',
     progressi_btn: '📊 Vos progrès',
     scegli_cat: 'Choisir le sujet',
-    cat_vino: '🍷 Vin', scegli_subcat: 'Choisir un sujet', sub_viticoltura: '🌿 Viticulture', sub_enologia: '⚗️ Œnologie', sub_degustazione: '👅 Dégustation', sub_tutto_vino: '🍷 Tout le vin', sub_birra: '🍺 Bière', cat_birra: '🍺 Bière', cat_dist: '🥃 Spiritueux', cat_tutto: '🎯 Tout le niveau',
+    cat_vino: '🍷 Vin', scegli_subcat: 'Choisir un sujet', sub_viticoltura: '🌿 Viticulture', sub_enologia: '⚗️ Œnologie', sub_degustazione: '👅 Dégustation', sub_tutto_vino: '🍷 Tout le vin', sub_birra: '🍺 Bière', sub_distillati: '🥃 Spiritueux et Liqueurs', cat_birra: '🍺 Bière', cat_dist: '🥃 Spiritueux', cat_tutto: '🎯 Tout le niveau',
     scegli_cat_l2: 'Choisir le pays',
     cat_italia: '🇮🇹 Italie',
     cat_francia: '🇫🇷 France',
@@ -571,7 +571,7 @@ export default function Learning() {
       ].map(({ label, cat }) => (
         <button key={label}
           style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
-          onClick={() => cat === 'vino' ? setVista('subcat_vino') : cat === 'birra' ? avvia(1, 'birra', 'birra') : avvia(cat ? 1 : null, cat)}>
+          onClick={() => cat === 'vino' ? setVista('subcat_vino') : cat === 'birra' ? avvia(1, 'birra', 'birra') : cat === 'distillati' ? avvia(1, 'distillati', 'distillati') : avvia(cat ? 1 : null, cat)}>
           <span style={{ fontSize: 15, fontWeight: 600, color: scuro }}>{label}</span>
           <span style={{ color: oro }}>→</span>
         </button>
