@@ -538,10 +538,13 @@ export default function Atlante({ initialPaese }) {
         }),
         focus_points: regioneData.focus_points,
       })
-      // Svizzera: usa KB fissa. Altri paesi: genera con AI
+      // Svizzera/Italia: usa KB fissa. Altri paesi: genera con AI
       const isSwiss = paese === 'svizzera'
-      const action = isSwiss ? 'get_swiss_quiz' : 'genera_esercizi_regione'
+      const isItalia = paese === 'italia'
+      const action = isSwiss ? 'get_swiss_quiz' : isItalia ? 'get_italia_quiz' : 'genera_esercizi_regione'
       const payload = isSwiss
+        ? { regione_id: selected?.toUpperCase(), lingua: getLingua() }
+        : isItalia
         ? { regione_id: selected?.toUpperCase(), lingua: getLingua() }
         : { regione: regioneCtx, regione_nome: regioneData.regione_nome, lingua: getLingua() }
       const res = await fetch('/api/learning', {

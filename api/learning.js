@@ -456,6 +456,45 @@ Rispondi SOLO con JSON valido, nessun testo extra:
         return res.json({ domande })
       }
 
+
+      case 'get_italia_quiz': {
+        const { regione_id, lingua } = payload
+        // Estrae domande random dalla KB fissa italiana, almeno 1 per tipo, totale 15
+        const tipi = ['multipla','vero_falso','aperta','elenco','classifica_colore','abbinamento']
+        let domande = []
+        // 1 domanda garantita per ogni tipo
+        for (const tipo of tipi) {
+          const { data: pool } = await supabase
+            .from('italia_quiz_kb')
+            .select('*')
+            .eq('regione_id', regione_id)
+            .eq('tipo', tipo)
+          if (pool && pool.length > 0) {
+            const r = pool[Math.floor(Math.random() * pool.length)]
+            domande.push({ ...r, regione: r.regione_id })
+          }
+        }
+        // Riempi fino a 15 con domande random miste
+        const { data: extra } = await supabase
+          .from('italia_quiz_kb')
+          .select('*')
+          .eq('regione_id', regione_id)
+          .limit(100)
+        if (extra) {
+          const shuffled = extra.sort(() => Math.random() - 0.5)
+          const usedIds = new Set(domande.map(d => d.id))
+          for (const d of shuffled) {
+            if (domande.length >= 15) break
+            if (!usedIds.has(d.id)) {
+              domande.push({ ...d, regione: d.regione_id })
+              usedIds.add(d.id)
+            }
+          }
+        }
+        domande = domande.sort(() => Math.random() - 0.5)
+        return res.json({ domande })
+      }
+
       case 'get_swiss_quiz': {
         const { regione_id, lingua } = payload
         // Estrae domande random dalla KB fissa, almeno 1 per tipo, totale 15
