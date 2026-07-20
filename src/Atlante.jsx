@@ -627,7 +627,7 @@ export default function Atlante({ initialPaese }) {
     let ok = false
     if (dom.tipo === 'mappa_sottozone') return // handled by its own confirm button
     if (dom.tipo === 'multipla' || dom.tipo === 'comuni') ok = scelta === dom.corretta
-    else if (dom.tipo === 'vero_falso') ok = scelta === dom.corretta
+    else if (dom.tipo === 'vero_falso') { const c = dom.corretta; const corr = typeof c === 'boolean' ? c : c === 'true' || c === true; ok = scelta === corr }
     else if (dom.tipo === 'flash') ok = true // self-assessed
     setErRisposta(scelta)
     setErFeedback({ ok, spiegazione: dom.spiegazione || '' })
@@ -1616,7 +1616,7 @@ export default function Atlante({ initialPaese }) {
               <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
                 {[true, false].map(val => {
                   const isSelected = mqRisposta === val
-                  const isCorrect = mqFeedback && val === dom.corretta
+                  const _mq_corr = typeof dom.corretta === 'boolean' ? dom.corretta : dom.corretta === 'true'; const isCorrect = mqFeedback && val === _mq_corr
                   const isWrong = mqFeedback && isSelected && !mqFeedback.ok
                   return (
                     <button key={String(val)} onClick={() => mqRispondi(val)}
