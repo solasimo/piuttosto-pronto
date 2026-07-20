@@ -345,6 +345,8 @@ export default function Atlante({ initialPaese }) {
   const [erFeedback, setErFeedback] = useState(null)   // { ok, spiegazione }
   const [erLoading, setErLoading] = useState(false)
   const [erScore, setErScore] = useState({ corr: 0, tot: 0 })
+  const [erMappaRisposte, setErMappaRisposte] = useState({})  // { idx: testo } per domande mappa_sottozone
+  const [erMappaSelected, setErMappaSelected] = useState(null) // indice sottozona selezionata
   const [erInputAperta, setErInputAperta] = useState('')
   const [erApertaLoading, setErApertaLoading] = useState(false)
   const [erClassifica, setErClassifica] = useState({})
@@ -511,6 +513,8 @@ export default function Atlante({ initialPaese }) {
     setErRisposta(null)
     setErFeedback(null)
     setErScore({ corr: 0, tot: 0 })
+    setErMappaRisposte({})
+    setErMappaSelected(null)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const regioneCtx = JSON.stringify({
@@ -554,7 +558,16 @@ export default function Atlante({ initialPaese }) {
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Errore generazione')
-      setErDomande(d.domande || [])
+      // Inietta domanda mappa_sottozone se la regione ha sottozone
+      const sottozonePerMappa = (regioneData?.sottozone || []).filter(sz => sz.nome)
+      const mappaDomanda = sottozonePerMappa.length >= 2 ? [{
+        tipo: 'mappa_sottozone',
+        domanda: `Identifica le sottozone/zone di ${regioneData.regione_nome} sulla mappa`,
+        sottozone: sottozonePerMappa.map(sz => ({ nome: sz.nome })),
+        spiegazione: `Le zone di ${regioneData.regione_nome}: ${sottozonePerMappa.map(sz => sz.nome).join(', ')}`,
+      }] : []
+      const domandeMix = [...(d.domande || []), ...mappaDomanda].sort(() => Math.random() - 0.5)
+      setErDomande(domandeMix)
     } catch (e) {
       setErDomande([{ tipo: 'errore', testo: e.message }])
     }
@@ -612,6 +625,7 @@ export default function Atlante({ initialPaese }) {
     if (erFeedback) return
     const dom = erDomande[erIdx]
     let ok = false
+    if (dom.tipo === 'mappa_sottozone') return // handled by its own confirm button
     if (dom.tipo === 'multipla' || dom.tipo === 'comuni') ok = scelta === dom.corretta
     else if (dom.tipo === 'vero_falso') ok = scelta === dom.corretta
     else if (dom.tipo === 'flash') ok = true // self-assessed
@@ -785,7 +799,7 @@ export default function Atlante({ initialPaese }) {
             {/* Card domanda */}
             <div style={{ ...card, borderColor: terra, marginBottom: 12 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: terra, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
-                {dom.tipo === 'multipla' ? 'Scelta multipla' : dom.tipo === 'vero_falso' ? 'Vero o Falso' : dom.tipo === 'flash' ? 'Flash card' : dom.tipo === 'abbinamento' ? 'Abbinamento' : dom.tipo === 'classifica_colore' ? 'Classifica vitigni' : dom.tipo === 'aperta' ? 'Risposta aperta' : dom.tipo === 'elenco' ? 'Elenco' : dom.tipo === 'comuni' ? 'Comuni' : 'Domanda'}
+                {dom.tipo === 'multipla' ? 'Scelta multipla' : dom.tipo === 'vero_falso' ? 'Vero o Falso' : dom.tipo === 'flash' ? 'Flash card' : dom.tipo === 'abbinamento' ? 'Abbinamento' : dom.tipo === 'classifica_colore' ? 'Classifica vitigni' : dom.tipo === 'aperta' ? 'Risposta aperta' : dom.tipo === 'elenco' ? 'Elenco' : dom.tipo === 'comuni' ? 'Comuni' : dom.tipo === 'mappa_sottozone' ? 'Mappa Sottozone' : 'Domanda'}
               </div>
               <div style={{ fontSize: 15, fontWeight: 600, color: scuro, lineHeight: 1.5 }}>
                 {dom.domanda || dom.testo}
@@ -980,6 +994,108 @@ export default function Atlante({ initialPaese }) {
                       <div style={{ fontSize: 12, color: ok ? verde : '#9B2335', marginTop: 4 }}>
                         {ok ? `✓ ${corretta_map?.[sx]}` : `✗ → ${corretta_map?.[sx]}`}
                       </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Mappa Sottozone — renderer interattivo */}
+            {dom.tipo === 'mappa_sottozone' && !erFeedback && (
+              <div>
+                <div style={{ fontSize: 12, color: medio, marginBottom: 10 }}>
+                  Clicca su ogni zona e scrivi il nome corretto.
+                </div>
+                {/* Mappa SVG con sottozone colorate */}
+                {REGION_MAPS?.[selected?.toUpperCase()] && (
+                  <div style={{ ...card, padding: 8, marginBottom: 12 }}>
+                    <MappaRegione
+                      regione_id={selected?.toUpperCase()}
+                      sottozone={regioneData?.sottozone || []}
+                      onSelectZona={(i) => { setErMappaSelected(i) }}
+                      selectedZona={erMappaSelected}
+                      REGION_MAPS={REGION_MAPS}
+                    />
+                  </div>
+                )}
+                {/* Lista zone da compilare */}
+                {(dom.sottozone || []).map((sz, i) => {
+                  const isSel = erMappaSelected === i
+                  const risposta = erMappaRisposte[i]
+                  return (
+                    <div key={i} onClick={() => setErMappaSelected(i)}
+                      style={{ ...card, cursor: 'pointer', marginBottom: 6,
+                        borderColor: isSel ? terra : risposta ? '#B8956A' : chiaro,
+                        background: isSel ? '#FEF9F3' : '#fff',
+                        display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: isSel ? terra : '#EEE',
+                        color: isSel ? '#fff' : medio, fontSize: 11, fontWeight: 700,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {i+1}
+                      </div>
+                      {risposta
+                        ? <span style={{ fontSize: 14, color: scuro }}>{risposta}</span>
+                        : <span style={{ fontSize: 13, color: chiaro }}>— zona {i+1} —</span>
+                      }
+                      {isSel && <span style={{ marginLeft: 'auto', fontSize: 16 }}>✏️</span>}
+                    </div>
+                  )
+                })}
+                {/* Input per zona selezionata */}
+                {erMappaSelected !== null && (
+                  <div style={{ ...card, borderColor: terra, marginTop: 8, marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: terra, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>
+                      Zona {erMappaSelected + 1} — come si chiama?
+                    </div>
+                    <input autoFocus
+                      value={erMappaRisposte[erMappaSelected] || ''}
+                      onChange={e => setErMappaRisposte(r => ({ ...r, [erMappaSelected]: e.target.value }))}
+                      onKeyDown={e => { if (e.key === 'Enter' && e.target.value.trim()) {
+                        const next = (dom.sottozone || []).findIndex((_, i) => i > erMappaSelected && erMappaRisposte[i] === undefined)
+                        setErMappaSelected(next >= 0 ? next : null)
+                      }}}
+                      placeholder="Scrivi il nome..."
+                      style={{ width: '100%', border: 'none', outline: 'none', fontSize: 15, color: scuro, background: 'transparent', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                )}
+                {/* Bottone conferma quando tutte le zone sono compilate */}
+                {Object.keys(erMappaRisposte).length === (dom.sottozone || []).length && (
+                  <button style={{ ...btnP, marginTop: 8 }} onClick={() => {
+                    const sottozone = dom.sottozone || []
+                    let nCorr = 0
+                    sottozone.forEach((sz, i) => {
+                      const r = (erMappaRisposte[i] || '').toLowerCase().trim()
+                      const ok = sz.nome.toLowerCase().trim().includes(r) || r.includes(sz.nome.toLowerCase().trim().substring(0, 4))
+                      if (ok) nCorr++
+                    })
+                    const ok = nCorr === sottozone.length
+                    const parziale = !ok && nCorr > 0
+                    setErScore(s => ({ corr: s.corr + (ok ? 1 : parziale ? 0.5 : 0), tot: s.tot + 1 }))
+                    setErFeedback({ ok, parziale,
+                      spiegazione: `${nCorr}/${sottozone.length} zone corrette. ${dom.spiegazione || ''}` })
+                    setErRisposta('mappa_completata')
+                  }}>Conferma mappa →</button>
+                )}
+              </div>
+            )}
+            {dom.tipo === 'mappa_sottozone' && erFeedback && (
+              <div>
+                {(dom.sottozone || []).map((sz, i) => {
+                  const r = (erMappaRisposte[i] || '').toLowerCase().trim()
+                  const ok = sz.nome.toLowerCase().trim().includes(r) || r.includes(sz.nome.toLowerCase().trim().substring(0, 4))
+                  return (
+                    <div key={i} style={{ ...card, marginBottom: 6,
+                      background: ok ? '#F0F9F4' : '#FDF0EE',
+                      borderColor: ok ? verde : '#9B2335' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>
+                        {ok ? '✓' : '✗'} Zona {i+1}: {sz.nome}
+                      </div>
+                      {!ok && erMappaRisposte[i] && (
+                        <div style={{ fontSize: 12, color: medio, marginTop: 2 }}>
+                          Hai scritto: "{erMappaRisposte[i]}"
+                        </div>
+                      )}
                     </div>
                   )
                 })}
