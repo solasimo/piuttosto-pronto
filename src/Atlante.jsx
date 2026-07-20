@@ -345,6 +345,14 @@ export default function Atlante({ initialPaese }) {
   const [erFeedback, setErFeedback] = useState(null)   // { ok, spiegazione }
   const [erLoading, setErLoading] = useState(false)
   const [erScore, setErScore] = useState({ corr: 0, tot: 0 })
+
+  // Helper: normalizza dom.corretta da JSONB (può arrivare come boolean, stringa 'true'/'false', stringa '"a"' ecc.)
+  function normVF(corretta) {
+    if (typeof corretta === 'boolean') return corretta
+    if (corretta === 'true') return true
+    if (corretta === 'false') return false
+    return corretta
+  }
   const [erMappaRisposte, setErMappaRisposte] = useState({})  // { idx: testo } per domande mappa_sottozone
   const [erMappaSelected, setErMappaSelected] = useState(null) // indice sottozona selezionata
   const [erInputAperta, setErInputAperta] = useState('')
@@ -627,7 +635,7 @@ export default function Atlante({ initialPaese }) {
     let ok = false
     if (dom.tipo === 'mappa_sottozone') return // handled by its own confirm button
     if (dom.tipo === 'multipla' || dom.tipo === 'comuni') ok = scelta === dom.corretta
-    else if (dom.tipo === 'vero_falso') { const c = dom.corretta; const corr = typeof c === 'boolean' ? c : c === 'true' || c === true; ok = scelta === corr }
+    else if (dom.tipo === 'vero_falso') ok = scelta === normVF(dom.corretta)
     else if (dom.tipo === 'flash') ok = true // self-assessed
     setErRisposta(scelta)
     setErFeedback({ ok, spiegazione: dom.spiegazione || '' })
@@ -833,7 +841,7 @@ export default function Atlante({ initialPaese }) {
               <div style={{ display: 'flex', gap: 8 }}>
                 {[true, false].map(val => {
                   const isSelected = erRisposta === val
-                  const isCorrect = erFeedback && val === dom.corretta
+                  const isCorrect = erFeedback && val === normVF(dom.corretta)
                   const isWrong = erFeedback && isSelected && !erFeedback.ok
                   return (
                     <button key={String(val)} onClick={() => erRispondi(val)}
@@ -1616,7 +1624,7 @@ export default function Atlante({ initialPaese }) {
               <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
                 {[true, false].map(val => {
                   const isSelected = mqRisposta === val
-                  const _mq_corr = typeof dom.corretta === 'boolean' ? dom.corretta : dom.corretta === 'true'; const isCorrect = mqFeedback && val === _mq_corr
+                  const isCorrect = mqFeedback && val === normVF(dom.corretta)
                   const isWrong = mqFeedback && isSelected && !mqFeedback.ok
                   return (
                     <button key={String(val)} onClick={() => mqRispondi(val)}
