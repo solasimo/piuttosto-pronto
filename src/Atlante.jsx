@@ -660,8 +660,9 @@ export default function Atlante({ initialPaese }) {
       const { data: { session } } = await supabase.auth.getSession()
       const paeseLabel = COUNTRY_DATA[paese]?.label || paese
       const isSvizzeraMega = paese === 'svizzera'
-      const megaAction = isSvizzeraMega ? 'get_swiss_mega_quiz' : 'genera_mega_quiz'
-      const megaPayload = isSvizzeraMega
+      const isItaliaMega = paese === 'italia'
+      const megaAction = isSvizzeraMega ? 'get_swiss_mega_quiz' : isItaliaMega ? 'get_italia_mega_quiz' : 'genera_mega_quiz'
+      const megaPayload = (isSvizzeraMega || isItaliaMega)
         ? { lingua: getLingua() }
         : { paese, paese_nome: paeseLabel, lingua: getLingua() }
       const res = await fetch('/api/learning', {

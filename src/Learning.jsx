@@ -261,6 +261,35 @@ export default function Learning() {
   }
 
 
+  // ── Avvia sessione Italia KB (per regione) ───────────────────────
+  async function avviaItaliaKB(regione_id) {
+    setLoading(true)
+    setErrore('')
+    setVista('loading')
+    try {
+      const d = await api('get_italia_quiz', { regione_id, lingua: getLingua() })
+      setSessId(d.sessione_id)
+      setSessLivello(2)
+      setSessCategoria('italia')
+      setSessSottocat(regione_id)
+      setDomande(d.domande)
+      setIdx(0)
+      setNCorrQ(0)
+      setFeedback(null)
+      setTesto('')
+      setClassificaRisposte({})
+      setAbbinamentoRisposte({})
+      setMappaRisposte({})
+      setTStart(Date.now())
+      setSessStart(Date.now())
+      setVista('gioco')
+    } catch (item) {
+      setErrore(item.message)
+      setVista('errore')
+    }
+    setLoading(false)
+  }
+
   // ── Correggi classifica colore ───────────────────────────────────
   async function correggiClassifica() {
     if (feedback) return
@@ -535,19 +564,19 @@ export default function Learning() {
       <span style={label10}>{tx('scegli_cat_l2')}</span>
 
       {[
-        { label: tx('cat_italia'),     arg: 'italia' },
-        { label: tx('cat_francia'),    arg: 'francia' },
-        { label: tx('cat_germania'),   arg: 'germania' },
-        { label: tx('cat_austria'),    arg: 'austria' },
-        { label: tx('cat_spagna'),     arg: 'spagna' },
-        { label: tx('cat_portogallo'), arg: 'portogallo' },
-        { label: tx('cat_svizzera'),   arg: 'svizzera' },
-        { label: tx('cat_sinonimi'),   arg: 'vecchio_mondo' },
-        { label: tx('cat_tutto_l2'),   arg: null },
-      ].map(({ label, arg }) => (
+        { label: tx('cat_italia'),     arg: 'italia',      kb: true },
+        { label: tx('cat_francia'),    arg: 'francia',     kb: false },
+        { label: tx('cat_germania'),   arg: 'germania',    kb: false },
+        { label: tx('cat_austria'),    arg: 'austria',     kb: false },
+        { label: tx('cat_spagna'),     arg: 'spagna',      kb: false },
+        { label: tx('cat_portogallo'), arg: 'portogallo',  kb: false },
+        { label: tx('cat_svizzera'),   arg: 'svizzera',    kb: false },
+        { label: tx('cat_sinonimi'),   arg: 'vecchio_mondo', kb: false },
+        { label: tx('cat_tutto_l2'),   arg: null,          kb: false },
+      ].map(({ label, arg, kb }) => (
         <button key={label}
           style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
-          onClick={() => avvia(2, arg)}>
+          onClick={() => kb ? setVista('subcat_italia') : avvia(2, arg)}>
           <span style={{ fontSize: 14, fontWeight: 600, color: scuro, textAlign: 'left', lineHeight: 1.4 }}>{label}</span>
           <span style={{ color: oro, flexShrink: 0, marginLeft: 8 }}>→</span>
         </button>
@@ -598,6 +627,46 @@ export default function Learning() {
           onClick={() => avvia(1, 'vino', sub)}>
           <span style={{ fontSize: 15, fontWeight: 600, color: scuro }}>{label}</span>
           <span style={{ color: oro }}>→</span>
+        </button>
+      ))}
+    </div>
+  )
+
+  // ── Sottocategorie Italia L2 (KB per regione) ───────────────────
+  if (vista === 'subcat_italia') return (
+    <div style={{ paddingBottom: 40 }}>
+      <button style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', padding: '0 0 16px', fontFamily: '"DM Sans", sans-serif' }}
+        onClick={() => setVista('cat_l2')}>{tx('indietro')}</button>
+
+      <span style={label10}>🇮🇹 {tx('cat_italia')} — scegli regione</span>
+
+      {[
+        { label: '🏔️ Valle d\'Aosta',       id: 'VDA' },
+        { label: '🍷 Piemonte',             id: 'PIE' },
+        { label: '🌊 Liguria',              id: 'LIG' },
+        { label: '🏙️ Lombardia',            id: 'LOM' },
+        { label: '🍎 Trentino-Alto Adige',  id: 'TAA' },
+        { label: '🌿 Veneto',               id: 'VEN' },
+        { label: '🦁 Friuli-Venezia Giulia',id: 'FVG' },
+        { label: '🌾 Emilia-Romagna',       id: 'EMR' },
+        { label: '🌹 Toscana',              id: 'TOS' },
+        { label: '⚜️ Umbria',               id: 'UMB' },
+        { label: '🌊 Marche',               id: 'MAR' },
+        { label: '🏛️ Lazio',                id: 'LAZ' },
+        { label: '🏔️ Abruzzo',              id: 'ABR' },
+        { label: '🌿 Molise',               id: 'MOL' },
+        { label: '☀️ Campania',             id: 'CAM' },
+        { label: '🌞 Puglia',               id: 'PUG' },
+        { label: '🌋 Basilicata',           id: 'BAS' },
+        { label: '🌊 Calabria',             id: 'CAL' },
+        { label: '🍊 Sicilia',              id: 'SIC' },
+        { label: '🏖️ Sardegna',             id: 'SAR' },
+      ].map(({ label, id }) => (
+        <button key={id}
+          style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}`, marginBottom: 6 }}
+          onClick={() => avviaItaliaKB(id)}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: scuro, textAlign: 'left', lineHeight: 1.4 }}>{label}</span>
+          <span style={{ color: oro, flexShrink: 0, marginLeft: 8 }}>→</span>
         </button>
       ))}
     </div>

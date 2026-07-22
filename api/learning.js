@@ -425,6 +425,47 @@ Rispondi SOLO con JSON valido, nessun testo extra:
 
 
 
+      case 'get_italia_mega_quiz': {
+        // 25 domande random da tutta la KB italiana - almeno 1 per macro-area
+        const macroAree = [
+          ['VDA','PIE','LOM'],       // Nord-Ovest
+          ['TAA','VEN','FVG'],       // Nord-Est
+          ['LIG','EMR'],             // Centro-Nord
+          ['TOS','UMB','MAR','LAZ'], // Centro
+          ['ABR','MOL','CAM'],       // Centro-Sud
+          ['PUG','BAS','CAL'],       // Sud
+          ['SIC','SAR'],             // Isole
+        ]
+        let domande = []
+        const usedIds = new Set()
+        // Almeno 1 domanda per macro-area (7 garantite)
+        for (const area of macroAree) {
+          const { data: pool } = await supabase
+            .from('italia_quiz_kb').select('*')
+            .in('regione_id', area)
+          if (pool && pool.length > 0) {
+            const r = pool[Math.floor(Math.random() * pool.length)]
+            domande.push({ ...r, regione: r.regione_id })
+            usedIds.add(r.id)
+          }
+        }
+        // Riempi fino a 25 con domande random miste
+        const { data: extra } = await supabase
+          .from('italia_quiz_kb').select('*').limit(500)
+        if (extra) {
+          const shuffled = extra.sort(() => Math.random() - 0.5)
+          for (const d of shuffled) {
+            if (domande.length >= 25) break
+            if (!usedIds.has(d.id)) {
+              domande.push({ ...d, regione: d.regione_id })
+              usedIds.add(d.id)
+            }
+          }
+        }
+        domande = domande.sort(() => Math.random() - 0.5)
+        return res.json({ domande })
+      }
+
       case 'get_swiss_mega_quiz': {
         // 25 domande random da tutta la KB svizzera - tutte le tipologie
         let domande = []
@@ -492,7 +533,49 @@ Rispondi SOLO con JSON valido, nessun testo extra:
           }
         }
         domande = domande.sort(() => Math.random() - 0.5)
-        return res.json({ domande })
+        // Normalizza campi KB → formato Learning
+        const normalize = (d) => {
+          // opzioni: {a,b,c,d} → {A,B,C,D}
+          let opzioni = d.opzioni
+          if (opzioni && typeof opzioni === 'object' && !Array.isArray(opzioni)) {
+            const hasLower = Object.keys(opzioni).some(k => k === k.toLowerCase())
+            if (hasLower) {
+              const up = {}
+              for (const [k,v] of Object.entries(opzioni)) up[k.toUpperCase()] = v
+              opzioni = up
+            }
+          }
+          // corretta: '"a"' o 'a' → 'A' (multipla); boolean/string per vero_falso
+          let risposta_giusta = d.corretta
+          if (d.tipo === 'multipla') {
+            const raw = typeof d.corretta === 'string' ? d.corretta.replace(/"/g,'') : d.corretta
+            risposta_giusta = String(raw).toUpperCase()
+          } else if (d.tipo === 'vero_falso') {
+            if (typeof d.corretta === 'boolean') risposta_giusta = d.corretta
+            else if (d.corretta === 'true') risposta_giusta = true
+            else if (d.corretta === 'false') risposta_giusta = false
+            else risposta_giusta = d.corretta
+          } else if (d.tipo === 'abbinamento') {
+            // corretta è già un oggetto {sx:dx}
+            const raw = typeof d.corretta === 'string' ? JSON.parse(d.corretta) : d.corretta
+            risposta_giusta = raw
+          } else if (d.tipo === 'elenco' || d.tipo === 'aperta') {
+            risposta_giusta = d.risposta_modello || d.corretta
+          } else if (d.tipo === 'classifica_colore') {
+            const raw = typeof d.corretta === 'string' ? JSON.parse(d.corretta) : d.corretta
+            risposta_giusta = raw
+          }
+          return {
+            ...d,
+            opzioni,
+            risposta_giusta,
+            risposta_modello: d.risposta_modello,
+            coppie: d.tipo === 'abbinamento' && d.elementi
+              ? (() => { const el = typeof d.elementi === 'string' ? JSON.parse(d.elementi) : d.elementi; return (el.sx||[]).map((s,i)=>({sx:s,dx:(el.dx||[])[i]})) })()
+              : undefined,
+          }
+        }
+        return res.json({ domande: domande.map(normalize) })
       }
 
       case 'get_swiss_quiz': {
