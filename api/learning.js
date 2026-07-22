@@ -427,6 +427,8 @@ Rispondi SOLO con JSON valido, nessun testo extra:
 
       case 'get_italia_mega_quiz': {
         // 25 domande random da tutta la KB italiana - almeno 1 per macro-area
+        // Solo tipi compatibili con il renderer del mega quiz
+        const tipiMega = ['multipla','vero_falso']
         const macroAree = [
           ['VDA','PIE','LOM'],       // Nord-Ovest
           ['TAA','VEN','FVG'],       // Nord-Est
@@ -436,6 +438,21 @@ Rispondi SOLO con JSON valido, nessun testo extra:
           ['PUG','BAS','CAL'],       // Sud
           ['SIC','SAR'],             // Isole
         ]
+        // Normalizza corretta per il renderer Atlante
+        const normCorr = (d) => {
+          if (d.tipo === 'multipla') {
+            const raw = typeof d.corretta === 'string' ? d.corretta.replace(/"/g,'').trim() : String(d.corretta)
+            return { ...d, corretta: raw, regione: d.regione_id }
+          }
+          if (d.tipo === 'vero_falso') {
+            let c = d.corretta
+            if (typeof c === 'string') c = c.replace(/"/g,'').trim()
+            if (c === 'true') c = true
+            else if (c === 'false') c = false
+            return { ...d, corretta: c, regione: d.regione_id }
+          }
+          return { ...d, regione: d.regione_id }
+        }
         let domande = []
         const usedIds = new Set()
         // Almeno 1 domanda per macro-area (7 garantite)
@@ -443,21 +460,24 @@ Rispondi SOLO con JSON valido, nessun testo extra:
           const { data: pool } = await supabase
             .from('italia_quiz_kb').select('*')
             .in('regione_id', area)
+            .in('tipo', tipiMega)
           if (pool && pool.length > 0) {
             const r = pool[Math.floor(Math.random() * pool.length)]
-            domande.push({ ...r, regione: r.regione_id })
+            domande.push(normCorr(r))
             usedIds.add(r.id)
           }
         }
         // Riempi fino a 25 con domande random miste
         const { data: extra } = await supabase
-          .from('italia_quiz_kb').select('*').limit(500)
+          .from('italia_quiz_kb').select('*')
+          .in('tipo', tipiMega)
+          .limit(500)
         if (extra) {
           const shuffled = extra.sort(() => Math.random() - 0.5)
           for (const d of shuffled) {
             if (domande.length >= 25) break
             if (!usedIds.has(d.id)) {
-              domande.push({ ...d, regione: d.regione_id })
+              domande.push(normCorr(d))
               usedIds.add(d.id)
             }
           }

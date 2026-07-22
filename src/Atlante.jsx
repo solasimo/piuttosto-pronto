@@ -634,8 +634,10 @@ export default function Atlante({ initialPaese }) {
     const dom = erDomande[erIdx]
     let ok = false
     if (dom.tipo === 'mappa_sottozone') return // handled by its own confirm button
-    if (dom.tipo === 'multipla' || dom.tipo === 'comuni') ok = scelta === dom.corretta
-    else if (dom.tipo === 'vero_falso') ok = scelta === normVF(dom.corretta)
+    if (dom.tipo === 'multipla' || dom.tipo === 'comuni') {
+      const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim() : dom.corretta
+      ok = scelta === corrVal
+    } else if (dom.tipo === 'vero_falso') ok = scelta === normVF(dom.corretta)
     else if (dom.tipo === 'flash') ok = true // self-assessed
     setErRisposta(scelta)
     setErFeedback({ ok, spiegazione: dom.spiegazione || '' })
@@ -683,9 +685,12 @@ export default function Atlante({ initialPaese }) {
     if (mqFeedback) return
     const dom = mqDomande[mqIdx]
     let ok = false
-    if (dom.tipo === 'multipla' || dom.tipo === 'comuni') ok = scelta === dom.corretta
-    else if (dom.tipo === 'vero_falso') ok = scelta === dom.corretta
-    else if (dom.tipo === 'flash') ok = true
+    if (dom.tipo === 'multipla' || dom.tipo === 'comuni') {
+      const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim() : dom.corretta
+      ok = scelta === corrVal
+    } else if (dom.tipo === 'vero_falso') {
+      ok = scelta === normVF(dom.corretta)
+    } else if (dom.tipo === 'flash') ok = true
     setMqRisposta(scelta)
     setMqFeedback({ ok, spiegazione: dom.spiegazione || '' })
     setMqScore(s => ({ corr: s.corr + (ok ? 1 : 0), tot: s.tot + 1 }))
@@ -820,7 +825,8 @@ export default function Atlante({ initialPaese }) {
               const op = Array.isArray(dom.opzioni) ? dom.opzioni[['a','b','c','d'].indexOf(lettera)] : dom.opzioni?.[lettera]
               if (!op) return null
               const isSelected = erRisposta === lettera
-              const isCorrect = erFeedback && lettera === dom.corretta
+              const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim() : dom.corretta
+              const isCorrect = erFeedback && lettera === corrVal
               const isWrong = erFeedback && isSelected && !erFeedback.ok
               return (
                 <button key={lettera} onClick={() => erRispondi(lettera)}
@@ -1604,7 +1610,8 @@ export default function Atlante({ initialPaese }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
                 {['a','b','c','d'].map(lettera => {
                   const isSelected = mqRisposta === lettera
-                  const isCorrect = mqFeedback && lettera === dom.corretta
+                  const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim() : dom.corretta
+                  const isCorrect = mqFeedback && lettera === corrVal
                   const isWrong = mqFeedback && isSelected && !mqFeedback.ok
                   return (
                     <button key={lettera} onClick={() => mqRispondi(lettera)}
