@@ -557,13 +557,11 @@ Rispondi SOLO con JSON valido, nessun testo extra:
         const normalize = (d) => {
           // opzioni: {a,b,c,d} → {A,B,C,D}
           let opzioni = d.opzioni
+          if (typeof opzioni === 'string') { try { opzioni = JSON.parse(opzioni) } catch(e) { opzioni = {} } }
           if (opzioni && typeof opzioni === 'object' && !Array.isArray(opzioni)) {
-            const hasLower = Object.keys(opzioni).some(k => k === k.toLowerCase())
-            if (hasLower) {
-              const up = {}
-              for (const [k,v] of Object.entries(opzioni)) up[k.toUpperCase()] = v
-              opzioni = up
-            }
+            const up = {}
+            for (const [k,v] of Object.entries(opzioni)) up[k.toUpperCase()] = v
+            opzioni = up
           }
           // corretta: '"a"' o 'a' → 'A' (multipla); boolean/string per vero_falso
           let risposta_giusta = d.corretta
@@ -666,13 +664,11 @@ Rispondi SOLO con JSON valido, nessun testo extra:
         // Normalizza campi KB → formato Learning (stesso pattern Italia)
         const normalizeFr = (d) => {
           let opzioni = d.opzioni
+          if (typeof opzioni === 'string') { try { opzioni = JSON.parse(opzioni) } catch(e) { opzioni = {} } }
           if (opzioni && typeof opzioni === 'object' && !Array.isArray(opzioni)) {
-            const hasLower = Object.keys(opzioni).some(k => k === k.toLowerCase())
-            if (hasLower) {
-              const up = {}
-              for (const [k,v] of Object.entries(opzioni)) up[k.toUpperCase()] = v
-              opzioni = up
-            }
+            const up = {}
+            for (const [k,v] of Object.entries(opzioni)) up[k.toUpperCase()] = v
+            opzioni = up
           }
           let risposta_giusta = d.corretta
           if (d.tipo === 'multipla') {
