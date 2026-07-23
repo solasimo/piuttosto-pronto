@@ -392,8 +392,10 @@ export default function Learning() {
   // ── Rispondi a V/F o multipla ────────────────────────────────────
   async function rispondi(scelta) {
     if (feedback) return
-    const ok = scelta === dom.risposta_giusta
-    setFeedback({ ok, scelta, giusta: dom.risposta_giusta, spiegazione: dom.spiegazione })
+    const rg = typeof dom.risposta_giusta === 'string' ? dom.risposta_giusta.toUpperCase() : dom.risposta_giusta
+    const sc = typeof scelta === 'string' ? scelta.toUpperCase() : scelta
+    const ok = sc === rg
+    setFeedback({ ok, scelta: sc, giusta: rg, spiegazione: dom.spiegazione })
     if (ok) setNCorrQ(n => n + 1)
     try {
       await api('salva_risposta', {
@@ -809,6 +811,8 @@ export default function Learning() {
         {dom.tipo === 'multipla' && (
           <div style={{ marginBottom: 14 }}>
             {['A', 'B', 'C', 'D'].map(opt => {
+              const opVal = dom.opzioni?.[opt] || dom.opzioni?.[opt.toLowerCase()]
+              if (!opVal) return null
               const isScelta = fb && feedback.scelta === opt
               const isGiusta = fb && feedback.giusta === opt
               const bg = !fb ? '#fff' : isGiusta ? verde : isScelta ? rosso : '#fff'
@@ -816,7 +820,7 @@ export default function Learning() {
               return (
                 <button key={opt} disabled={!!feedback} onClick={() => rispondi(opt)}
                   style={{ display: 'block', width: '100%', marginBottom: 8, padding: '12px 14px', border: `1.5px solid ${border}`, borderRadius: 10, background: bg, color: fb && (isGiusta || isScelta) ? '#fff' : scuro, fontSize: 14, textAlign: 'left', cursor: feedback ? 'default' : 'pointer', transition: 'all 0.2s', fontFamily: '"DM Sans", sans-serif' }}>
-                  <span style={{ fontWeight: 700, marginRight: 8 }}>{opt}.</span>{dom.opzioni[opt]}
+                  <span style={{ fontWeight: 700, marginRight: 8 }}>{opt}.</span>{opVal}
                 </button>
               )
             })}

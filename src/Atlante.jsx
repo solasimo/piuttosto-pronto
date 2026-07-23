@@ -638,7 +638,7 @@ export default function Atlante({ initialPaese }) {
     let ok = false
     if (dom.tipo === 'mappa_sottozone') return // handled by its own confirm button
     if (dom.tipo === 'multipla' || dom.tipo === 'comuni') {
-      const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim() : dom.corretta
+      const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim().toLowerCase() : dom.corretta
       ok = scelta === corrVal
     } else if (dom.tipo === 'vero_falso') ok = scelta === normVF(dom.corretta)
     else if (dom.tipo === 'flash') ok = true // self-assessed
@@ -690,7 +690,7 @@ export default function Atlante({ initialPaese }) {
     const dom = mqDomande[mqIdx]
     let ok = false
     if (dom.tipo === 'multipla' || dom.tipo === 'comuni') {
-      const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim() : dom.corretta
+      const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim().toLowerCase() : dom.corretta
       ok = scelta === corrVal
     } else if (dom.tipo === 'vero_falso') {
       ok = scelta === normVF(dom.corretta)
@@ -826,10 +826,10 @@ export default function Atlante({ initialPaese }) {
 
             {/* Opzioni multipla — supporta sia array che dict {a,b,c,d} */}
             {(dom.tipo === 'multipla' || dom.tipo === 'comuni') && ['a','b','c','d'].map(lettera => {
-              const op = Array.isArray(dom.opzioni) ? dom.opzioni[['a','b','c','d'].indexOf(lettera)] : dom.opzioni?.[lettera]
+              const op = Array.isArray(dom.opzioni) ? dom.opzioni[['a','b','c','d'].indexOf(lettera)] : (dom.opzioni?.[lettera] || dom.opzioni?.[lettera.toUpperCase()])
               if (!op) return null
               const isSelected = erRisposta === lettera
-              const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim() : dom.corretta
+              const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim().toLowerCase() : dom.corretta
               const isCorrect = erFeedback && lettera === corrVal
               const isWrong = erFeedback && isSelected && !erFeedback.ok
               return (
@@ -1614,7 +1614,7 @@ export default function Atlante({ initialPaese }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
                 {['a','b','c','d'].map(lettera => {
                   const isSelected = mqRisposta === lettera
-                  const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim() : dom.corretta
+                  const corrVal = typeof dom.corretta === 'string' ? dom.corretta.replace(/"/g,'').trim().toLowerCase() : dom.corretta
                   const isCorrect = mqFeedback && lettera === corrVal
                   const isWrong = mqFeedback && isSelected && !mqFeedback.ok
                   return (
@@ -1624,7 +1624,7 @@ export default function Atlante({ initialPaese }) {
                         border: `1.5px solid ${isCorrect ? verde : isWrong ? rosso : isSelected ? oro : chiaro}`,
                         color: scuro, fontWeight: isSelected ? 700 : 400 }}>
                       <span style={{ color: oro, fontWeight: 700, marginRight: 8 }}>{lettera.toUpperCase()}.</span>
-                      {dom.opzioni?.[lettera]}
+                      {dom.opzioni?.[lettera] || dom.opzioni?.[lettera.toUpperCase()]}
                     </button>
                   )
                 })}
