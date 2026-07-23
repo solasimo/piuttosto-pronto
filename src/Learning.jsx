@@ -290,6 +290,40 @@ export default function Learning() {
     setLoading(false)
   }
 
+  async function avviaFranciaKB(regione_id) {
+    setLoading(true)
+    setErrore('')
+    setVista('loading')
+    try {
+      const d = await api('get_francia_quiz', { regione_id, lingua: getLingua() })
+      if (!d.domande || d.domande.length === 0) {
+        setErrore('Nessuna domanda disponibile per questa regione. Torna più tardi.')
+        setVista('errore')
+        setLoading(false)
+        return
+      }
+      setSessId(d.sessione_id)
+      setSessLivello(2)
+      setSessCategoria('francia')
+      setSessSottocat(regione_id)
+      setDomande(d.domande)
+      setIdx(0)
+      setNCorrQ(0)
+      setFeedback(null)
+      setTesto('')
+      setClassificaRisposte({})
+      setAbbinamentoRisposte({})
+      setMappaRisposte({})
+      setTStart(Date.now())
+      setSessStart(Date.now())
+      setVista('gioco')
+    } catch (item) {
+      setErrore(item.message)
+      setVista('errore')
+    }
+    setLoading(false)
+  }
+
   // ── Correggi classifica colore ───────────────────────────────────
   async function correggiClassifica() {
     if (feedback) return
@@ -565,7 +599,7 @@ export default function Learning() {
 
       {[
         { label: tx('cat_italia'),     arg: 'italia',      kb: true },
-        { label: tx('cat_francia'),    arg: 'francia',     kb: false },
+        { label: tx('cat_francia'),    arg: 'francia',     kb: true },
         { label: tx('cat_germania'),   arg: 'germania',    kb: false },
         { label: tx('cat_austria'),    arg: 'austria',     kb: false },
         { label: tx('cat_spagna'),     arg: 'spagna',      kb: false },
@@ -576,7 +610,7 @@ export default function Learning() {
       ].map(({ label, arg, kb }) => (
         <button key={label}
           style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
-          onClick={() => kb ? setVista('subcat_italia') : avvia(2, arg)}>
+          onClick={() => arg === 'italia' ? setVista('subcat_italia') : arg === 'francia' ? setVista('subcat_francia') : avvia(2, arg)}>
           <span style={{ fontSize: 14, fontWeight: 600, color: scuro, textAlign: 'left', lineHeight: 1.4 }}>{label}</span>
           <span style={{ color: oro, flexShrink: 0, marginLeft: 8 }}>→</span>
         </button>
@@ -669,6 +703,42 @@ export default function Learning() {
           <span style={{ color: oro, flexShrink: 0, marginLeft: 8 }}>→</span>
         </button>
       ))}
+    </div>
+  )
+
+  // ── Sottocategorie Francia L2 (KB per regione) ─────────────────
+  if (vista === 'subcat_francia') return (
+    <div style={{ paddingBottom: 40 }}>
+      <button style={{ background: 'none', border: 'none', color: oro, fontSize: 13, cursor: 'pointer', padding: '0 0 16px', fontFamily: '"DM Sans", sans-serif' }}
+        onClick={() => setVista('cat_l2')}>{tx('indietro')}</button>
+
+      <span style={label10}>🇫🇷 {tx('cat_francia')} — scegli regione</span>
+
+      {[
+        { label: '🥂 Champagne',               id: 'CHAMPAGNE',             ok: true },
+        { label: '🌹 Alsazia',                  id: 'ALSACE',                ok: true },
+        { label: '🌫️ Lorena / Mosella',         id: 'LORRAINE',              ok: true },
+        { label: '🍷 Borgogna',                 id: 'BOURGOGNE',             ok: true },
+        { label: '🍇 Beaujolais',               id: 'BEAUJOLAIS',            ok: true },
+        { label: '🌊 Vallée de la Loire',       id: 'VALLEE_LOIRA',          ok: false },
+        { label: '🏰 Bordeaux',                 id: 'BORDEAUX',              ok: false },
+        { label: '⛰️ Sud-Ovest',                id: 'SUD_OUEST',             ok: false },
+        { label: '🌞 Rodano',                   id: 'RODANO',                ok: false },
+        { label: '🌺 Provenza',                 id: 'PROVENZA',              ok: false },
+        { label: '🌿 Languedoc-Roussillon',     id: 'LANGUEDOC_ROUSSILLON',  ok: false },
+        { label: '🧀 Giura e Savoia',           id: 'JURA_SAVOIA',           ok: false },
+        { label: '🏝️ Corsica',                  id: 'CORSICA',               ok: false },
+      ].map(({ label, id, ok }) => (
+        <button key={id}
+          style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: ok ? 'pointer' : 'default', border: `1.5px solid ${ok ? chiaro : '#e0e0e0'}`, marginBottom: 6, opacity: ok ? 1 : 0.45 }}
+          onClick={() => ok ? avviaFranciaKB(id) : null}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: ok ? scuro : medio, textAlign: 'left', lineHeight: 1.4 }}>{label}{!ok ? ' 🔜' : ''}</span>
+          {ok && <span style={{ color: oro, flexShrink: 0, marginLeft: 8 }}>→</span>}
+        </button>
+      ))}
+      <div style={{ fontSize: 11, color: medio, marginTop: 12, textAlign: 'center' }}>
+        🔜 = domande in arrivo con il prossimo aggiornamento
+      </div>
     </div>
   )
 

@@ -637,6 +637,115 @@ Rispondi SOLO con JSON valido, nessun testo extra:
         return res.json({ domande })
       }
 
+      case 'get_francia_quiz': {
+        const { regione_id } = payload
+        // 15 domande random dalla KB Francia, almeno 1 per tipo disponibile
+        const tipi = ['multipla','vero_falso','aperta','elenco','abbinamento']
+        let domande = []
+        for (const tipo of tipi) {
+          const { data: pool } = await supabase
+            .from('francia_quiz_kb').select('*')
+            .eq('regione_id', regione_id).eq('tipo', tipo)
+          if (pool && pool.length > 0) {
+            const r = pool[Math.floor(Math.random() * pool.length)]
+            domande.push(r)
+          }
+        }
+        const { data: extra } = await supabase
+          .from('francia_quiz_kb').select('*')
+          .eq('regione_id', regione_id).limit(100)
+        if (extra) {
+          const usedIds = new Set(domande.map(d => d.id))
+          const shuffled = extra.sort(() => Math.random() - 0.5)
+          for (const d of shuffled) {
+            if (domande.length >= 15) break
+            if (!usedIds.has(d.id)) { domande.push(d); usedIds.add(d.id) }
+          }
+        }
+        domande = domande.sort(() => Math.random() - 0.5)
+        // Normalizza campi KB → formato Learning (stesso pattern Italia)
+        const normalizeFr = (d) => {
+          let opzioni = d.opzioni
+          if (opzioni && typeof opzioni === 'object' && !Array.isArray(opzioni)) {
+            const hasLower = Object.keys(opzioni).some(k => k === k.toLowerCase())
+            if (hasLower) {
+              const up = {}
+              for (const [k,v] of Object.entries(opzioni)) up[k.toUpperCase()] = v
+              opzioni = up
+            }
+          }
+          let risposta_giusta = d.corretta
+          if (d.tipo === 'multipla') {
+            const raw = typeof d.corretta === 'string' ? d.corretta.replace(/"/g,'') : d.corretta
+            risposta_giusta = String(raw).toUpperCase()
+          } else if (d.tipo === 'vero_falso') {
+            if (typeof d.corretta === 'boolean') risposta_giusta = d.corretta
+            else if (d.corretta === 'true') risposta_giusta = true
+            else if (d.corretta === 'false') risposta_giusta = false
+            else risposta_giusta = d.corretta
+          } else if (d.tipo === 'abbinamento') {
+            const raw = typeof d.corretta === 'string' ? JSON.parse(d.corretta) : d.corretta
+            risposta_giusta = raw
+          } else if (d.tipo === 'elenco' || d.tipo === 'aperta') {
+            risposta_giusta = d.risposta_modello || d.corretta
+          }
+          return {
+            ...d, opzioni, risposta_giusta,
+            risposta_modello: d.risposta_modello,
+            coppie: d.tipo === 'abbinamento' && d.elementi
+              ? (() => { const el = typeof d.elementi === 'string' ? JSON.parse(d.elementi) : d.elementi; return (el.sx||[]).map((s,i)=>({sx:s,dx:(el.dx||[])[i]})) })()
+              : undefined,
+          }
+        }
+        return res.json({ domande: domande.map(normalizeFr) })
+      }
+
+      case 'get_francia_mega_quiz': {
+        // 25 domande random da tutta la KB Francia - almeno 1 per regione disponibile
+        const tipiMega = ['multipla','vero_falso']
+        const regioniFrancia = ['CHAMPAGNE','ALSACE','LORRAINE','BOURGOGNE','BEAUJOLAIS','VALLEE_LOIRA','BORDEAUX','SUD_OUEST','RODANO','PROVENZA','LANGUEDOC_ROUSSILLON','JURA_SAVOIA','CORSICA']
+        const normCorrFr = (d) => {
+          if (d.tipo === 'multipla') {
+            const raw = typeof d.corretta === 'string' ? d.corretta.replace(/"/g,'').trim() : String(d.corretta)
+            return { ...d, corretta: raw, regione: d.regione_id }
+          }
+          if (d.tipo === 'vero_falso') {
+            let c = d.corretta
+            if (typeof c === 'string') c = c.replace(/"/g,'').trim()
+            if (c === 'true') c = true
+            else if (c === 'false') c = false
+            return { ...d, corretta: c, regione: d.regione_id }
+          }
+          return { ...d, regione: d.regione_id }
+        }
+        let domande = []
+        const usedIds = new Set()
+        // Almeno 1 domanda per regione con dati in KB
+        for (const rid of regioniFrancia) {
+          const { data: pool } = await supabase
+            .from('francia_quiz_kb').select('*')
+            .eq('regione_id', rid).in('tipo', tipiMega)
+          if (pool && pool.length > 0) {
+            const r = pool[Math.floor(Math.random() * pool.length)]
+            domande.push(normCorrFr(r))
+            usedIds.add(r.id)
+            if (domande.length >= 25) break
+          }
+        }
+        // Riempi fino a 25 con domande random miste
+        const { data: extraFr } = await supabase
+          .from('francia_quiz_kb').select('*').in('tipo', tipiMega).limit(500)
+        if (extraFr) {
+          const shuffled = extraFr.sort(() => Math.random() - 0.5)
+          for (const d of shuffled) {
+            if (domande.length >= 25) break
+            if (!usedIds.has(d.id)) { domande.push(normCorrFr(d)); usedIds.add(d.id) }
+          }
+        }
+        domande = domande.sort(() => Math.random() - 0.5)
+        return res.json({ domande })
+      }
+
       case 'genera_esercizi_regione': {
         const { regione, regione_nome, lingua } = payload
         const linguaLabel = lingua === 'en' ? 'English' : lingua === 'fr' ? 'français' : 'italiano'

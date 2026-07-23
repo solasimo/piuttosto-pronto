@@ -550,13 +550,16 @@ export default function Atlante({ initialPaese }) {
         }),
         focus_points: regioneData.focus_points,
       })
-      // Svizzera/Italia: usa KB fissa. Altri paesi: genera con AI
+      // Svizzera/Italia/Francia: usa KB fissa. Altri paesi: genera con AI
       const isSwiss = paese === 'svizzera'
       const isItalia = paese === 'italia'
-      const action = isSwiss ? 'get_swiss_quiz' : isItalia ? 'get_italia_quiz' : 'genera_esercizi_regione'
+      const isFrancia = paese === 'francia'
+      const action = isSwiss ? 'get_swiss_quiz' : isItalia ? 'get_italia_quiz' : isFrancia ? 'get_francia_quiz' : 'genera_esercizi_regione'
       const payload = isSwiss
         ? { regione_id: selected?.toUpperCase(), lingua: getLingua() }
         : isItalia
+        ? { regione_id: selected?.toUpperCase(), lingua: getLingua() }
+        : isFrancia
         ? { regione_id: selected?.toUpperCase(), lingua: getLingua() }
         : { regione: regioneCtx, regione_nome: regioneData.regione_nome, lingua: getLingua() }
       const res = await fetch('/api/learning', {
@@ -663,8 +666,9 @@ export default function Atlante({ initialPaese }) {
       const paeseLabel = COUNTRY_DATA[paese]?.label || paese
       const isSvizzeraMega = paese === 'svizzera'
       const isItaliaMega = paese === 'italia'
-      const megaAction = isSvizzeraMega ? 'get_swiss_mega_quiz' : isItaliaMega ? 'get_italia_mega_quiz' : 'genera_mega_quiz'
-      const megaPayload = (isSvizzeraMega || isItaliaMega)
+      const isFranciaMega = paese === 'francia'
+      const megaAction = isSvizzeraMega ? 'get_swiss_mega_quiz' : isItaliaMega ? 'get_italia_mega_quiz' : isFranciaMega ? 'get_francia_mega_quiz' : 'genera_mega_quiz'
+      const megaPayload = (isSvizzeraMega || isItaliaMega || isFranciaMega)
         ? { lingua: getLingua() }
         : { paese, paese_nome: paeseLabel, lingua: getLingua() }
       const res = await fetch('/api/learning', {
