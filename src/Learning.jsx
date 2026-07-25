@@ -324,6 +324,40 @@ export default function Learning() {
     setLoading(false)
   }
 
+  async function avviaTuttoL1() {
+    setLoading(true)
+    setErrore('')
+    setVista('loading')
+    try {
+      const d = await api('get_kb_tutto_l1', { lingua: getLingua() })
+      if (!d.domande || d.domande.length === 0) {
+        setErrore('Nessuna domanda disponibile.')
+        setVista('errore')
+        setLoading(false)
+        return
+      }
+      setSessId(d.sessione_id)
+      setSessLivello(1)
+      setSessCategoria('tutto')
+      setSessSottocat(null)
+      setDomande(d.domande)
+      setIdx(0)
+      setNCorrQ(0)
+      setFeedback(null)
+      setTesto('')
+      setClassificaRisposte({})
+      setAbbinamentoRisposte({})
+      setMappaRisposte({})
+      setTStart(Date.now())
+      setSessStart(Date.now())
+      setVista('gioco')
+    } catch (e) {
+      setErrore(e.message)
+      setVista('errore')
+    }
+    setLoading(false)
+  }
+
   // ── Correggi classifica colore ───────────────────────────────────
   async function correggiClassifica() {
     if (feedback) return
@@ -558,7 +592,7 @@ export default function Learning() {
 
       {/* Tutto */}
       <button style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
-        onClick={() => avvia(null, null)}>
+        onClick={() => avviaTuttoL1()}>
         <div style={{ textAlign: 'left' }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: scuro, marginBottom: 3 }}>{tx('tutto')}</div>
           <div style={{ fontSize: 12, color: medio }}>{tx('tuttosub')}</div>
@@ -636,7 +670,7 @@ export default function Learning() {
       ].map(({ label, cat }) => (
         <button key={label}
           style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${chiaro}` }}
-          onClick={() => cat === 'vino' ? setVista('subcat_vino') : cat === 'birra' ? avvia(1, 'birra', 'birra') : cat === 'distillati' ? avvia(1, 'distillati', 'distillati') : avvia(cat ? 1 : null, cat)}>
+          onClick={() => cat === 'vino' ? setVista('subcat_vino') : cat === 'birra' ? avvia(1, 'birra', 'birra') : cat === 'distillati' ? avvia(1, 'distillati', 'distillati') : cat === 'vino' ? setVista('subcat_vino') : cat === 'birra' ? avvia(1, 'birra', 'birra') : cat === 'distillati' ? avvia(1, 'distillati', 'distillati') : avviaTuttoL1()}>
           <span style={{ fontSize: 15, fontWeight: 600, color: scuro }}>{label}</span>
           <span style={{ color: oro }}>→</span>
         </button>

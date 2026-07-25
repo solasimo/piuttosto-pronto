@@ -37,6 +37,59 @@ export default async function handler(req, res) {
         return res.json({ sample: data, filtered: d2, error: error?.message })
       }
 
+      case 'get_kb_tutto_l1': {
+        // 15 domande random da TUTTE le categorie del livello 1 — senza AI
+        const { lingua } = payload
+        const categorie = ['viticoltura','enologia','degustazione','birra','distillati']
+        let domande = []
+        // Almeno 2 domande per categoria
+        for (const cat of categorie) {
+          const { data: pool } = await supabase
+            .from('learning_kb').select('*')
+            .eq('livello', 1).eq('categoria', cat).limit(200)
+          if (pool && pool.length > 0) {
+            const shuffled = pool.sort(() => Math.random() - 0.5)
+            domande.push(...shuffled.slice(0, 3))
+          }
+        }
+        // Shuffle e tronca a 15
+        domande = domande.sort(() => Math.random() - 0.5).slice(0, 15)
+
+        let sessione_id = null
+        try {
+          const { data: sess } = await supabase.from('learning_sessioni').insert({
+            user_id: user.id, livello: 1, categoria: 'tutto',
+            n_domande: domande.length, completata: false,
+          }).select('id').single()
+          sessione_id = sess?.id || null
+        } catch (_) {}
+
+        const normalized = domande.map((d) => {
+          let opzioni = null
+          if (d.opzioni) {
+            const o = typeof d.opzioni === 'string' ? JSON.parse(d.opzioni) : d.opzioni
+            if (o.a !== undefined) opzioni = { A: o.a, B: o.b, C: o.c, D: o.d }
+            else opzioni = o
+          }
+          let risposta_giusta = d.corretta
+          if (typeof risposta_giusta === 'boolean') {
+            risposta_giusta = risposta_giusta ? 'V' : 'F'
+          } else if (typeof risposta_giusta === 'string') {
+            risposta_giusta = risposta_giusta.replace(/^"|"$/g,'')
+            if (risposta_giusta === 'true') risposta_giusta = 'V'
+            if (risposta_giusta === 'false') risposta_giusta = 'F'
+            if (risposta_giusta.length === 1 && 'abcd'.includes(risposta_giusta)) risposta_giusta = risposta_giusta.toUpperCase()
+          }
+          let elementi = d.elementi ? (typeof d.elementi === 'string' ? JSON.parse(d.elementi) : d.elementi) : null
+          let coppie = null
+          if (d.tipo === 'abbinamento' && elementi?.sx) {
+            coppie = elementi.sx.map((s, i) => ({ sx: s, dx: (elementi.dx || [])[i] }))
+          }
+          return { ...d, opzioni, risposta_giusta, elementi, coppie, spiegazione: d.spiegazione || '' }
+        })
+        return res.json({ domande: normalized, sessione_id })
+      }
+
       case 'get_kb_domande': {
         const { sottocategoria, n = 15, lingua, categoria: catPayload } = payload
         const categoria = catPayload || 'vino'
